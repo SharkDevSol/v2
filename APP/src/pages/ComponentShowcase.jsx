@@ -6,7 +6,6 @@ import Input from '../COMPONENTS/Input/Input';
 import Card from '../COMPONENTS/Card/Card';
 import Modal from '../COMPONENTS/Modal/Modal';
 import Table from '../COMPONENTS/Table/Table';
-import ThemeToggle from '../COMPONENTS/ThemeToggle/ThemeToggle';
 import LanguageSelector from '../COMPONENTS/LanguageSelector/LanguageSelector';
 import LoadingSpinner from '../COMPONENTS/LoadingSpinner/LoadingSpinner';
 import Skeleton from '../COMPONENTS/Skeleton/Skeleton';
@@ -94,7 +93,6 @@ const ComponentShowcase = () => {
         </div>
         <div className={styles.headerActions}>
           <LanguageSelector />
-          <ThemeToggle />
         </div>
       </div>
 

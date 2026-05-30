@@ -1,5 +1,5 @@
 /* Theme CSS Variables for Skoolific V2 */
-/* This file defines CSS variables for light and dark modes */
+/* This file defines CSS variables for the design system */
 
 /* Light Mode (Default) */
 :root {
@@ -125,75 +125,14 @@
   --line-height-loose: 2;
 }
 
-/* Dark Mode */
-.dark {
-  /* Background Colors */
-  --bg-primary: #111827;
-  --bg-secondary: #1f2937;
-  --bg-tertiary: #374151;
-  --bg-elevated: #1f2937;
-  --color-surface: #1f2937;
-  --color-border: #374151;
-  --color-text: #f9fafb;
-  
-  /* Text Colors */
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --text-tertiary: #9ca3af;
-  --text-inverse: #111827;
-  
-  /* Border Colors */
-  --border-primary: #374151;
-  --border-secondary: #4b5563;
-  --border-focus: #a78bfa;
-  
-  /* Brand Colors (slightly adjusted for dark mode) */
-  --color-primary: #a78bfa;
-  --color-primary-hover: #c4b5fd;
-  --color-primary-active: #ddd6fe;
-  --color-primary-light: #4c1d95;
-  
-  --color-secondary: #2dd4bf;
-  --color-secondary-hover: #5eead4;
-  --color-secondary-active: #99f6e4;
-  --color-secondary-light: #134e4a;
-  
-  --color-accent: #fbbf24;
-  --color-accent-hover: #fcd34d;
-  --color-accent-active: #fde68a;
-  --color-accent-light: #78350f;
-  
-  /* Semantic Colors (adjusted for dark mode) */
-  --color-success: #4ade80;
-  --color-success-light: #15803d;
-  --color-success-dark: #22c55e;
-  
-  --color-warning: #fbbf24;
-  --color-warning-light: #b45309;
-  --color-warning-dark: #f59e0b;
-  
-  --color-error: #f87171;
-  --color-error-light: #b91c1c;
-  --color-error-dark: #ef4444;
-  
-  --color-info: #60a5fa;
-  --color-info-light: #1d4ed8;
-  --color-info-dark: #3b82f6;
-  
-  /* Shadows (darker for dark mode) */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
-}
-
-/* Smooth transitions for theme changes */
-* {
-  transition: background-color var(--transition-base), 
-              color var(--transition-base), 
-              border-color var(--transition-base);
+/* Smooth transitions */
+*,
+*::before,
+*::after {
+  transition: background-color 0.3s ease, 
+              color 0.2s ease, 
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
 }
 
 /* Prevent transition on page load */

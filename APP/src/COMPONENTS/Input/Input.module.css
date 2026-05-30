@@ -163,16 +163,6 @@
   cursor: default;
 }
 
-/* Dark mode adjustments */
-.dark .input {
-  background-color: var(--bg-secondary);
-}
-
-.dark .input:disabled,
-.dark .input:read-only {
-  background-color: var(--bg-tertiary);
-}
-
 /* RTL support */
 [dir="rtl"] .required {
   margin-inline-start: 4px;

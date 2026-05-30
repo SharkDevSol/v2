@@ -4,10 +4,9 @@ import Breadcrumbs from './Breadcrumbs';
 import SearchBar from './SearchBar';
 import NotificationCenter from './NotificationCenter';
 import ProfileMenu from './ProfileMenu';
-import ThemeToggle from '../ThemeToggle/ThemeToggle';
 import LanguageSelector from '../LanguageSelector/LanguageSelector';
 import styles from './Header.module.css';
-import { Bell, Moon, Sun } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 /**
  * Header component with navigation utilities
@@ -101,9 +100,6 @@ const Header = ({
               <SearchBar onSearch={onSearch} />
             </div>
           )}
-
-          {/* Theme Toggle */}
-          <ThemeToggle />
 
           {/* Language Selector */}
           <LanguageSelector />

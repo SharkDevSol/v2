@@ -2,8 +2,7 @@
  * Global CSS Variables and Styles for Skoolific V2
  * 
  * This file defines comprehensive CSS variables for the design system,
- * including colors, typography, spacing, shadows, and more for both
- * light and dark modes.
+ * including colors, typography, spacing, shadows, and more.
  */
 
 /* ============================================
@@ -227,106 +226,6 @@
   
   /* Header */
   --header-height: 64px;
-}
-
-/* ============================================
-   DARK MODE Theme
-   ============================================ */
-.dark,
-.dark-mode,
-body.dark,
-body.dark-mode {
-  /* ========== Color System (Dark Mode) ========== */
-  
-  /* Primary Colors (adjusted for dark mode) */
-  --color-primary: #a78bfa;
-  --color-primary-hover: #c4b5fd;
-  --color-primary-active: #ddd6fe;
-  --color-primary-light: #4c1d95;
-  
-  /* Secondary Colors */
-  --color-secondary: #2dd4bf;
-  --color-secondary-hover: #5eead4;
-  --color-secondary-active: #99f6e4;
-  --color-secondary-light: #134e4a;
-  
-  /* Accent Colors */
-  --color-accent: #fbbf24;
-  --color-accent-hover: #fcd34d;
-  --color-accent-active: #fde68a;
-  --color-accent-light: #78350f;
-  
-  /* Semantic Colors - Success */
-  --color-success: #4ade80;
-  --color-success-hover: #6ee7b7;
-  --color-success-active: #86efac;
-  --color-success-light: #15803d;
-  --color-success-dark: #22c55e;
-  
-  /* Semantic Colors - Warning */
-  --color-warning: #fbbf24;
-  --color-warning-hover: #fcd34d;
-  --color-warning-active: #fde68a;
-  --color-warning-light: #b45309;
-  --color-warning-dark: #f59e0b;
-  
-  /* Semantic Colors - Danger/Error */
-  --color-danger: #f87171;
-  --color-danger-hover: #fca5a5;
-  --color-danger-active: #fecaca;
-  --color-danger-light: #b91c1c;
-  --color-danger-dark: #ef4444;
-  --color-error: #f87171;
-  --color-error-light: #b91c1c;
-  --color-error-dark: #ef4444;
-  
-  /* Semantic Colors - Info */
-  --color-info: #60a5fa;
-  --color-info-hover: #93c5fd;
-  --color-info-active: #bfdbfe;
-  --color-info-light: #1d4ed8;
-  --color-info-dark: #3b82f6;
-  
-  /* Background Colors */
-  --bg-primary: #111827;
-  --bg-secondary: #1f2937;
-  --bg-tertiary: #374151;
-  --bg-elevated: #1f2937;
-  --bg-overlay: rgba(0, 0, 0, 0.7);
-  --bg-hover: #374151;
-  --bg-active: #4b5563;
-  
-  /* Surface Colors */
-  --surface-primary: #1f2937;
-  --surface-secondary: #374151;
-  --surface-elevated: #1f2937;
-  
-  /* Text Colors */
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --text-tertiary: #9ca3af;
-  --text-disabled: #6b7280;
-  --text-inverse: #111827;
-  --text-link: #a78bfa;
-  --text-link-hover: #c4b5fd;
-  
-  /* Border Colors */
-  --border-primary: #374151;
-  --border-secondary: #4b5563;
-  --border-tertiary: #6b7280;
-  --border-focus: #a78bfa;
-  --border-error: #f87171;
-  --border-success: #4ade80;
-  --border-warning: #fbbf24;
-  
-  /* Shadow Colors (darker for dark mode) */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
-  --shadow-focus: 0 0 0 3px rgba(167, 139, 250, 0.4);
 }
 
 /* ============================================
@@ -995,11 +894,6 @@ img:not([alt]) {
 :root {
   --a11y-text-on-primary: #ffffff;
   --a11y-focus-ring: var(--color-primary-600);
-}
-
-[data-theme="dark"] {
-  --text-secondary: #9ca3af;
-  --text-tertiary: #6b7280;
 }
 
 *:focus-visible {

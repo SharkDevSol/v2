@@ -56,7 +56,6 @@
   flex-shrink: 0;
 }
 
-/* Dark Mode Specific Styles */
 [data-theme="dark"] .searchBar {
   background: #16213e;
   border-color: #2d2d44;

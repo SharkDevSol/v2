@@ -8,7 +8,6 @@ import { getPermissionPath } from '../../config/adminPermissions';
 import { ValidationRules, ErrorMessages } from '../../utils/validation';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
-import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
 import LanguageSelector from '../../components/LanguageSelector/LanguageSelector';
 import Toast from '../../components/Toast/Toast';
 
@@ -183,7 +182,6 @@ const Login = () => {
     <div className={styles.container}>
       <div className={styles.headerControls}>
         <LanguageSelector />
-        <ThemeToggle />
       </div>
 
       <div className={styles.content}>

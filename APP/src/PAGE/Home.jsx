@@ -73,13 +73,6 @@ const Home = () => {
     window.location.reload();
   };
 
-  const toggleDarkMode = () => {
-    const newMode = theme.mode === 'light' ? 'dark' : 'light';
-    updateTheme({ ...theme, mode: newMode });
-    // Also update the data-theme attribute on the document
-    document.documentElement.setAttribute('data-theme', newMode);
-  };
-
   const handleSidebarToggle = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
@@ -644,8 +637,6 @@ const Home = () => {
           }}
           onLogout={handleLogout}
           onProfileClick={handleProfileClick}
-          isDarkMode={theme.mode === 'dark'}
-          onToggleDarkMode={toggleDarkMode}
           sidebarCollapsed={sidebarCollapsed}
         />
 

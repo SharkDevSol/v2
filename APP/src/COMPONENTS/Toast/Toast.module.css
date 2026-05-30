@@ -244,7 +244,6 @@
   outline-offset: 2px;
 }
 
-/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .toast {
     background-color: var(--bg-elevated, #1f2937);

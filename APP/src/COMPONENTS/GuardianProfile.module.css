@@ -23,16 +23,6 @@
   --border-color: rgba(0, 0, 0, 0.06);
 }
 
-/* Dark Mode Variables */
-:global(.darkMode),
-:global(body.dark-mode) {
-  --text-color: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --card-bg: rgba(30, 41, 59, 0.98);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
-
 /* ========================================
    ANIMATED BACKGROUND
    ======================================== */
@@ -2591,7 +2581,6 @@
   }
 }
 
-
 /* ========================================
    DAILY ATTENDANCE DETAILS
    ======================================== */
@@ -3121,7 +3110,6 @@
   border-left: 4px solid var(--guardian-primary);
 }
 
-
 /* Notifications Tab Styles */
 .notificationsContainer {
   padding: 20px;
@@ -3212,7 +3200,6 @@
   font-size: 14px;
   line-height: 1.5;
 }
-
 
 .notifWard {
   display: inline-block;

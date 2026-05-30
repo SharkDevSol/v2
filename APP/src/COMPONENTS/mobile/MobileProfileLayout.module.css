@@ -153,13 +153,6 @@
   }
 }
 
-/* Dark mode support */
-:global(.darkMode) .mobileLayout,
-:global(body.dark-mode) .mobileLayout {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-}
-
-
 /* Header Actions */
 .headerActions {
   display: flex;

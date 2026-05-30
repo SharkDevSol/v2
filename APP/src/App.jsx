@@ -2,7 +2,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import LoadingScreen from "./COMPONENTS/LoadingScreen";
-import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import "./i18n/config"; // Initialize i18n
 import "./styles/theme.css";
@@ -23,9 +22,8 @@ import Home from "./PAGE/Home";
 // Lazy-loaded components - loaded on demand
 // Core Pages
 const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
-const DashboardPage = lazy(() => import("./PAGE/Dashboard/DashboardPage"));
-const Dashboard = lazy(() => import("./PAGE/Dashboard/Dashboard"));
-const ModernDashboard = lazy(() => import("./PAGE/Dashboard/ModernDashboard"));
+
+const ModernDashboard = lazy(() => import("./PAGE/Dashboard/Dashboard"));
 const AboutUs = lazy(() => import("./PAGE/AboutUs/AboutUs"));
 const Setting = lazy(() => import("./PAGE/Setting/Setting"));
 const Diagnostics = lazy(() => import("./PAGE/Diagnostics/Diagnostics"));
@@ -192,12 +190,11 @@ const GuardianProfileRedirect = () => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <div>
-          <Provider store={store}>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
+    <LanguageProvider>
+      <div>
+        <Provider store={store}>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/about-us" element={<Suspense fallback={<PageLoader />}><AboutUs /></Suspense>} />
@@ -215,9 +212,7 @@ function App() {
             </ProtectedRoute>
           }>
               <Route index element={<Suspense fallback={<PageLoader />}><ModernDashboard /></Suspense>} />
-              <Route path="dashboard" element={<Suspense fallback={<PageLoader />}><ModernDashboard /></Suspense>} />
-              <Route path="dashboard-detailed" element={<Suspense fallback={<PageLoader />}><DashboardPage /></Suspense>} />
-              <Route path="dashboard-old" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
+              <Route path="dashboard" element={<Navigate to="/" replace />} />
               
               {/* Tasks routes - separate from dashboard */}
               <Route path="tasks" element={<LazyRoute component={TaskPage} />} />
@@ -296,6 +291,7 @@ function App() {
               <Route path="finance" element={<FinanceDashboard />} />
               <Route path="finance/accounts" element={<ChartOfAccounts />} />
               <Route path="finance/fee-management" element={<FeeManagement />} />
+              <Route path="finance/fee-types" element={<FeeManagement />} />
               <Route path="finance/invoices" element={<InvoiceManagement />} />
               <Route path="finance/payments" element={<FeePaymentManagement />} />
               <Route path="finance/monthly-payments" element={<MonthlyPayments />} />
@@ -413,11 +409,10 @@ function App() {
             <Route path="/guardian-profile/:username" element={<GuardianProfileRedirect />} />
             <Route path="/staff-profile" element={<Navigate to="/app/staff" replace />} />
           </Routes>
-            </Suspense>
-          </Provider>
-        </div>
-      </LanguageProvider>
-    </ThemeProvider>
+          </Suspense>
+        </Provider>
+      </div>
+    </LanguageProvider>
   );
 }
 

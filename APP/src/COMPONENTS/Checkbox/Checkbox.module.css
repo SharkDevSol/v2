@@ -165,11 +165,6 @@
   color: var(--color-error);
 }
 
-/* Dark mode adjustments */
-.dark .checkboxBox {
-  background-color: var(--bg-secondary);
-}
-
 /* RTL Support */
 [dir="rtl"] .checkboxWrapper {
   flex-direction: row-reverse;

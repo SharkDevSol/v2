@@ -7,7 +7,7 @@ import Card from '../../COMPONENTS/Card/Card';
 import Button from '../../COMPONENTS/Button/Button';
 import Badge from '../../COMPONENTS/Badge/Badge';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://iqrab3.skoolific.com';
+const API_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
 
 const AttendanceDeductionSettings = () => {
   const { t } = useTranslation();

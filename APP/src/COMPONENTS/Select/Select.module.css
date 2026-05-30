@@ -290,11 +290,6 @@
   text-align: right;
 }
 
-/* Dark mode adjustments */
-.dark .selectButton:disabled {
-  background-color: var(--bg-tertiary);
-}
-
 /* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
   .option {

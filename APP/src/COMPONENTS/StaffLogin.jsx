@@ -6,7 +6,6 @@ import { Building2, User as UserIcon, Lock } from 'lucide-react';
 import styles from './StaffLogin.module.css';
 import Input from './Input/Input';
 import Button from './Button/Button';
-import ThemeToggle from './ThemeToggle/ThemeToggle';
 import LanguageSelector from './LanguageSelector/LanguageSelector';
 import Toast from './Toast/Toast';
 
@@ -125,7 +124,6 @@ const StaffLogin = () => {
     <div className={styles.container}>
       <div className={styles.headerControls}>
         <LanguageSelector />
-        <ThemeToggle />
       </div>
 
       <div className={styles.content}>

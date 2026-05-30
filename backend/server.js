@@ -221,13 +221,13 @@ app.use(cors({
           origin.match(/^http:\/\/192\.168\.\d+\.\d+/) || 
           origin.match(/^http:\/\/172\.\d+\.\d+\.\d+/) ||
           origin.match(/^http:\/\/10\.\d+\.\d+\.\d+/)) {
-        return callback(null, true);
+        return callback(null, origin);
       }
     }
     
     // Check if origin is in allowed list
     if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
+      return callback(null, origin);
     }
     
     console.log('CORS blocked origin:', origin);

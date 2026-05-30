@@ -104,7 +104,6 @@
   }
 }
 
-/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .skeleton {
     background-color: var(--bg-secondary, #374151);

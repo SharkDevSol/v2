@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 90
+    },
+    "auditLog": "C:\\Users\\kamil\\Desktop\\skoolificV2\\backend\\logs\\.08ab97f45017c5d5828e73f3b826610fbc95daf3-audit.json",
+    "files": [
+        {
+            "date": 1780149246222,
+            "name": "C:\\Users\\kamil\\Desktop\\skoolificV2\\backend\\logs\\security-2026-05-30.log",
+            "hash": "24f57b9dd6edb859931dbb5313be8f67c75ab860d8928087cc59939edf6c43a3"
+        }
+    ],
+    "hashType": "sha256"
+}

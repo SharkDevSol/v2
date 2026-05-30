@@ -241,21 +241,3 @@
   }
 }
 
-/* Dark mode support */
-.dark .label {
-  color: var(--text-primary);
-}
-
-.dark .input {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  border-color: var(--border-primary);
-}
-
-.dark .input:disabled {
-  background-color: var(--bg-disabled);
-}
-
-.dark .hint {
-  color: var(--text-secondary);
-}

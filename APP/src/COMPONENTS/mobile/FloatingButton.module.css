@@ -93,29 +93,3 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
-/* Dark mode */
-:global(.darkMode) .floatingNavBtn {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-}
-
-:global(.darkMode) .floatingMenuBtn {
-  background: #1e293b;
-  color: #e2e8f0;
-}
-
-:global(.darkMode) .floatingMenuBtn span {
-  color: #94a3b8;
-}
-
-:global(.darkMode) .floatingMenuBtn:active {
-  background: #334155;
-}
-
-:global(.darkMode) .floatingMenuBtnActive {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  color: white;
-}
-
-:global(.darkMode) .floatingMenuBtnActive span {
-  color: rgba(255, 255, 255, 0.9);
-}

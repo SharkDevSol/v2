@@ -129,27 +129,6 @@
   transform: scale(0.95);
 }
 
-/* Dark mode adjustments */
-.dark .filePreview {
-  background-color: var(--bg-secondary);
-}
-
-.dark .filePreview:hover:not(.disabled) {
-  background-color: var(--bg-tertiary);
-}
-
-.dark .fileIcon {
-  background-color: var(--bg-tertiary);
-}
-
-.dark .progressBar {
-  background-color: var(--bg-tertiary);
-}
-
-.dark .removeButton:hover:not(:disabled) {
-  background-color: var(--bg-tertiary);
-}
-
 /* Responsive Design */
 @media (max-width: 767px) {
   .filePreview {

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import styles from './AITestGenerator.module.css';
 import axios from 'axios';
-import API_CONFIG from '../../config/api.config';
+import API_CONFIG, { getBaseURL } from '../../config/api.config';
 
 import Card from '../../COMPONENTS/Card/Card';
 import Button from '../../COMPONENTS/Button/Button';
@@ -103,7 +103,7 @@ const AITestGenerator = () => {
 
   const fetchClasses = async () => {
     try {
-      const response = await axios.get(`${API_CONFIG.baseURL}/api/classes`);
+      const response = await axios.get(`${getBaseURL()}/api/classes`);
       setClasses(response.data);
     } catch (err) {
       console.error('Error fetching classes:', err);
@@ -112,7 +112,7 @@ const AITestGenerator = () => {
 
   const fetchSubjects = async () => {
     try {
-      const response = await axios.get(`${API_CONFIG.baseURL}/api/subjects`);
+      const response = await axios.get(`${getBaseURL()}/api/subjects`);
       setSubjects(response.data);
     } catch (err) {
       console.error('Error fetching subjects:', err);
@@ -122,7 +122,7 @@ const AITestGenerator = () => {
   const fetchTerms = async () => {
     // Fetch terms from Task1 configuration
     try {
-      const response = await axios.get(`${API_CONFIG.baseURL}/api/school-config/terms`);
+      const response = await axios.get(`${getBaseURL()}/api/school-config/terms`);
       setTerms(response.data);
     } catch (err) {
       console.error('Error fetching terms:', err);
@@ -177,7 +177,7 @@ const AITestGenerator = () => {
 
       // Call backend API to generate exam
       const response = await axios.post(
-        `${API_CONFIG.baseURL}/api/ai-tests/generate`,
+        `${getBaseURL()}/api/ai-tests/generate`,
         payload,
         {
           headers: {
@@ -280,7 +280,7 @@ const AITestGenerator = () => {
       };
 
       const response = await axios.post(
-        `${API_CONFIG.baseURL}/api/ai-tests/save`,
+        `${getBaseURL()}/api/ai-tests/save`,
         payload,
         {
           headers: {

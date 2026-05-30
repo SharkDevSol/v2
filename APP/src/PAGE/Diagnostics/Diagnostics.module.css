@@ -208,7 +208,6 @@
   color: var(--text-primary);
 }
 
-/* Dark mode support */
 :root[data-theme="dark"] .section,
 :root[data-theme="dark"] .infoItem,
 :root[data-theme="dark"] .resultCard,

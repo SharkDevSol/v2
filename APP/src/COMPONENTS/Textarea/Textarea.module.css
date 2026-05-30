@@ -167,16 +167,6 @@
   flex-direction: row-reverse;
 }
 
-/* Dark mode adjustments */
-.dark .textarea {
-  background-color: var(--bg-secondary);
-}
-
-.dark .textarea:disabled,
-.dark .textarea:read-only {
-  background-color: var(--bg-tertiary);
-}
-
 /* Focus visible for keyboard navigation */
 .textarea:focus-visible {
   outline: 2px solid var(--border-focus);

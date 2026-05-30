@@ -305,7 +305,6 @@
   }
 }
 
-/* Dark mode specific adjustments */
 [data-theme="dark"] .dropdown {
   background-color: var(--bg-secondary);
   border-color: var(--border-secondary);

@@ -160,12 +160,3 @@
   }
 }
 
-/* Dark mode specific adjustments */
-.dark .loginCard {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-primary);
-}
-
-.dark .container::before {
-  background: radial-gradient(circle, rgba(167, 139, 250, 0.1) 0%, transparent 50%);
-}

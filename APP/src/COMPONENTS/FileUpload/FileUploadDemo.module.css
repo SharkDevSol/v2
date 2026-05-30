@@ -88,11 +88,6 @@
   background-color: var(--bg-secondary);
 }
 
-/* Dark mode adjustments */
-.dark .errorBanner {
-  background-color: rgba(239, 68, 68, 0.2);
-}
-
 /* Responsive Design */
 @media (max-width: 767px) {
   .demo {

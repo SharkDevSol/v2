@@ -190,7 +190,6 @@
   text-align: right;
 }
 
-/* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   .languageButton {
     background-color: var(--bg-secondary, #374151);

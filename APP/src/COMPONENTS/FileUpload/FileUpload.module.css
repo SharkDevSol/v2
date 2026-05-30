@@ -124,23 +124,6 @@
   margin-top: 8px;
 }
 
-/* Dark mode adjustments */
-.dark .dropZone {
-  background-color: var(--bg-secondary);
-}
-
-.dark .dropZone:hover:not(.disabled) {
-  background-color: var(--bg-tertiary);
-}
-
-.dark .dropZone.dragging {
-  background-color: rgba(139, 92, 246, 0.1);
-}
-
-.dark .dropZone.disabled {
-  background-color: var(--bg-tertiary);
-}
-
 /* Responsive Design */
 @media (max-width: 767px) {
   .dropZone {

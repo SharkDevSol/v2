@@ -141,7 +141,6 @@
   .modalHeader { flex-direction: column; text-align: center; padding: 30px 20px; }
 }
 
-
 /* Edit Modal Styles */
 .editModal { 
   background: var(--card-bg); 

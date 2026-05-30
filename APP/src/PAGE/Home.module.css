@@ -61,7 +61,7 @@
 }
 
 .quizModal {
-  background: #ffffff;
+  background: var(--card-bg, #ffffff);
   border-radius: 20px;
   padding: 2.5rem;
   max-width: 1000px;
@@ -531,17 +531,17 @@
 }
 
 .contentWrapper::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--bg-secondary, #f1f1f1);
   border-radius: 10px;
 }
 
 .contentWrapper::-webkit-scrollbar-thumb {
-  background: #ffddd0;
+  background: var(--border-color, #ffddd0);
   border-radius: 10px;
 }
 
 .contentWrapper::-webkit-scrollbar-thumb:hover {
-  background: #ff6b00;
+  background: var(--primary-color, #ff6b00);
 }
 
 /* Mobile Header */
@@ -962,7 +962,7 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background: white;
+  background: var(--card-bg, white);
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
   min-width: 220px;
@@ -970,7 +970,7 @@
   margin-top: 0.75rem;
   z-index: 100;
   overflow: hidden;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  border: 1px solid var(--border-color, rgba(102, 126, 234, 0.1));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   animation: dropdownFadeIn 0.2s ease-out;
@@ -1001,7 +1001,7 @@
   display: flex;
   align-items: center;
   padding: 0.875rem 1.5rem;
-  color: #333333;
+  color: var(--text-color, #333333);
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
@@ -1075,14 +1075,14 @@
   position: fixed;
   top: 70px;
   right: 1rem;
-  background: white;
+  background: var(--card-bg, white);
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
   min-width: 220px;
   padding: 0.75rem 0;
   z-index: 100;
   overflow: hidden;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  border: 1px solid var(--border-color, rgba(102, 126, 234, 0.1));
   animation: dropdownFadeIn 0.2s ease-out;
 }
 
@@ -1107,7 +1107,7 @@
   display: flex;
   align-items: center;
   padding: 0.875rem 1.25rem;
-  color: #333333;
+  color: var(--text-color, #333333);
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.95rem;
@@ -1152,7 +1152,7 @@
   display: flex;
   align-items: center;
   padding: 0.875rem 1.25rem;
-  color: #333333;
+  color: var(--text-color, #333333);
   background: none;
   border: none;
   width: 100%;

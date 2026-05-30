@@ -19,7 +19,7 @@ const HRDashboard = () => {
   const fetchStats = async () => {
     try {
       const response = await fetch('/api/hr/stats', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}` }
       });
       if (response.ok) {
         const data = await response.json();

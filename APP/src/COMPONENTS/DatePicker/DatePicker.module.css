@@ -150,19 +150,6 @@
   gap: 4px;
 }
 
-/* Dark mode adjustments */
-.dark .input {
-  background-color: var(--bg-secondary);
-}
-
-.dark .input:disabled {
-  background-color: var(--bg-tertiary);
-}
-
-.dark .calendarPopup {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-}
-
 /* RTL support */
 [dir="rtl"] .required {
   margin-inline-start: 4px;

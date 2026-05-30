@@ -23,8 +23,8 @@ function InitialRedirect({ children }) {
     const userType = localStorage.getItem('userType') || 'admin';
 
     if (userType === 'admin') {
-      // Admin always goes to dashboard
-      navigate('/dashboard', { replace: true });
+      // Admin stays at root (dashboard is rendered at /)
+      return;
     } else if (userType === 'sub-account') {
       // Sub-account goes to first permitted page
       let permissions = [];
@@ -47,8 +47,8 @@ function InitialRedirect({ children }) {
           navigate('/dashboard', { replace: true });
         }
       } else {
-        // No permissions, stay at root (will show access denied or empty)
-        navigate('/dashboard', { replace: true });
+        // No permissions, stay at root
+        return;
       }
     }
   }, []); // Empty dependency array - only run once on mount

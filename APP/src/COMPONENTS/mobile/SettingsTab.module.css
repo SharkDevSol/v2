@@ -269,63 +269,6 @@
   letter-spacing: 0.2px;
 }
 
-/* Dark Mode Styles */
-:global(.darkMode) .tabTitle,
-:global(body.dark-mode) .tabTitle {
-  color: #f1f5f9;
-}
-
-:global(.darkMode) .settingsSection,
-:global(body.dark-mode) .settingsSection {
-  background: #1e293b;
-}
-
-:global(.darkMode) .sectionHeader,
-:global(body.dark-mode) .sectionHeader {
-  border-bottom-color: #334155;
-}
-
-:global(.darkMode) .sectionTitle,
-:global(body.dark-mode) .sectionTitle {
-  color: #f1f5f9;
-}
-
-:global(.darkMode) .languageBtn,
-:global(body.dark-mode) .languageBtn {
-  background: #334155;
-}
-
-:global(.darkMode) .languageActive,
-:global(body.dark-mode) .languageActive {
-  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-  border-color: #10b981;
-}
-
-:global(.darkMode) .languageName,
-:global(body.dark-mode) .languageName {
-  color: #e2e8f0;
-}
-
-:global(.darkMode) .languageActive .languageName,
-:global(body.dark-mode) .languageActive .languageName {
-  color: #a7f3d0;
-}
-
-:global(.darkMode) .toggleLabel,
-:global(body.dark-mode) .toggleLabel {
-  color: #94a3b8;
-}
-
-:global(.darkMode) .toggleSwitch,
-:global(body.dark-mode) .toggleSwitch {
-  background: #475569;
-}
-
-:global(.darkMode) .infoText,
-:global(body.dark-mode) .infoText {
-  color: #94a3b8;
-}
-
 /* Responsive */
 @media (min-width: 480px) {
   .languageGrid {
@@ -515,54 +458,6 @@
   margin: 0;
   line-height: 1.5;
   font-weight: 500;
-}
-
-/* Dark Mode - Install Section */
-:global(.darkMode) .installButton,
-:global(body.dark-mode) .installButton {
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
-}
-
-:global(.darkMode) .installedBadge,
-:global(body.dark-mode) .installedBadge {
-  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-  border-color: #10b981;
-}
-
-:global(.darkMode) .installedIcon,
-:global(body.dark-mode) .installedIcon {
-  background: #1e293b;
-}
-
-:global(.darkMode) .installedTitle,
-:global(body.dark-mode) .installedTitle {
-  color: #a7f3d0;
-}
-
-:global(.darkMode) .installedDesc,
-:global(body.dark-mode) .installedDesc {
-  color: #86efac;
-}
-
-:global(.darkMode) .installInfo,
-:global(body.dark-mode) .installInfo {
-  background: #334155;
-  border-color: #475569;
-}
-
-:global(.darkMode) .infoIcon,
-:global(body.dark-mode) .infoIcon {
-  color: #94a3b8;
-}
-
-:global(.darkMode) .infoTitle,
-:global(body.dark-mode) .infoTitle {
-  color: #cbd5e1;
-}
-
-:global(.darkMode) .infoDesc,
-:global(body.dark-mode) .infoDesc {
-  color: #94a3b8;
 }
 
 /* ========================================

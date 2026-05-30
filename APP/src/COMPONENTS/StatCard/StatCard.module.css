@@ -368,39 +368,3 @@
   }
 }
 
-/* Dark mode adjustments */
-.dark .statCard,
-body.dark-mode .statCard {
-  background-color: var(--bg-elevated, var(--card-bg));
-  border-color: var(--border-primary, var(--border-color));
-}
-
-.dark .iconWrapper,
-body.dark-mode .iconWrapper {
-  background-color: rgba(139, 92, 246, 0.1);
-}
-
-.dark .primary .iconWrapper,
-body.dark-mode .primary .iconWrapper {
-  background-color: rgba(167, 139, 250, 0.1);
-}
-
-.dark .secondary .iconWrapper,
-body.dark-mode .secondary .iconWrapper {
-  background-color: rgba(45, 212, 191, 0.1);
-}
-
-.dark .success .iconWrapper,
-body.dark-mode .success .iconWrapper {
-  background-color: rgba(74, 222, 128, 0.1);
-}
-
-.dark .warning .iconWrapper,
-body.dark-mode .warning .iconWrapper {
-  background-color: rgba(251, 191, 36, 0.1);
-}
-
-.dark .error .iconWrapper,
-body.dark-mode .error .iconWrapper {
-  background-color: rgba(248, 113, 113, 0.1);
-}

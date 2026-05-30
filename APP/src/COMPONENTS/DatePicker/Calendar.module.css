@@ -168,15 +168,6 @@
   transform: scale(0.98);
 }
 
-/* Dark mode adjustments */
-.dark .dayCell.selected {
-  background-color: var(--color-primary);
-}
-
-.dark .dayCell.selected:hover {
-  background-color: var(--color-primary-hover);
-}
-
 /* Touch target size for accessibility (minimum 44x44px) */
 @media (pointer: coarse) {
   .dayCell {

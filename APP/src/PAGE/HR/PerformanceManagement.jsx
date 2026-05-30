@@ -20,7 +20,7 @@ const PerformanceManagement = () => {
       if (filter !== 'ALL') params.append('status', filter);
       
       const response = await fetch(`/api/hr/performance?${params}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}` }
       });
       if (response.ok) {
         const data = await response.json();
@@ -36,7 +36,7 @@ const PerformanceManagement = () => {
   const fetchStaff = async () => {
     try {
       const response = await fetch('/api/staff', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}` }
       });
       if (response.ok) {
         const data = await response.json();
@@ -185,7 +185,7 @@ const ReviewModal = ({ review, staff, onClose, onSuccess }) => {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken') || localStorage.getItem('token')}`
         },
         body: JSON.stringify({
           ...formData,

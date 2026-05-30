@@ -85,7 +85,6 @@
   line-height: 1.6;
 }
 
-/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .showcase {
     background-color: var(--bg-primary, #1a1a1a);

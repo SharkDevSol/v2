@@ -96,15 +96,6 @@
   color: var(--color-error);
 }
 
-/* Dark mode adjustments */
-.dark .label {
-  color: var(--text-primary);
-}
-
-.dark .helperMessage {
-  color: var(--text-tertiary);
-}
-
 /* RTL Support */
 [dir="rtl"] .required {
   margin-inline-start: 2px;

@@ -168,11 +168,6 @@
   color: var(--color-error);
 }
 
-/* Dark mode adjustments */
-.dark .radioCircle {
-  background-color: var(--bg-secondary);
-}
-
 /* RTL Support */
 [dir="rtl"] .radioWrapper {
   flex-direction: row-reverse;

@@ -274,8 +274,3 @@
   }
 }
 
-/* Dark mode support */
-:global(.darkMode) .profileHeader::after,
-:global(body.dark-mode) .profileHeader::after {
-  background: #0f172a;
-}

@@ -318,12 +318,6 @@ const Setting = () => {
     updateTheme(newTheme);
   };
 
-  const toggleDarkMode = () => {
-    const newTheme = { ...localTheme, mode: localTheme.mode === 'light' ? 'dark' : 'light' };
-    setLocalTheme(newTheme);
-    updateTheme(newTheme);
-  };
-
   const saveTheme = async () => {
     setLoading(true);
     try {
@@ -473,22 +467,28 @@ const Setting = () => {
         document.getElementsByTagName('head')[0].appendChild(manifestLink);
       }
       
+      // Resolve icon URL to absolute URL for blob manifest compatibility
+      const resolvedIconUrl = iconUrl.startsWith('http') 
+        ? iconUrl 
+        : `${window.location.origin}${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}`;
+      
       const manifest = {
         short_name: "Skoolific",
         name: "Skoolific School Management",
         icons: [
           {
-            src: iconUrl,
+            src: resolvedIconUrl,
             sizes: "192x192",
             type: "image/png"
           },
           {
-            src: iconUrl,
+            src: resolvedIconUrl,
             sizes: "512x512",
             type: "image/png"
           }
         ],
-        start_url: "/",
+        start_url: window.location.origin + "/",
+        scope: window.location.origin + "/",
         display: "standalone",
         theme_color: "#667eea",
         background_color: "#ffffff",
@@ -796,20 +796,6 @@ const Setting = () => {
           {activeTab === 'theme' && (
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>{t('themeSettings')}</h2>
-              
-              <div className={styles.themeToggle}>
-                <span>{t('darkMode')}</span>
-                <label className={styles.switch}>
-                  <input
-                    type="checkbox"
-                    checked={localTheme.mode === 'dark'}
-                    onChange={toggleDarkMode}
-                  />
-                  <span className={styles.slider} style={localTheme.mode === 'dark' ? {
-                    background: `linear-gradient(135deg, ${theme.primaryColor}, ${theme.secondaryColor})`
-                  } : {}}></span>
-                </label>
-              </div>
 
               <div className={styles.colorPresets}>
                 <h3>{t('colorPresets')}</h3>

@@ -532,7 +532,6 @@
   }
 }
 
-
 /* Modal Styles */
 .modalOverlay {
   position: fixed;
@@ -705,7 +704,6 @@
   transform: none;
 }
 
-
 /* Current Week Modal Styles */
 .currentWeekInfo {
   display: flex;
@@ -823,7 +821,6 @@
 .warningBox li {
   margin: 5px 0;
 }
-
 
 .weekNote {
   margin-top: 15px;

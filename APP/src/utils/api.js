@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// API base URL - includes /api prefix for all routes
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://iqrab3.skoolific.com/api';
+// API base URL - uses environment variable, falls back to localhost for development
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Create axios instance with default config
 const api = axios.create({

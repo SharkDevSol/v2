@@ -7,7 +7,6 @@
 .submit { background: green; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin-top: 1rem; cursor: pointer; }
 .close { position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
 
-/* Dark mode */
 @media (prefers-color-scheme: dark) {
   .modal { background: #333; color: white; }
   .textarea { background: #444; border-color: #555; color: white; }

@@ -9,10 +9,16 @@ const applyThemeEarly = () => {
       const theme = JSON.parse(savedTheme);
       if (theme.mode === 'dark') {
         document.body.classList.add('dark-mode');
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
         document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
       } else {
         document.body.classList.remove('dark-mode');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
         document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
       }
     } catch (e) {
       console.error('Error applying early theme:', e);
@@ -2012,23 +2018,29 @@ const updateManifestIcons = (iconUrl) => {
       document.getElementsByTagName('head')[0].appendChild(manifestLink);
     }
     
+    // Resolve icon URL to absolute URL for blob manifest compatibility
+    const resolvedIconUrl = iconUrl.startsWith('http') 
+      ? iconUrl 
+      : `${window.location.origin}${iconUrl.startsWith('/') ? '' : '/'}${iconUrl}`;
+    
     // Create a dynamic manifest with the custom icon
     const manifest = {
       short_name: "Skoolific",
       name: "Skoolific School Management",
       icons: [
         {
-          src: iconUrl,
+          src: resolvedIconUrl,
           sizes: "192x192",
           type: "image/png"
         },
         {
-          src: iconUrl,
+          src: resolvedIconUrl,
           sizes: "512x512",
           type: "image/png"
         }
       ],
-      start_url: "/",
+      start_url: window.location.origin + "/",
+      scope: window.location.origin + "/",
       display: "standalone",
       theme_color: "#667eea",
       background_color: "#ffffff",
@@ -2157,10 +2169,16 @@ export const AppProvider = ({ children }) => {
     // Apply dark mode - set both class and data-theme attribute
     if (themeData.mode === 'dark') {
       document.body.classList.add('dark-mode');
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
       document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
     } else {
       document.body.classList.remove('dark-mode');
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
       document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
     }
   };
 

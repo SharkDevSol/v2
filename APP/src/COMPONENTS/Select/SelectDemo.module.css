@@ -226,15 +226,6 @@
   }
 }
 
-/* Dark Mode Adjustments */
-.dark .demoSection {
-  background-color: var(--bg-secondary);
-}
-
-.dark .featureCard {
-  background-color: var(--bg-tertiary);
-}
-
 /* RTL Support */
 [dir="rtl"] .featureList li {
   border-left: none;
