@@ -23,6 +23,16 @@
   --border-color: rgba(0, 0, 0, 0.06);
 }
 
+[data-theme="dark"] {
+  --text-color: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --card-bg: rgba(30, 41, 59, 0.9);
+  --border-color: rgba(139, 92, 246, 0.2);
+  --guardian-light: rgba(139, 92, 246, 0.2);
+  --guardian-lighter: rgba(139, 92, 246, 0.1);
+}
+
 /* ========================================
    ANIMATED BACKGROUND
    ======================================== */

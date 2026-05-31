@@ -1,0 +1,944 @@
+/* ============================================
+   DARK MODE - GLOBAL OVERRIDES
+   Comprehensive dark mode support for all pages
+   ============================================ */
+
+/* Base dark mode body background */
+[data-theme="dark"] body,
+body.dark {
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+  color: #f1f5f9;
+}
+
+/* ============================================
+   GLOBAL ELEMENT OVERRIDES
+   ============================================ */
+
+/* All elements with white/light backgrounds */
+[data-theme="dark"] [class*="container"],
+[data-theme="dark"] [class*="Container"] {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Fix all hardcoded white backgrounds on common elements */
+[data-theme="dark"] [class*="card"],
+[data-theme="dark"] [class*="Card"] {
+  background: var(--glass-surface-1, rgba(30, 41, 59, 0.8)) !important;
+  border-color: var(--glass-border, rgba(139, 92, 246, 0.2)) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+[data-theme="dark"] [class*="card"]:hover,
+[data-theme="dark"] [class*="Card"]:hover {
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Tables */
+[data-theme="dark"] table thead,
+[data-theme="dark"] [class*="tableHead"],
+[data-theme="dark"] [class*="TableHead"] {
+  background: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] table th {
+  color: var(--text-secondary) !important;
+  border-color: var(--border-primary) !important;
+}
+
+[data-theme="dark"] table td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-primary) !important;
+}
+
+[data-theme="dark"] table tbody tr:hover {
+  background: var(--bg-hover) !important;
+}
+
+/* Inputs and form elements */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: var(--input-bg, rgba(30, 41, 59, 0.8)) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--input-border, rgba(139, 92, 246, 0.2)) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2) !important;
+}
+
+[data-theme="dark"] input:disabled,
+[data-theme="dark"] textarea:disabled,
+[data-theme="dark"] select:disabled {
+  background: var(--bg-tertiary) !important;
+  opacity: 0.6;
+}
+
+/* Labels */
+[data-theme="dark"] label {
+  color: var(--text-secondary) !important;
+}
+
+/* Headings */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+  color: var(--text-primary) !important;
+}
+
+/* Paragraphs and text */
+[data-theme="dark"] p {
+  color: var(--text-secondary) !important;
+}
+
+/* Links */
+[data-theme="dark"] a {
+  color: var(--text-link) !important;
+}
+
+[data-theme="dark"] a:hover {
+  color: var(--text-link-hover) !important;
+}
+
+/* ============================================
+   GLASSMORPHISM PANELS (Dark Mode)
+   ============================================ */
+
+/* Step indicators, footers, panels with glass effect */
+[data-theme="dark"] [class*="stepIndicator"],
+[data-theme="dark"] [class*="StepIndicator"],
+[data-theme="dark"] [class*="footerBar"],
+[data-theme="dark"] [class*="FooterBar"] {
+  background: var(--glass-surface-1, rgba(30, 41, 59, 0.8)) !important;
+  border-color: var(--glass-border, rgba(139, 92, 246, 0.2)) !important;
+}
+
+/* Modals and overlays */
+[data-theme="dark"] [class*="modal"],
+[data-theme="dark"] [class*="Modal"] {
+  background: var(--glass-surface-1, rgba(30, 41, 59, 0.95)) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   STAT CARDS & METRIC CARDS
+   ============================================ */
+
+[data-theme="dark"] [class*="statCard"],
+[data-theme="dark"] [class*="StatCard"],
+[data-theme="dark"] [class*="metricCard"],
+[data-theme="dark"] [class*="MetricCard"] {
+  background: var(--glass-surface-1, rgba(30, 41, 59, 0.8)) !important;
+  border-color: var(--glass-border, rgba(139, 92, 246, 0.15)) !important;
+}
+
+[data-theme="dark"] [class*="statTitle"],
+[data-theme="dark"] [class*="StatTitle"] {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] [class*="statValue"],
+[data-theme="dark"] [class*="StatValue"] {
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   CHART CARDS
+   ============================================ */
+
+[data-theme="dark"] [class*="chartCard"],
+[data-theme="dark"] [class*="ChartCard"] {
+  background: var(--glass-surface-1, rgba(30, 41, 59, 0.8)) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   SIDEBAR & HEADER (Dark Glass)
+   ============================================ */
+
+[data-theme="dark"] [class*="sidebar"],
+[data-theme="dark"] [class*="Sidebar"] {
+  background: var(--sidebar-bg, rgba(15, 23, 42, 0.9)) !important;
+  border-color: var(--glass-border) !important;
+}
+
+[data-theme="dark"] [class*="header"]:not(th):not(thead),
+[data-theme="dark"] header {
+  background: var(--sidebar-bg, rgba(15, 23, 42, 0.9)) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+[data-theme="dark"] [class*="btn"]:not([class*="primary"]):not([class*="success"]):not([class*="danger"]):not([class*="warning"]),
+[data-theme="dark"] button[class*="secondary"],
+[data-theme="dark"] button[class*="outline"],
+[data-theme="dark"] button[class*="ghost"] {
+  color: var(--text-primary);
+  border-color: var(--glass-border);
+}
+
+/* ============================================
+   BADGES & TAGS
+   ============================================ */
+
+[data-theme="dark"] [class*="badge"],
+[data-theme="dark"] [class*="Badge"],
+[data-theme="dark"] [class*="tag"],
+[data-theme="dark"] [class*="Tag"] {
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   LIST ITEMS & ROWS
+   ============================================ */
+
+[data-theme="dark"] [class*="listItem"],
+[data-theme="dark"] [class*="ListItem"],
+[data-theme="dark"] [class*="taskItem"],
+[data-theme="dark"] [class*="TaskItem"],
+[data-theme="dark"] [class*="topStudent"],
+[data-theme="dark"] [class*="TopStudent"] {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-primary) !important;
+}
+
+[data-theme="dark"] [class*="listItem"]:hover,
+[data-theme="dark"] [class*="ListItem"]:hover,
+[data-theme="dark"] [class*="taskItem"]:hover,
+[data-theme="dark"] [class*="TaskItem"]:hover {
+  background: var(--bg-tertiary) !important;
+}
+
+/* ============================================
+   DROPDOWN & SELECT MENUS
+   ============================================ */
+
+[data-theme="dark"] [class*="dropdown"],
+[data-theme="dark"] [class*="Dropdown"],
+[data-theme="dark"] [class*="selectMenu"],
+[data-theme="dark"] [class*="SelectMenu"],
+[data-theme="dark"] [class*="optionsList"],
+[data-theme="dark"] [class*="OptionsList"] {
+  background: var(--bg-secondary) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+[data-theme="dark"] [class*="option"]:hover,
+[data-theme="dark"] [class*="Option"]:hover {
+  background: var(--bg-hover) !important;
+}
+
+/* ============================================
+   TOOLTIPS & POPOVERS
+   ============================================ */
+
+[data-theme="dark"] [class*="tooltip"],
+[data-theme="dark"] [class*="Tooltip"],
+[data-theme="dark"] [class*="popover"],
+[data-theme="dark"] [class*="Popover"] {
+  background: var(--bg-secondary) !important;
+  border-color: var(--glass-border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   LOADING & SKELETON STATES
+   ============================================ */
+
+[data-theme="dark"] [class*="loading"],
+[data-theme="dark"] [class*="Loading"],
+[data-theme="dark"] [class*="skeleton"],
+[data-theme="dark"] [class*="Skeleton"] {
+  background: var(--bg-secondary) !important;
+}
+
+/* ============================================
+   NOTIFICATION & ALERT PANELS
+   ============================================ */
+
+[data-theme="dark"] [class*="notification"],
+[data-theme="dark"] [class*="Notification"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   BREADCRUMBS & NAVIGATION
+   ============================================ */
+
+[data-theme="dark"] [class*="breadcrumb"],
+[data-theme="dark"] [class*="Breadcrumb"] {
+  color: var(--text-secondary) !important;
+}
+
+/* ============================================
+   DIVIDERS & SEPARATORS
+   ============================================ */
+
+[data-theme="dark"] hr,
+[data-theme="dark"] [class*="divider"],
+[data-theme="dark"] [class*="Divider"],
+[data-theme="dark"] [class*="separator"],
+[data-theme="dark"] [class*="Separator"] {
+  border-color: var(--border-primary) !important;
+}
+
+/* ============================================
+   SPECIFIC PAGE FIXES
+   ============================================ */
+
+/* Dashboard background */
+[data-theme="dark"] [class*="dashboard"],
+[data-theme="dark"] [class*="Dashboard"] {
+  background: var(--bg-primary) !important;
+}
+
+/* Page layout background */
+[data-theme="dark"] [class*="pageLayout"],
+[data-theme="dark"] [class*="PageLayout"] {
+  background-color: var(--bg-primary) !important;
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 50%) !important;
+}
+
+/* Page containers */
+[data-theme="dark"] [class*="pageContent"],
+[data-theme="dark"] [class*="PageContent"],
+[data-theme="dark"] [class*="contentWrapper"],
+[data-theme="dark"] [class*="ContentWrapper"] {
+  background: transparent !important;
+}
+
+/* Review sections */
+[data-theme="dark"] [class*="review"],
+[data-theme="dark"] [class*="Review"] {
+  color: var(--text-primary);
+}
+
+/* Credential items */
+[data-theme="dark"] [class*="credential"],
+[data-theme="dark"] [class*="Credential"] {
+  background: var(--glass-surface-2) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* Multi-select options */
+[data-theme="dark"] [class*="multiSelect"],
+[data-theme="dark"] [class*="MultiSelect"] {
+  background: var(--glass-surface-2) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   SCROLLBAR (Dark Mode)
+   ============================================ */
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.8);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
+
+/* ============================================
+   SELECTION
+   ============================================ */
+
+[data-theme="dark"] ::selection {
+  background-color: rgba(139, 92, 246, 0.4);
+  color: #ffffff;
+}
+
+/* ============================================
+   PROFILE PAGES (Mobile Apps)
+   ============================================ */
+
+[data-theme="dark"] [class*="profile"],
+[data-theme="dark"] [class*="Profile"] {
+  background: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] [class*="profileCard"],
+[data-theme="dark"] [class*="ProfileCard"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   FINANCE & REPORTS PAGES
+   ============================================ */
+
+[data-theme="dark"] [class*="finance"],
+[data-theme="dark"] [class*="Finance"],
+[data-theme="dark"] [class*="report"],
+[data-theme="dark"] [class*="Report"] {
+  background: var(--bg-primary) !important;
+}
+
+/* ============================================
+   COMMUNICATION & CHAT
+   ============================================ */
+
+[data-theme="dark"] [class*="chat"],
+[data-theme="dark"] [class*="Chat"],
+[data-theme="dark"] [class*="message"],
+[data-theme="dark"] [class*="Message"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   SCHEDULE & TIMETABLE
+   ============================================ */
+
+[data-theme="dark"] [class*="schedule"],
+[data-theme="dark"] [class*="Schedule"],
+[data-theme="dark"] [class*="timetable"],
+[data-theme="dark"] [class*="Timetable"] {
+  background: var(--bg-primary) !important;
+}
+
+/* ============================================
+   PREVENT DOUBLE-DARK ON ALREADY-DARK ELEMENTS
+   ============================================ */
+
+/* Primary/gradient buttons should keep their colors */
+[data-theme="dark"] [class*="primary"],
+[data-theme="dark"] [class*="Primary"] {
+  /* Don't override primary colored elements */
+}
+
+/* Success/danger/warning colored elements keep their semantic colors */
+[data-theme="dark"] [class*="success"] {
+  color: var(--color-success);
+}
+
+[data-theme="dark"] [class*="danger"],
+[data-theme="dark"] [class*="error"] {
+  color: var(--color-danger);
+}
+
+[data-theme="dark"] [class*="warning"] {
+  color: var(--color-warning);
+}
+
+
+/* ============================================
+   COMPREHENSIVE ELEMENT OVERRIDES
+   Catches ALL remaining hardcoded colors
+   ============================================ */
+
+/* Fix #333 text color used in Staff/Student apps */
+[data-theme="dark"] [class*="container"],
+[data-theme="dark"] [class*="Container"],
+[data-theme="dark"] [class*="page"],
+[data-theme="dark"] [class*="Page"],
+[data-theme="dark"] [class*="content"],
+[data-theme="dark"] [class*="Content"],
+[data-theme="dark"] [class*="body"],
+[data-theme="dark"] [class*="Body"],
+[data-theme="dark"] [class*="main"],
+[data-theme="dark"] [class*="Main"],
+[data-theme="dark"] [class*="wrapper"],
+[data-theme="dark"] [class*="Wrapper"] {
+  color: var(--text-primary) !important;
+}
+
+/* Fix backgrounds like #f5f7fa, #f8f9fa, #f5f5f5 */
+[data-theme="dark"] [class*="header"]:not(th):not(thead),
+[data-theme="dark"] [class*="Header"]:not(th):not(thead),
+[data-theme="dark"] [class*="nav"],
+[data-theme="dark"] [class*="Nav"],
+[data-theme="dark"] [class*="menu"],
+[data-theme="dark"] [class*="Menu"],
+[data-theme="dark"] [class*="tab"],
+[data-theme="dark"] [class*="Tab"],
+[data-theme="dark"] [class*="filter"],
+[data-theme="dark"] [class*="Filter"],
+[data-theme="dark"] [class*="toolbar"],
+[data-theme="dark"] [class*="Toolbar"] {
+  background: var(--glass-surface-1, rgba(30, 41, 59, 0.8)) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--glass-border, rgba(139, 92, 246, 0.2)) !important;
+}
+
+/* Fix timeline and post elements */
+[data-theme="dark"] [class*="timeline"],
+[data-theme="dark"] [class*="Timeline"],
+[data-theme="dark"] [class*="post"],
+[data-theme="dark"] [class*="Post"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Any element with white/light background */
+[data-theme="dark"] [class*="wrapper"],
+[data-theme="dark"] [class*="Wrapper"],
+[data-theme="dark"] [class*="panel"],
+[data-theme="dark"] [class*="Panel"],
+[data-theme="dark"] [class*="section"],
+[data-theme="dark"] [class*="Section"] {
+  border-color: var(--glass-border, rgba(139, 92, 246, 0.2)) !important;
+}
+
+/* ============================================
+   LOGIN PAGE
+   ============================================ */
+
+[data-theme="dark"] [class*="login"],
+[data-theme="dark"] [class*="Login"] {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] [class*="loginCard"],
+[data-theme="dark"] [class*="LoginCard"],
+[data-theme="dark"] [class*="loginForm"],
+[data-theme="dark"] [class*="LoginForm"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   MARK LIST & ACADEMIC PAGES
+   ============================================ */
+
+[data-theme="dark"] [class*="markList"],
+[data-theme="dark"] [class*="MarkList"],
+[data-theme="dark"] [class*="marklist"],
+[data-theme="dark"] [class*="Marklist"] {
+  background: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] [class*="gradeCard"],
+[data-theme="dark"] [class*="GradeCard"],
+[data-theme="dark"] [class*="subjectCard"],
+[data-theme="dark"] [class*="SubjectCard"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   ATTENDANCE PAGES
+   ============================================ */
+
+[data-theme="dark"] [class*="attendance"],
+[data-theme="dark"] [class*="Attendance"] {
+  background: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] [class*="attendanceCard"],
+[data-theme="dark"] [class*="AttendanceCard"],
+[data-theme="dark"] [class*="timeCard"],
+[data-theme="dark"] [class*="TimeCard"],
+[data-theme="dark"] [class*="shiftCard"],
+[data-theme="dark"] [class*="ShiftCard"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+[data-theme="dark"] [class*="studentRow"],
+[data-theme="dark"] [class*="StudentRow"],
+[data-theme="dark"] [class*="staffRow"],
+[data-theme="dark"] [class*="StaffRow"] {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-primary) !important;
+}
+
+[data-theme="dark"] [class*="studentRow"]:hover,
+[data-theme="dark"] [class*="StudentRow"]:hover,
+[data-theme="dark"] [class*="staffRow"]:hover,
+[data-theme="dark"] [class*="StaffRow"]:hover {
+  background: var(--bg-tertiary) !important;
+}
+
+/* ============================================
+   EVALUATION PAGES
+   ============================================ */
+
+[data-theme="dark"] [class*="evaluation"],
+[data-theme="dark"] [class*="Evaluation"] {
+  background: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] [class*="evaluationCard"],
+[data-theme="dark"] [class*="EvaluationCard"],
+[data-theme="dark"] [class*="formCard"],
+[data-theme="dark"] [class*="FormCard"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   STAFF APP PAGES
+   ============================================ */
+
+[data-theme="dark"] [class*="staffContainer"],
+[data-theme="dark"] [class*="StaffContainer"],
+[data-theme="dark"] [class*="staffPage"],
+[data-theme="dark"] [class*="StaffPage"] {
+  background: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] [class*="postCard"],
+[data-theme="dark"] [class*="PostCard"],
+[data-theme="dark"] [class*="postItem"],
+[data-theme="dark"] [class*="PostItem"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   STUDENT APP PAGES
+   ============================================ */
+
+[data-theme="dark"] [class*="studentContainer"],
+[data-theme="dark"] [class*="StudentContainer"],
+[data-theme="dark"] [class*="classCard"],
+[data-theme="dark"] [class*="ClassCard"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   GUARDIAN APP PAGES
+   ============================================ */
+
+[data-theme="dark"] [class*="guardianContainer"],
+[data-theme="dark"] [class*="GuardianContainer"],
+[data-theme="dark"] [class*="wardCard"],
+[data-theme="dark"] [class*="WardCard"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   MOBILE COMPONENTS
+   ============================================ */
+
+[data-theme="dark"] [class*="bottomNav"],
+[data-theme="dark"] [class*="BottomNav"],
+[data-theme="dark"] [class*="bottomNavigation"],
+[data-theme="dark"] [class*="BottomNavigation"] {
+  background: var(--sidebar-bg, rgba(15, 23, 42, 0.95)) !important;
+  border-color: var(--glass-border) !important;
+}
+
+[data-theme="dark"] [class*="floatingBtn"],
+[data-theme="dark"] [class*="FloatingBtn"],
+[data-theme="dark"] [class*="floatingButton"],
+[data-theme="dark"] [class*="FloatingButton"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] [class*="settingsTab"],
+[data-theme="dark"] [class*="SettingsTab"],
+[data-theme="dark"] [class*="settingsItem"],
+[data-theme="dark"] [class*="SettingsItem"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+[data-theme="dark"] [class*="skeletonLoader"],
+[data-theme="dark"] [class*="SkeletonLoader"] {
+  background: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] [class*="toast"],
+[data-theme="dark"] [class*="Toast"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   INVOICE & RECEIPT
+   ============================================ */
+
+[data-theme="dark"] [class*="invoice"],
+[data-theme="dark"] [class*="Invoice"],
+[data-theme="dark"] [class*="receipt"],
+[data-theme="dark"] [class*="Receipt"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   CONFLICT RESOLUTION & SYNC
+   ============================================ */
+
+[data-theme="dark"] [class*="conflict"],
+[data-theme="dark"] [class*="Conflict"],
+[data-theme="dark"] [class*="sync"],
+[data-theme="dark"] [class*="Sync"],
+[data-theme="dark"] [class*="pending"],
+[data-theme="dark"] [class*="Pending"],
+[data-theme="dark"] [class*="offline"],
+[data-theme="dark"] [class*="Offline"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   PERMISSION SELECTOR
+   ============================================ */
+
+[data-theme="dark"] [class*="permission"],
+[data-theme="dark"] [class*="Permission"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   FAULTS PAGE
+   ============================================ */
+
+[data-theme="dark"] [class*="fault"],
+[data-theme="dark"] [class*="Fault"] {
+  background: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] [class*="faultCard"],
+[data-theme="dark"] [class*="FaultCard"],
+[data-theme="dark"] [class*="faultItem"],
+[data-theme="dark"] [class*="FaultItem"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   HR MODULE
+   ============================================ */
+
+[data-theme="dark"] [class*="hrContainer"],
+[data-theme="dark"] [class*="HrContainer"],
+[data-theme="dark"] [class*="salaryCard"],
+[data-theme="dark"] [class*="SalaryCard"],
+[data-theme="dark"] [class*="payroll"],
+[data-theme="dark"] [class*="Payroll"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   EXAM & MANUAL GRADING
+   ============================================ */
+
+[data-theme="dark"] [class*="exam"],
+[data-theme="dark"] [class*="Exam"],
+[data-theme="dark"] [class*="grading"],
+[data-theme="dark"] [class*="Grading"] {
+  background: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] [class*="examCard"],
+[data-theme="dark"] [class*="ExamCard"],
+[data-theme="dark"] [class*="gradingCard"],
+[data-theme="dark"] [class*="GradingCard"],
+[data-theme="dark"] [class*="questionCard"],
+[data-theme="dark"] [class*="QuestionCard"] {
+  background: var(--glass-surface-1) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   VALIDATED INPUT
+   ============================================ */
+
+[data-theme="dark"] [class*="validatedInput"],
+[data-theme="dark"] [class*="ValidatedInput"] {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ============================================
+   BUTTON OVERRIDES (outline/ghost/secondary)
+   ============================================ */
+
+[data-theme="dark"] [class*="btnOutline"],
+[data-theme="dark"] [class*="BtnOutline"],
+[data-theme="dark"] [class*="buttonOutline"],
+[data-theme="dark"] [class*="ButtonOutline"],
+[data-theme="dark"] button[class*="outline"],
+[data-theme="dark"] button[class*="Outline"] {
+  color: var(--text-primary) !important;
+  border-color: var(--glass-border) !important;
+  background: transparent !important;
+}
+
+[data-theme="dark"] [class*="btnOutline"]:hover,
+[data-theme="dark"] [class*="BtnOutline"]:hover,
+[data-theme="dark"] button[class*="outline"]:hover,
+[data-theme="dark"] button[class*="Outline"]:hover {
+  background: var(--bg-hover) !important;
+}
+
+[data-theme="dark"] [class*="btnGhost"],
+[data-theme="dark"] [class*="BtnGhost"],
+[data-theme="dark"] button[class*="ghost"],
+[data-theme="dark"] button[class*="Ghost"] {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+}
+
+[data-theme="dark"] [class*="btnGhost"]:hover,
+[data-theme="dark"] [class*="BtnGhost"]:hover,
+[data-theme="dark"] button[class*="ghost"]:hover,
+[data-theme="dark"] button[class*="Ghost"]:hover {
+  background: var(--bg-hover) !important;
+}
+
+/* ============================================
+   CARD COMPONENT (shared)
+   ============================================ */
+
+[data-theme="dark"] [class*="cardTitle"],
+[data-theme="dark"] [class*="CardTitle"] {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] [class*="cardSubtitle"],
+[data-theme="dark"] [class*="CardSubtitle"],
+[data-theme="dark"] [class*="cardDescription"],
+[data-theme="dark"] [class*="CardDescription"] {
+  color: var(--text-secondary) !important;
+}
+
+/* ============================================
+   STAT CARD COMPONENT
+   ============================================ */
+
+[data-theme="dark"] [class*="statLabel"],
+[data-theme="dark"] [class*="StatLabel"],
+[data-theme="dark"] [class*="statSubtext"],
+[data-theme="dark"] [class*="StatSubtext"] {
+  color: var(--text-tertiary) !important;
+}
+
+/* ============================================
+   MENU ITEMS (Sidebar)
+   ============================================ */
+
+[data-theme="dark"] [class*="menuItem"],
+[data-theme="dark"] [class*="MenuItem"] {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] [class*="menuItem"]:hover,
+[data-theme="dark"] [class*="MenuItem"]:hover {
+  background: var(--bg-hover) !important;
+}
+
+[data-theme="dark"] [class*="menuItem"][class*="active"],
+[data-theme="dark"] [class*="MenuItem"][class*="active"],
+[data-theme="dark"] [class*="menuItem"][class*="Active"],
+[data-theme="dark"] [class*="MenuItem"][class*="Active"] {
+  background: var(--color-primary-light) !important;
+  color: var(--color-primary) !important;
+}
+
+[data-theme="dark"] [class*="subMenu"],
+[data-theme="dark"] [class*="SubMenu"],
+[data-theme="dark"] [class*="submenu"],
+[data-theme="dark"] [class*="Submenu"] {
+  background: var(--bg-secondary) !important;
+}
+
+/* ============================================
+   WARD CAROUSEL (Guardian)
+   ============================================ */
+
+[data-theme="dark"] [class*="wardCarousel"],
+[data-theme="dark"] [class*="WardCarousel"],
+[data-theme="dark"] [class*="carousel"],
+[data-theme="dark"] [class*="Carousel"] {
+  background: var(--glass-surface-1) !important;
+}
+
+/* ============================================
+   BORDERS - Global fix for #e2e8f0 and #f1f5f9
+   ============================================ */
+
+[data-theme="dark"] [style*="border"],
+[data-theme="dark"] [class*="border"],
+[data-theme="dark"] [class*="Border"] {
+  border-color: var(--glass-border, rgba(139, 92, 246, 0.2)) !important;
+}
+
+/* ============================================
+   GENERIC TEXT COLOR FIXES
+   ============================================ */
+
+[data-theme="dark"] [class*="title"],
+[data-theme="dark"] [class*="Title"],
+[data-theme="dark"] [class*="heading"],
+[data-theme="dark"] [class*="Heading"],
+[data-theme="dark"] [class*="name"],
+[data-theme="dark"] [class*="Name"] {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] [class*="subtitle"],
+[data-theme="dark"] [class*="Subtitle"],
+[data-theme="dark"] [class*="description"],
+[data-theme="dark"] [class*="Description"],
+[data-theme="dark"] [class*="helper"],
+[data-theme="dark"] [class*="Helper"],
+[data-theme="dark"] [class*="hint"],
+[data-theme="dark"] [class*="Hint"] {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] [class*="muted"],
+[data-theme="dark"] [class*="Muted"],
+[data-theme="dark"] [class*="placeholder"],
+[data-theme="dark"] [class*="Placeholder"],
+[data-theme="dark"] [class*="empty"],
+[data-theme="dark"] [class*="Empty"] {
+  color: var(--text-tertiary) !important;
+}
+
+/* ============================================
+   PRINT STYLES - Keep light for printing
+   ============================================ */
+
+@media print {
+  [data-theme="dark"] * {
+    background: white !important;
+    color: black !important;
+    border-color: #ccc !important;
+    box-shadow: none !important;
+  }
+}

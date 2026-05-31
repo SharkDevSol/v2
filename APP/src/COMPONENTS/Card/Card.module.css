@@ -1,16 +1,24 @@
-/* Card Component Styles */
+/* Glassmorphism Card Component */
 
 .card {
-  background-color: var(--bg-elevated);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    0 4px 16px rgba(139, 92, 246, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 }
 
 .hoverable:hover {
-  box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(139, 92, 246, 0.15);
+  box-shadow: 
+    0 10px 32px rgba(139, 92, 246, 0.1),
+    0 0 0 1px rgba(139, 92, 246, 0.05);
   transform: translateY(-2px);
   cursor: pointer;
 }
@@ -34,16 +42,18 @@
 
 /* Variants */
 .default {
-  /* Default styling */
+  /* Default glass styling */
 }
 
 .outlined {
-  border: 2px solid var(--border-primary);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   box-shadow: none;
+  background: rgba(30, 41, 59, 0.3);
 }
 
 .elevated {
-  box-shadow: var(--shadow-lg);
+  background: rgba(30, 41, 59, 0.6);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
   border: none;
 }
 
@@ -58,7 +68,7 @@
   align-items: flex-start;
   margin-bottom: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-primary);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
 }
 
 .card.padding-none .header {
@@ -73,14 +83,14 @@
 .title {
   font-size: 20px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-primary, #1e293b);
   margin: 0;
   line-height: var(--line-height-tight);
 }
 
 .subtitle {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #64748b);
   margin: 4px 0 0 0;
   line-height: var(--line-height-normal);
 }
@@ -92,7 +102,7 @@
 }
 
 .content {
-  color: var(--text-primary);
+  color: var(--text-primary, #334155);
 }
 
 .card.padding-none .content {
@@ -103,8 +113,8 @@
 .footer {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid var(--border-primary);
-  color: var(--text-primary);
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .card.padding-none .footer {
@@ -140,7 +150,6 @@
     justify-content: flex-start;
   }
 
-  /* RTL adjustments for mobile */
   [dir="rtl"] .header {
     flex-direction: column;
   }

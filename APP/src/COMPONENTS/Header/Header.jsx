@@ -5,6 +5,7 @@ import SearchBar from './SearchBar';
 import NotificationCenter from './NotificationCenter';
 import ProfileMenu from './ProfileMenu';
 import LanguageSelector from '../LanguageSelector/LanguageSelector';
+import ThemeToggle from '../ThemeToggle/ThemeToggle';
 import styles from './Header.module.css';
 import { Bell } from 'lucide-react';
 
@@ -103,6 +104,9 @@ const Header = ({
 
           {/* Language Selector */}
           <LanguageSelector />
+
+          {/* Theme Toggle */}
+          <ThemeToggle size="sm" />
 
           {/* Notifications */}
           <NotificationCenter

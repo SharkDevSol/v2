@@ -1,8 +1,14 @@
-/* Page Layout Container */
+/* Glassmorphism Page Layout */
+
 .pageLayout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--color-background);
+  background-color: var(--bg-primary, #ffffff);
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(20, 184, 166, 0.02) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
 /* Main Content Area */
@@ -10,14 +16,14 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 260px;
+  margin-left: 296px;
   transition: margin-left 0.3s ease;
   min-width: 0;
 }
 
 /* Sidebar Collapsed State */
 .pageLayout.sidebarCollapsed .mainContent {
-  margin-left: 70px;
+  margin-left: 96px;
 }
 
 /* Page Container */
@@ -31,7 +37,7 @@
 /* Content Area */
 .contentArea {
   flex: 1;
-  padding: 2rem;
+  padding: 6rem 2rem 2rem;
   overflow-y: auto;
 }
 
@@ -55,7 +61,7 @@
 }
 
 .errorIcon {
-  color: var(--color-danger);
+  color: #f87171;
   margin-bottom: 1.5rem;
 }
 
@@ -63,28 +69,28 @@
   margin: 0 0 0.75rem 0;
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text);
+  color: #ffffff;
 }
 
 .errorMessage {
   margin: 0;
   font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.6);
   max-width: 500px;
 }
 
 /* Tablet Styles (768px - 1023px) */
 @media (max-width: 1023px) {
   .mainContent {
-    margin-left: 70px;
+    margin-left: 96px;
   }
 
   .pageLayout.sidebarCollapsed .mainContent {
-    margin-left: 260px;
+    margin-left: 296px;
   }
 
   .contentArea {
-    padding: 1.5rem;
+    padding: 5.5rem 1.5rem 1.5rem;
   }
 
   .errorState {
@@ -108,7 +114,7 @@
   }
 
   .contentArea {
-    padding: 1rem;
+    padding: 5rem 1rem 1rem;
   }
 
   .loadingState {
@@ -138,20 +144,20 @@
 /* RTL Support */
 [dir="rtl"] .mainContent {
   margin-left: 0;
-  margin-right: 260px;
+  margin-right: 296px;
 }
 
 [dir="rtl"] .pageLayout.sidebarCollapsed .mainContent {
-  margin-right: 70px;
+  margin-right: 96px;
 }
 
 @media (max-width: 1023px) {
   [dir="rtl"] .mainContent {
-    margin-right: 70px;
+    margin-right: 96px;
   }
 
   [dir="rtl"] .pageLayout.sidebarCollapsed .mainContent {
-    margin-right: 260px;
+    margin-right: 296px;
   }
 }
 
@@ -176,6 +182,7 @@
 @media print {
   .pageLayout {
     display: block;
+    background: white;
   }
 
   .mainContent {

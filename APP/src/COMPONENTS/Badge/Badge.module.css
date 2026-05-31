@@ -1,4 +1,4 @@
-/* Badge Component Styles */
+/* Glassmorphism Badge Component */
 
 .badge {
   display: inline-flex;
@@ -6,7 +6,7 @@
   gap: 4px;
   font-weight: 600;
   border-radius: var(--radius-full);
-  transition: all var(--transition-base);
+  transition: all 0.2s ease;
   white-space: nowrap;
 }
 
@@ -29,84 +29,96 @@
   line-height: 1.5;
 }
 
-/* Variants - Solid */
+/* Variants - Solid (Glowing) */
 .default {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-primary);
+  background: rgba(51, 65, 85, 0.4);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .primary {
-  background-color: var(--color-primary);
-  color: white;
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.15);
 }
 
 .secondary {
-  background-color: var(--color-secondary);
-  color: white;
+  background: rgba(20, 184, 166, 0.2);
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.15);
 }
 
 .success {
-  background-color: var(--color-success);
-  color: white;
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.1);
 }
 
 .warning {
-  background-color: var(--color-warning);
-  color: white;
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.1);
 }
 
 .error {
-  background-color: var(--color-error);
-  color: white;
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.1);
 }
 
 .info {
-  background-color: var(--color-info);
-  color: white;
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.1);
 }
 
 /* Outlined variants */
 .outline.default {
-  background-color: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border-primary);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .outline.primary {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  background: transparent;
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.4);
 }
 
 .outline.secondary {
-  background-color: var(--color-secondary-light);
-  color: var(--color-secondary);
-  border: 1px solid var(--color-secondary);
+  background: transparent;
+  color: #2dd4bf;
+  border: 1px solid rgba(20, 184, 166, 0.4);
 }
 
 .outline.success {
-  background-color: var(--color-success-light);
-  color: var(--color-success-dark);
-  border: 1px solid var(--color-success);
+  background: transparent;
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.4);
 }
 
 .outline.warning {
-  background-color: var(--color-warning-light);
-  color: var(--color-warning-dark);
-  border: 1px solid var(--color-warning);
+  background: transparent;
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
 }
 
 .outline.error {
-  background-color: var(--color-error-light);
-  color: var(--color-error-dark);
-  border: 1px solid var(--color-error);
+  background: transparent;
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.4);
 }
 
 .outline.info {
-  background-color: var(--color-info-light);
-  color: var(--color-info-dark);
-  border: 1px solid var(--color-info);
+  background: transparent;
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.4);
 }
 
 /* Dot variant */
@@ -151,7 +163,7 @@
   font-size: 16px;
   line-height: 1;
   opacity: 0.7;
-  transition: opacity var(--transition-base);
+  transition: opacity 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -166,4 +178,3 @@
   outline-offset: 2px;
   border-radius: 50%;
 }
-

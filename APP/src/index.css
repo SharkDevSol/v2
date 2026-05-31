@@ -1,82 +1,151 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* ========================================
-     ALKHWARIZM BRAND COLOR SYSTEM
-     These are the default colors used when 
-     not changed from settings
+     SKOOLIFIC V2 - GLASSMORPHISM DESIGN SYSTEM
+     Premium Dark Mode with Glass Panels
      ======================================== */
   
   /* Primary Color (Main Identity) - Digital Violet */
-  --primary-color: #6F56FF;
+  --primary-color: #8b5cf6;
   /* Secondary Color - Soft Indigo (for hover states, secondary buttons) */
-  --secondary-color: #8FA2FF;
+  --secondary-color: #a78bfa;
   
-  /* Secondary Colors (Light & Modern) */
-  --soft-lilac: #D9C7FF;
-  --cloud-white: #F7F8FC;
-  --cool-gray: #E6EAF1;
+  /* Accent Colors */
+  --soft-lilac: rgba(139, 92, 246, 0.08);
+  --cloud-white: #ffffff;
+  --cool-gray: #f1f5f9;
   
   /* Support / UI Colors */
-  --soft-indigo: #8FA2FF;
-  --ice-blue: #EAF0FF;
+  --soft-indigo: #a78bfa;
+  --ice-blue: rgba(139, 92, 246, 0.05);
   
   /* Optional Accent (Very Small Use) */
-  --mint-accent: #3FE0C5;
+  --mint-accent: #22c55e;
   
   /* Computed Theme Variables */
-  --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-  --primary-light: rgba(111, 86, 255, 0.1);
-  --primary-lighter: rgba(111, 86, 255, 0.05);
-  --primary-shadow: rgba(111, 86, 255, 0.3);
-  --primary-shadow-lg: rgba(111, 86, 255, 0.35);
+  --primary-gradient: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  --primary-light: rgba(139, 92, 246, 0.08);
+  --primary-lighter: rgba(139, 92, 246, 0.04);
+  --primary-shadow: rgba(139, 92, 246, 0.2);
+  --primary-shadow-lg: rgba(139, 92, 246, 0.25);
   
-  /* Light Mode Colors */
-  --bg-color: var(--cloud-white);
-  --bg-secondary: var(--soft-lilac);
-  --bg-tertiary: var(--cool-gray);
-  --bg-gradient: linear-gradient(135deg, var(--cloud-white) 0%, var(--soft-lilac) 100%);
+  /* ========== Light White Theme ========== */
+  --bg-color: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   --text-color: #1e293b;
-  --text-secondary: #64748b;
+  --text-secondary: #475569;
   --text-muted: #94a3b8;
-  --border-color: var(--cool-gray);
-  --border-light: var(--ice-blue);
+  --border-color: rgba(139, 92, 246, 0.1);
+  --border-light: rgba(139, 92, 246, 0.06);
   --card-bg: #ffffff;
-  --card-bg-hover: var(--soft-lilac);
-  --card-shadow: 0 4px 20px rgba(111, 86, 255, 0.08);
-  --card-shadow-hover: 0 16px 40px rgba(111, 86, 255, 0.15);
-  --sidebar-bg: #1a1a2e;
-  --input-bg: var(--ice-blue);
-  --input-border: var(--cool-gray);
-  --hover-bg: var(--soft-lilac);
+  --card-bg-hover: rgba(139, 92, 246, 0.04);
+  --card-shadow: 0 4px 16px rgba(139, 92, 246, 0.06);
+  --card-shadow-hover: 0 10px 32px rgba(139, 92, 246, 0.1);
+  --sidebar-bg: rgba(255, 255, 255, 0.75);
+  --input-bg: #ffffff;
+  --input-border: rgba(139, 92, 246, 0.12);
+  --hover-bg: rgba(139, 92, 246, 0.06);
   
   /* Accent Color for Links & Focus */
-  --accent-color: var(--primary-color);
-  --link-color: var(--primary-color);
-  --focus-color: var(--primary-color);
+  --accent-color: #8b5cf6;
+  --link-color: #7c3aed;
+  --focus-color: #8b5cf6;
   
   /* Status Colors */
-  --success-color: var(--mint-accent);
-  --success-bg: rgba(63, 224, 197, 0.15);
-  --success-border: rgba(63, 224, 197, 0.4);
-  --error-color: #dc2626;
-  --error-bg: #fee2e2;
-  --error-border: #fecaca;
-  --warning-color: #d97706;
-  --warning-bg: #fef3c7;
-  --warning-border: #fde68a;
+  --success-color: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.08);
+  --success-border: rgba(34, 197, 94, 0.2);
+  --error-color: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.08);
+  --error-border: rgba(239, 68, 68, 0.2);
+  --warning-color: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.08);
+  --warning-border: rgba(245, 158, 11, 0.2);
+  
+  /* ========== Glass Tokens ========== */
+  --glass-surface-1: rgba(255, 255, 255, 0.75);
+  --glass-surface-2: rgba(255, 255, 255, 0.6);
+  --glass-surface-3: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(139, 92, 246, 0.1);
+  --glass-border-subtle: rgba(139, 92, 246, 0.06);
+  --glass-border-accent: rgba(139, 92, 246, 0.25);
+  --glass-blur-heavy: blur(20px);
+  --glass-blur-medium: blur(12px);
+  --glass-blur-light: blur(8px);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-shadow-sm: 0 1px 3px rgba(139, 92, 246, 0.06);
+  --glass-shadow-md: 0 4px 16px rgba(139, 92, 246, 0.08);
+  --glass-shadow-lg: 0 10px 32px rgba(139, 92, 246, 0.1);
+  --glass-shadow-glow: 0 0 20px rgba(139, 92, 246, 0.08);
+}
+
+/* Dark mode overrides for legacy variables */
+[data-theme="dark"],
+.dark {
+  --bg-color: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-color: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: rgba(139, 92, 246, 0.2);
+  --border-light: rgba(139, 92, 246, 0.1);
+  --card-bg: rgba(30, 41, 59, 0.8);
+  --card-bg-hover: rgba(139, 92, 246, 0.1);
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --card-shadow-hover: 0 10px 32px rgba(139, 92, 246, 0.2);
+  --sidebar-bg: rgba(15, 23, 42, 0.9);
+  --input-bg: rgba(30, 41, 59, 0.8);
+  --input-border: rgba(139, 92, 246, 0.2);
+  --hover-bg: rgba(139, 92, 246, 0.12);
+  --glass-surface-1: rgba(30, 41, 59, 0.8);
+  --glass-surface-2: rgba(30, 41, 59, 0.6);
+  --glass-surface-3: rgba(30, 41, 59, 0.4);
+  --glass-border: rgba(139, 92, 246, 0.2);
+  --glass-border-subtle: rgba(139, 92, 246, 0.1);
+  --glass-border-accent: rgba(139, 92, 246, 0.4);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --glass-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --glass-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --glass-shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.6);
+  --glass-shadow-glow: 0 0 20px rgba(139, 92, 246, 0.2);
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Roboto", sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: #1e293b;
+  min-height: 100vh;
+}
+
+/* Dark mode body */
+body.dark,
+[data-theme="dark"] body {
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+  color: #f1f5f9;
 }
 
 /* RTL Support for Arabic */
@@ -323,5 +392,10 @@ body.rtl .searchInput {
   [class*="MainContent"] {
     margin: 0 !important;
     padding: 0 !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
   }
 }

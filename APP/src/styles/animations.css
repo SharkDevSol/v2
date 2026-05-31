@@ -72,7 +72,7 @@ button, a, input, select, textarea {
 }
 
 .sidebar-menu-item:hover {
-  background-color: var(--color-surface);
+  background-color: rgba(139, 92, 246, 0.1);
   padding-left: calc(var(--spacing-md) + 4px);
 }
 
@@ -167,7 +167,7 @@ button, a, input, select, textarea {
 }
 
 .dropdown-item:hover {
-  background-color: var(--color-surface);
+  background-color: rgba(139, 92, 246, 0.1);
   padding-left: calc(var(--spacing-sm) + 4px);
 }
 
@@ -281,16 +281,17 @@ button, a, input, select, textarea {
    SKELETON LOADING
    ============================================ */
 
-/* Skeleton shimmer effect */
+/* Skeleton shimmer effect (Glassmorphism) */
 .skeleton {
   animation: shimmer 1.5s ease-in-out infinite;
   background: linear-gradient(
     90deg,
-    var(--color-surface) 0%,
-    var(--color-border) 50%,
-    var(--color-surface) 100%
+    rgba(51, 65, 85, 0.4) 0%,
+    rgba(71, 85, 105, 0.5) 50%,
+    rgba(51, 65, 85, 0.4) 100%
   );
   background-size: 200% 100%;
+  border-radius: var(--radius-md);
 }
 
 @keyframes shimmer {
@@ -394,7 +395,7 @@ textarea:focus {
 }
 
 .table-row:hover {
-  background-color: var(--color-surface);
+  background-color: rgba(139, 92, 246, 0.05);
 }
 
 /* Table sort indicator */

@@ -13,7 +13,7 @@
   margin-left: calc(280px + 2rem);
   transition: margin-left 0.3s ease;
   min-height: 100vh;
-  padding-top: calc(70px + 2rem);
+  padding-top: 0;
 }
 
 .mainContent.collapsed {
@@ -22,8 +22,9 @@
 
 .contentWrapper {
   flex: 1;
-  padding: 2rem;
+  padding: 0;
   overflow-y: auto;
+  margin-top: 72px;
 }
 
 /* Responsive adjustments */

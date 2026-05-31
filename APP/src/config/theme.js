@@ -124,11 +124,73 @@ export const lightTheme = {
 export const defaultTheme = lightTheme;
 
 /**
- * Get theme
+ * Dark theme configuration
+ * @type {ThemeConfig}
+ */
+export const darkTheme = {
+  mode: 'dark',
+  colors: {
+    // Primary colors
+    primary: '#a78bfa',
+    primaryHover: '#c4b5fd',
+    primaryActive: '#8b5cf6',
+    primaryLight: 'rgba(139, 92, 246, 0.2)',
+
+    // Semantic colors
+    success: '#4ade80',
+    successLight: 'rgba(74, 222, 128, 0.15)',
+    successDark: '#22c55e',
+
+    warning: '#fbbf24',
+    warningLight: 'rgba(251, 191, 36, 0.15)',
+    warningDark: '#f59e0b',
+
+    danger: '#f87171',
+    dangerLight: 'rgba(248, 113, 113, 0.15)',
+    dangerDark: '#ef4444',
+
+    info: '#60a5fa',
+    infoLight: 'rgba(96, 165, 250, 0.15)',
+    infoDark: '#3b82f6',
+
+    // Neutral colors
+    background: '#0f172a',
+    backgroundSecondary: '#1e293b',
+    backgroundTertiary: '#334155',
+    surface: 'rgba(30, 41, 59, 0.8)',
+    surfaceElevated: 'rgba(51, 65, 85, 0.9)',
+
+    border: 'rgba(139, 92, 246, 0.2)',
+    borderSecondary: 'rgba(139, 92, 246, 0.12)',
+    borderFocus: '#a78bfa',
+
+    text: '#f1f5f9',
+    textSecondary: '#cbd5e1',
+    textTertiary: '#94a3b8',
+    textDisabled: '#475569',
+    textInverse: '#0f172a',
+
+    // Shadows
+    shadowSm: '0 1px 3px rgba(0, 0, 0, 0.3)',
+    shadowMd: '0 4px 16px rgba(0, 0, 0, 0.4)',
+    shadowLg: '0 10px 32px rgba(0, 0, 0, 0.5)',
+    shadowXl: '0 20px 48px rgba(0, 0, 0, 0.6)',
+    shadow2xl: '0 32px 64px rgba(0, 0, 0, 0.7)',
+    shadowInner: 'inset 0 2px 4px rgba(0, 0, 0, 0.3)',
+  },
+  typography: lightTheme.typography,
+  spacing: lightTheme.spacing,
+  borderRadius: lightTheme.borderRadius,
+  breakpoints: lightTheme.breakpoints,
+};
+
+/**
+ * Get theme by mode
+ * @param {'light' | 'dark'} mode - Theme mode
  * @returns {ThemeConfig} Theme configuration
  */
-export const getTheme = () => {
-  return lightTheme;
+export const getTheme = (mode = 'light') => {
+  return mode === 'dark' ? darkTheme : lightTheme;
 };
 
 /**
@@ -136,6 +198,7 @@ export const getTheme = () => {
  */
 export const themeConfig = {
   light: lightTheme,
+  dark: darkTheme,
   default: defaultTheme,
   getTheme,
 };

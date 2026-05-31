@@ -1,4 +1,4 @@
-/* Select Component Styles */
+/* Glassmorphism Select Component */
 
 .selectGroup {
   display: flex;
@@ -10,13 +10,13 @@
 
 .label {
   font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: var(--text-secondary, #374151);
   margin-bottom: 2px;
 }
 
 .required {
-  color: var(--color-error);
+  color: #ef4444;
   margin-left: 4px;
 }
 
@@ -28,11 +28,13 @@
   width: 100%;
   padding: 10px 16px;
   font-size: 16px;
-  border: 2px solid var(--border-primary);
-  border-radius: var(--radius-md);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition: all var(--transition-base);
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.15));
+  border-radius: var(--radius-lg);
+  background: var(--input-bg, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-primary, #1e293b);
+  transition: all 0.2s ease;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -43,23 +45,26 @@
 }
 
 .selectButton:hover:not(:disabled) {
-  border-color: var(--border-secondary);
+  border-color: rgba(139, 92, 246, 0.3);
+  background: var(--glass-surface-hover, rgba(255, 255, 255, 0.95));
 }
 
 .selectButton:focus {
   outline: none;
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 
+    0 0 0 3px rgba(139, 92, 246, 0.1),
+    0 0 12px rgba(139, 92, 246, 0.06);
 }
 
 .selectButton:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
-  background-color: var(--bg-secondary);
+  background: var(--bg-secondary, rgba(241, 245, 249, 0.8));
 }
 
 .selectWrapper.error .selectButton {
-  border-color: var(--color-error);
+  border-color: rgba(239, 68, 68, 0.4);
 }
 
 .selectWrapper.error .selectButton:focus {
@@ -74,7 +79,7 @@
 }
 
 .placeholder {
-  color: var(--text-tertiary);
+  color: var(--text-tertiary, #94a3b8);
 }
 
 .iconGroup {
@@ -85,22 +90,21 @@
 }
 
 .clearIcon {
-  color: var(--text-secondary);
+  color: var(--text-secondary, #64748b);
   cursor: pointer;
-  transition: color var(--transition-fast);
+  transition: color 0.2s ease;
   padding: 2px;
   border-radius: var(--radius-sm);
 }
 
 .clearIcon:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-secondary);
+  color: #ef4444;
 }
 
 .chevron {
   flex-shrink: 0;
-  color: var(--text-secondary);
-  transition: transform var(--transition-base);
+  color: var(--text-secondary, #64748b);
+  transition: transform 0.2s ease;
 }
 
 .chevronOpen {
@@ -113,10 +117,12 @@
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background-color: var(--bg-elevated);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  background: var(--glass-surface-hover, rgba(255, 255, 255, 0.95));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.12));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg, 0 16px 48px rgba(0, 0, 0, 0.1));
   z-index: var(--z-dropdown);
   max-height: 300px;
   overflow: hidden;
@@ -137,23 +143,27 @@
 /* Search */
 .searchWrapper {
   padding: 8px;
-  border-bottom: 1px solid var(--border-primary);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.08);
 }
 
 .searchInput {
   width: 100%;
   padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid var(--border-primary);
-  border-radius: var(--radius-sm);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition: all var(--transition-base);
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.12));
+  border-radius: var(--radius-md);
+  background: var(--input-bg, rgba(255, 255, 255, 0.9));
+  color: var(--text-primary, #1e293b);
+  transition: all 0.2s ease;
 }
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--border-focus);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.searchInput::placeholder {
+  color: var(--text-tertiary, #94a3b8);
 }
 
 /* Options list */
@@ -170,7 +180,7 @@
   padding: 8px 12px 4px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #64748b);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 4px;
@@ -184,51 +194,50 @@
 .option {
   padding: 10px 12px;
   font-size: 14px;
-  color: var(--text-primary);
+  color: var(--text-primary, #334155);
   cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .option:hover:not(.optionDisabled) {
-  background-color: var(--bg-secondary);
+  background: rgba(139, 92, 246, 0.06);
 }
 
 .option.focused:not(.optionDisabled) {
-  background-color: var(--bg-secondary);
-  outline: 2px solid var(--border-focus);
-  outline-offset: -2px;
+  background: rgba(139, 92, 246, 0.06);
+  outline: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 .option.selected {
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
   font-weight: 500;
 }
 
 .option.optionDisabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .checkbox {
   width: 18px;
   height: 18px;
-  border: 2px solid var(--border-primary);
+  border: 1px solid rgba(139, 92, 246, 0.25);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all var(--transition-fast);
+  transition: all 0.15s ease;
 }
 
 .option.selected .checkbox {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+  background: #8b5cf6;
+  border-color: #8b5cf6;
   color: white;
 }
 
@@ -239,19 +248,19 @@
 .noOptions {
   padding: 16px 12px;
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #64748b);
   text-align: center;
 }
 
 /* Helper text */
 .helperText {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #64748b);
   margin-top: 2px;
 }
 
 .errorText {
-  color: var(--color-error);
+  color: #ef4444;
 }
 
 /* Scrollbar styling */
@@ -260,17 +269,16 @@
 }
 
 .optionsList::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-sm);
+  background: transparent;
 }
 
 .optionsList::-webkit-scrollbar-thumb {
-  background: var(--border-secondary);
-  border-radius: var(--radius-sm);
+  background: rgba(139, 92, 246, 0.15);
+  border-radius: var(--radius-full);
 }
 
 .optionsList::-webkit-scrollbar-thumb:hover {
-  background: var(--text-tertiary);
+  background: rgba(139, 92, 246, 0.3);
 }
 
 /* RTL Support */

@@ -1,4 +1,4 @@
-/* Modern Professional Sidebar Styles - Card Design with Skoolific Colors */
+/* Glassmorphism Sidebar - Floating Glass Panel */
 
 .sidebar {
   position: fixed;
@@ -6,18 +6,20 @@
   left: 1rem;
   height: calc(100vh - 2rem);
   width: 280px;
-  background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 50%, #ede9fe 100%);
-  border: 1px solid rgba(139, 92, 246, 0.1);
-  border-radius: 20px;
+  background: var(--sidebar-bg, rgba(255, 255, 255, 0.75));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color, rgba(139, 92, 246, 0.1));
+  border-radius: 24px;
   display: flex;
   flex-direction: column;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   overflow: hidden;
   box-shadow: 
-    0 10px 40px rgba(139, 92, 246, 0.15),
-    0 4px 12px rgba(139, 92, 246, 0.1),
-    0 1px 3px rgba(0, 0, 0, 0.05);
+    0 10px 40px rgba(139, 92, 246, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.04),
+    var(--glass-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.9));
 }
 
 /* Collapsed State */
@@ -39,7 +41,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1.5rem 1.25rem;
-  border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
   position: relative;
   background: transparent;
   flex-direction: column;
@@ -66,12 +68,13 @@
 .logoIcon {
   width: 48px;
   height: 48px;
-  background: transparent;
+  background: rgba(139, 92, 246, 0.15);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 .logo {
@@ -95,7 +98,7 @@
 .brandName {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--text-primary, #1e293b);
   margin: 0;
   line-height: 1.2;
 }
@@ -103,11 +106,10 @@
 .brandTagline {
   font-size: 0.625rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary, #64748b);
   margin: 0.25rem 0 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  opacity: 0.7;
 }
 
 /* Toggle Button */
@@ -118,9 +120,9 @@
   align-items: center;
   justify-content: center;
   background: rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.25);
   border-radius: 8px;
-  color: #8b5cf6;
+  color: #a78bfa;
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
@@ -138,9 +140,10 @@
 }
 
 .toggleButton:hover {
-  background: #8b5cf6;
-  color: white;
-  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.25);
+  color: #c4b5fd;
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
   transform: scale(1.05);
 }
 
@@ -171,13 +174,12 @@
 }
 
 .menuContainer::-webkit-scrollbar-thumb {
-  background: var(--color-border);
+  background: rgba(148, 163, 184, 0.2);
   border-radius: 10px;
-  transition: background 0.2s ease;
 }
 
 .menuContainer::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary);
+  background: rgba(139, 92, 246, 0.4);
 }
 
 /* Mobile Overlay */
@@ -192,25 +194,28 @@
   top: 1.25rem;
   left: 1.25rem;
   z-index: 1100;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 12px;
   padding: 0.75rem;
   cursor: pointer;
-  color: var(--color-text);
+  color: rgba(255, 255, 255, 0.8);
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .mobileMenuButton:hover {
-  background: var(--color-primary);
-  color: white;
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  border-color: rgba(139, 92, 246, 0.3);
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 0 16px rgba(139, 92, 246, 0.2);
 }
 
 .mobileMenuButton:focus {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid #8b5cf6;
   outline-offset: 2px;
 }
 
@@ -244,7 +249,7 @@
   .sidebar {
     transform: translateX(-100%);
     width: 280px;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5);
   }
 
   .sidebar.mobileOpen {
@@ -258,7 +263,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     z-index: 999;
@@ -275,27 +280,16 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-[data-theme="dark"] .sidebar,
-[data-theme="dark"] .brandSection,
-[data-theme="dark"] .brandName,
-[data-theme="dark"] .brandTagline,
-[data-theme="dark"] .toggleButton,
-[data-theme="dark"] .toggleButton:hover,
-[data-theme="dark"] .mobileMenuButton,
 /* RTL Support */
 [dir="rtl"] .sidebar {
   left: auto;
-  right: 0;
+  right: 1rem;
   border-right: none;
-  border-left: 1px solid var(--color-border);
+  border-left: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 [dir="rtl"] .toggleButton {
@@ -312,7 +306,7 @@
 @media (max-width: 767px) {
   [dir="rtl"] .sidebar {
     transform: translateX(100%);
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
   }
 
   [dir="rtl"] .sidebar.mobileOpen {
