@@ -34,21 +34,16 @@ router.use(sanitizeInputs);
 // ---------------------------------------------------------------------
 const createSchemaIfNotExists = async (client, schemaName) => {
   try {
-    const schemaCheck = await client.query(`
-      SELECT schema_name 
-      FROM information_schema.schemata 
-      WHERE schema_name = $1
-    `, [schemaName]);
-
-    if (schemaCheck.rows.length === 0) {
-      await client.query(`CREATE SCHEMA ${schemaName}`);
-      console.log(`Created schema: ${schemaName}`);
-    } else {
-      console.log(`Schema already exists: ${schemaName}`);
-    }
+    await client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaName}`);
+    console.log(`Schema ready: ${schemaName}`);
   } catch (error) {
-    console.error(`Error creating schema ${schemaName}:`, error.message);
-    throw error;
+    if (error.code === '23505' || error.code === '42P06') {
+      // Schema already exists - that's fine
+      console.log(`Schema already exists: ${schemaName}`);
+    } else {
+      console.error(`Error creating schema ${schemaName}:`, error.message);
+      throw error;
+    }
   }
 };
 
