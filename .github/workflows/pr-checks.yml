@@ -48,7 +48,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
       
       - name: Install dependencies
@@ -101,7 +101,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
       
       - name: Install dependencies
@@ -172,20 +172,20 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
       
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
       
       - name: Build frontend
-        working-directory: APP
+        working-directory: frontend
         run: |
           cp .env.example .env
           npm run build
       
       - name: Check bundle size
-        working-directory: APP
+        working-directory: frontend
         run: |
           BUNDLE_SIZE=$(du -sh dist | cut -f1)
           echo "Bundle size: $BUNDLE_SIZE"
