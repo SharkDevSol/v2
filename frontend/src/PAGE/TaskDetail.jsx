@@ -227,8 +227,8 @@ function TaskDetail() {
         <p className={styles.description}>
           Configure the academic year, number of terms, and form languages.
           {academicYear && (
-            <span style={{ display: 'block', marginTop: '8px', color: '#4CAF50' }}>
-              Current Academic Year from Settings: <strong>{academicYear}</strong>
+            <span className={styles.academicYearBadge}>
+              Current Academic Year: <strong>{academicYear}</strong>
             </span>
           )}
         </p>
@@ -245,7 +245,7 @@ function TaskDetail() {
                 <option key={y} value={y}>{y}-{y+1}</option>
               ))}
             </select>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+            <p className={styles.helperText}>
               This will be saved to Settings → School Info → Academic Year
             </p>
           </div>
@@ -266,10 +266,10 @@ function TaskDetail() {
           {/* V2 Enhancement: School Days Selector */}
           <div className={styles.formGroup}>
             <label className={styles.label}>School Days:</label>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px', marginBottom: '12px' }}>
+            <p className={styles.helperText} style={{ marginBottom: '12px' }}>
               Select which days of the week school is in session
             </p>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div className={styles.schoolDaysGrid}>
               {[
                 { value: 0, label: 'Sunday' },
                 { value: 1, label: 'Monday' },
@@ -279,17 +279,7 @@ function TaskDetail() {
                 { value: 5, label: 'Friday' },
                 { value: 6, label: 'Saturday' }
               ].map(day => (
-                <label key={day.value} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 12px',
-                  backgroundColor: schoolDays.includes(day.value) ? '#e3f2fd' : '#f5f5f5',
-                  borderRadius: '6px',
-                  border: schoolDays.includes(day.value) ? '2px solid #2196F3' : '2px solid #e0e0e0',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}>
+                <label key={day.value} className={`${styles.dayChip} ${schoolDays.includes(day.value) ? styles.dayChipActive : ''}`}>
                   <input
                     type="checkbox"
                     checked={schoolDays.includes(day.value)}
@@ -300,11 +290,9 @@ function TaskDetail() {
                         setSchoolDays(schoolDays.filter(d => d !== day.value));
                       }
                     }}
-                    style={{ width: '16px', height: '16px' }}
+                    className={styles.dayCheckbox}
                   />
-                  <span style={{ fontWeight: schoolDays.includes(day.value) ? '600' : '400' }}>
-                    {day.label}
-                  </span>
+                  <span>{day.label}</span>
                 </label>
               ))}
             </div>
@@ -322,7 +310,7 @@ function TaskDetail() {
               <option value={1}>1 Shift (All classes same time)</option>
               <option value={2}>2 Shifts (Morning & Afternoon)</option>
             </select>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+            <p className={styles.helperText}>
               {shiftCount === 1 
                 ? 'All classes will attend at the same time' 
                 : 'Classes will be divided into morning and afternoon shifts'}
@@ -332,18 +320,18 @@ function TaskDetail() {
           {/* V2 Enhancement: Shift Rotation (only show if 2 shifts) */}
           {shiftCount === 2 && (
             <div className={styles.formGroup}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <label className={styles.checkboxRow}>
                 <input
                   type="checkbox"
                   checked={shiftRotation}
                   onChange={(e) => setShiftRotation(e.target.checked)}
-                  style={{ width: '18px', height: '18px' }}
+                  className={styles.checkboxInput}
                 />
-                <span className={styles.label} style={{ marginBottom: 0 }}>
+                <span className={styles.checkboxLabel}>
                   Enable Shift Rotation
                 </span>
               </label>
-              <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+              <p className={styles.helperText}>
                 When enabled, classes will alternate between morning and afternoon shifts weekly
               </p>
             </div>
@@ -361,7 +349,7 @@ function TaskDetail() {
               max="10"
               className={styles.select}
             />
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+            <p className={styles.helperText}>
               Number of teaching periods in each shift (typically 6-8)
             </p>
           </div>
@@ -379,43 +367,43 @@ function TaskDetail() {
               step="5"
               className={styles.select}
             />
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+            <p className={styles.helperText}>
               Duration of each teaching period (typically 40-50 minutes)
             </p>
           </div>
 
           {/* V2 Enhancement: KG Checkbox */}
           <div className={styles.formGroup}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+            <label className={styles.checkboxRow}>
               <input
                 type="checkbox"
                 checked={hasKG}
                 onChange={(e) => setHasKG(e.target.checked)}
-                style={{ width: '18px', height: '18px' }}
+                className={styles.checkboxInput}
               />
-              <span className={styles.label} style={{ marginBottom: 0 }}>
+              <span className={styles.checkboxLabel}>
                 School has Kindergarten (KG) classes
               </span>
             </label>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+            <p className={styles.helperText}>
               Enable this if your school has KG classes with different schedules
             </p>
           </div>
 
           {/* V2 Enhancement: Evening Class Checkbox */}
           <div className={styles.formGroup}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+            <label className={styles.checkboxRow}>
               <input
                 type="checkbox"
                 checked={hasEveningClass}
                 onChange={(e) => setHasEveningClass(e.target.checked)}
-                style={{ width: '18px', height: '18px' }}
+                className={styles.checkboxInput}
               />
-              <span className={styles.label} style={{ marginBottom: 0 }}>
+              <span className={styles.checkboxLabel}>
                 School has Evening classes
               </span>
             </label>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
+            <p className={styles.helperText}>
               Enable this if your school offers evening classes for adult education or special programs
             </p>
           </div>
@@ -423,39 +411,22 @@ function TaskDetail() {
           {/* Language Selection Section */}
           <div className={styles.formGroup}>
             <label className={styles.label}>Select Additional Form Languages:</label>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px', marginBottom: '12px' }}>
+            <p className={styles.helperText} style={{ marginBottom: '12px' }}>
               English is always included. Select additional languages for form field labels.
               When creating custom fields in Tasks 2 and 3, you'll need to provide translations for each selected language.
             </p>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '12px',
-              padding: '16px',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '8px',
-              border: '1px solid #e9ecef'
-            }}>
+            <div className={styles.languageGrid}>
               {/* English - Always selected, disabled */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '12px',
-                backgroundColor: '#e8f5e9',
-                borderRadius: '6px',
-                border: '2px solid #4CAF50',
-                opacity: 0.8
-              }}>
+              <div className={`${styles.languageCard} ${styles.languageCardDefault}`}>
                 <input
                   type="checkbox"
                   checked={true}
                   disabled
-                  style={{ width: '18px', height: '18px' }}
+                  className={styles.dayCheckbox}
                 />
                 <div>
-                  <span style={{ fontWeight: '600', color: '#2e7d32' }}>English</span>
-                  <span style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>Default (Required)</span>
+                  <span className={styles.languageName} style={{ color: '#16a34a' }}>English</span>
+                  <span className={styles.languageNative}>Default (Required)</span>
                 </div>
               </div>
 
@@ -464,29 +435,19 @@ function TaskDetail() {
                 <div
                   key={lang.code}
                   onClick={() => toggleLanguage(lang.code)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '12px',
-                    backgroundColor: selectedLanguages.includes(lang.code) ? '#e3f2fd' : 'white',
-                    borderRadius: '6px',
-                    border: selectedLanguages.includes(lang.code) ? '2px solid #2196F3' : '2px solid #e0e0e0',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
+                  className={`${styles.languageCard} ${selectedLanguages.includes(lang.code) ? styles.languageCardActive : ''}`}
                 >
                   <input
                     type="checkbox"
                     checked={selectedLanguages.includes(lang.code)}
                     onChange={() => toggleLanguage(lang.code)}
-                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    className={styles.dayCheckbox}
                   />
                   <div>
-                    <span style={{ fontWeight: '600', color: selectedLanguages.includes(lang.code) ? '#1565c0' : '#333' }}>
+                    <span className={styles.languageName}>
                       {lang.name}
                     </span>
-                    <span style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>
+                    <span className={styles.languageNative}>
                       {lang.nativeName}
                     </span>
                   </div>
@@ -494,15 +455,9 @@ function TaskDetail() {
               ))}
             </div>
             {selectedLanguages.length > 0 && (
-              <div style={{
-                marginTop: '12px',
-                padding: '12px',
-                backgroundColor: '#fff3e0',
-                borderRadius: '6px',
-                border: '1px solid #ffcc80'
-              }}>
-                <strong style={{ color: '#e65100' }}>Selected Languages ({selectedLanguages.length + 1}):</strong>
-                <span style={{ marginLeft: '8px', color: '#333' }}>
+              <div className={styles.selectedLanguagesBar}>
+                <span className={styles.selectedLanguagesLabel}>Selected Languages ({selectedLanguages.length + 1}):</span>
+                <span className={styles.selectedLanguagesList}>
                   English, {selectedLanguages.map(code => {
                     const lang = availableLanguages.find(l => l.code === code);
                     return lang ? lang.name : code;

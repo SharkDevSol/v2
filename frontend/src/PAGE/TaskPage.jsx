@@ -104,8 +104,8 @@ function TaskPage() {
       </motion.div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
-          <FiClock size={48} style={{ marginBottom: '1rem' }} />
+        <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+          <FiClock size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
           <p>Loading task status...</p>
         </div>
       ) : (
