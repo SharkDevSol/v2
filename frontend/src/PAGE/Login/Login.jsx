@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import api from '../../utils/api';
 import { motion } from 'framer-motion';
-import { 
+import {
   Building2, 
   User as UserIcon, 
   Lock, 
@@ -130,7 +131,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/v2/branches/login', {
+      const response = await api.post('/v2/branches/login', {
         ...credentials,
         branchCode: credentials.branchCode.toUpperCase(),
         userType: 'admin'
