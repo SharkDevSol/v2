@@ -3,11 +3,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import LoadingScreen from "./COMPONENTS/LoadingScreen";
 import { LanguageProvider } from "./contexts/LanguageContext";
-import { ThemeProvider } from "./contexts/ThemeContext";
 import "./i18n/config"; // Initialize i18n
 import "./styles/theme.css";
 import "./styles/global.css";
-import "./styles/dark-mode.css";
 import "./styles/animations.css";
 import { Provider } from 'react-redux';
 import { store } from '../src/PAGE/store';
@@ -192,8 +190,7 @@ const GuardianProfileRedirect = () => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <LanguageProvider>
+    <LanguageProvider>
         <div>
           <Provider store={store}>
             <Suspense fallback={<PageLoader />}>
@@ -416,7 +413,6 @@ function App() {
           </Provider>
         </div>
       </LanguageProvider>
-    </ThemeProvider>
   );
 }
 

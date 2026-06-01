@@ -1,29 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Apply theme immediately on module load to prevent flash
+// Force light mode always
 const applyThemeEarly = () => {
-  const savedTheme = localStorage.getItem('appTheme');
-  if (savedTheme) {
-    try {
-      const theme = JSON.parse(savedTheme);
-      if (theme.mode === 'dark') {
-        document.body.classList.add('dark-mode');
-        document.documentElement.classList.add('dark');
-        document.documentElement.classList.remove('light');
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.body.classList.remove('dark-mode');
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.add('light');
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
-      }
-    } catch (e) {
-      console.error('Error applying early theme:', e);
-    }
-  }
+  document.body.classList.remove('dark-mode');
+  document.documentElement.classList.remove('dark');
+  document.documentElement.classList.add('light');
+  document.documentElement.setAttribute('data-theme', 'light');
+  localStorage.setItem('theme', 'light');
 };
 
 // Call immediately when module loads
