@@ -138,15 +138,30 @@ const initializeAdminTable = async () => {
 // Initialize table on module load
 initializeAdminTable();
 
-// Verify token endpoint - check if token is still valid
-router.get(getEndpointPath('ADMIN.PROFILE').replace('/api/admin/profile', '/verify-token'), authenticateWithBranch, (req, res) => {
+// Verify token endpoint - check if token is still valid (no branch required)
+router.get(getEndpointPath('ADMIN.PROFILE').replace('/api/admin/profile', '/verify-token'), (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ valid: false, error: 'No token provided' });
+  }
+
+  const { verifyTokenWithDetails } = require('../middleware/jwtValidator');
+  const result = verifyTokenWithDetails(token);
+
+  if (!result.success) {
+    return res.status(401).json({ valid: false, error: result.error.userMessage, code: result.error.code });
+  }
+
   res.json({
     valid: true,
     user: {
-      id: req.user.id,
-      username: req.user.username,
-      role: req.user.role,
-      userType: req.user.userType
+      id: result.decoded.id,
+      username: result.decoded.username,
+      role: result.decoded.role,
+      userType: result.decoded.userType,
+      branchCode: result.decoded.branchCode
     }
   });
 });

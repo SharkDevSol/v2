@@ -38,11 +38,11 @@ const validateBranchCode = async (req, res, next) => {
       });
     }
 
-    // Validate branch code format (3 uppercase letters)
-    if (!/^[A-Z]{3}$/.test(branchCode)) {
+    // Validate branch code format (2-5 alphanumeric uppercase chars)
+    if (!/^[A-Z0-9]{2,5}$/.test(branchCode)) {
       return res.status(400).json({ 
         error: 'Invalid branch code format',
-        message: 'Branch code must be 3 uppercase letters (e.g., MAI, AMA, SOL)'
+        message: 'Branch code must be 2-5 uppercase letters/numbers (e.g., MAI, DB1, SKL)'
       });
     }
 

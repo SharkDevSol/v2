@@ -21,10 +21,10 @@ router.post('/validate', async (req, res) => {
     }
 
     // Validate format
-    if (!/^[A-Z]{3}$/.test(branchCode)) {
+    if (!/^[A-Z0-9]{2,5}$/.test(branchCode)) {
       return res.status(400).json({ 
         error: 'Invalid branch code format',
-        message: 'Branch code must be 3 uppercase letters'
+        message: 'Branch code must be 2-5 uppercase letters/numbers'
       });
     }
 

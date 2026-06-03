@@ -108,8 +108,12 @@ const Home = () => {
     localStorage.removeItem('adminUser');
     localStorage.removeItem('userType');
     localStorage.removeItem('userPermissions');
-    localStorage.removeItem('authToken'); // Clear JWT token
-    navigate("/login");
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('branchCode');
+    localStorage.removeItem('staffUser');
+    localStorage.removeItem('staffProfile');
+    sessionStorage.clear();
+    window.location.href = '/login';
   };
 
   const navItems = [

@@ -97,6 +97,7 @@ const shiftSettingsRoutes = require('./routes/shiftSettings');
 const taskStatusRoutes = require('./routes/taskStatusRoutes');
 const deviceUserManagementRoutes = require('./routes/deviceUserManagement');
 const studentActivitiesRoutes = require('./routes/studentActivitiesRoutes');
+const superAdminRoutes = require('./routes/superAdminRoutes');
 
 // Service imports for device user persistence
 const syncCoordinator = require('./services/SyncCoordinator');
@@ -370,6 +371,7 @@ app.use('/api/academic/student-attendance', academicStudentAttendanceRoutes);
 app.use('/api/tasks', taskStatusRoutes);
 app.use('/api/device-users', deviceUserManagementRoutes); // Device user persistence management
 app.use('/api/v2/branches', branchRoutes); // Multi-branch architecture routes
+app.use('/api/super-admin', superAdminRoutes); // Super Admin aggregation routes
 
 // ===========================================
 // AI06 WEBSOCKET SERVICE

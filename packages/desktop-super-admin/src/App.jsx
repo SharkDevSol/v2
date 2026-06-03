@@ -1,98 +1,61 @@
 import { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/core';
 import './App.css';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 
+const API_BASE = 'http://localhost:5050/api/super-admin';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [credentials, setCredentials] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check for saved credentials on app start
   useEffect(() => {
-    checkSavedCredentials();
+    const saved = localStorage.getItem('skoolific_super_admin_session');
+    if (saved) {
+      try {
+        const session = JSON.parse(saved);
+        if (session.token && session.user) {
+          setUser({ ...session.user, token: session.token });
+          setIsAuthenticated(true);
+        }
+      } catch (e) {
+        localStorage.removeItem('skoolific_super_admin_session');
+      }
+    }
+    setLoading(false);
   }, []);
 
-  const checkSavedCredentials = async () => {
-    try {
-      // Try to get saved username from localStorage
-      const savedUsername = localStorage.getItem('skoolific_super_admin_username');
-      
-      if (savedUsername) {
-        // Check if credentials exist in keyring
-        const hasCredentials = await invoke('has_credentials', { username: savedUsername });
-        
-        if (hasCredentials) {
-          // Retrieve credentials
-          const creds = await invoke('get_credentials', { username: savedUsername });
-          setCredentials(creds);
-          setIsAuthenticated(true);
-          
-          // Show welcome notification
-          await invoke('show_notification', {
-            title: 'Welcome Back!',
-            body: `Logged in as ${creds.username} (Super Admin)`
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error checking saved credentials:', error);
-    } finally {
-      setLoading(false);
+  const handleLogin = async (username, password, rememberMe) => {
+    const res = await fetch(`${API_BASE}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Login failed');
     }
+
+    const data = await res.json();
+    const userData = { ...data.user, token: data.token };
+
+    if (rememberMe) {
+      localStorage.setItem('skoolific_super_admin_session', JSON.stringify({
+        token: data.token,
+        user: data.user
+      }));
+    }
+
+    setUser(userData);
+    setIsAuthenticated(true);
   };
 
-  const handleLogin = async (username, password, branchCode, rememberMe) => {
-    try {
-      // TODO: Validate credentials with backend API
-      // For now, we'll just save them
-      
-      if (rememberMe) {
-        // Save credentials to keyring
-        await invoke('save_credentials', {
-          username,
-          password,
-          branchCode
-        });
-        
-        // Save username to localStorage for auto-login check
-        localStorage.setItem('skoolific_super_admin_username', username);
-      }
-      
-      setCredentials({ username, password, branch_code: branchCode });
-      setIsAuthenticated(true);
-      
-      // Show success notification
-      await invoke('show_notification', {
-        title: 'Login Successful',
-        body: `Welcome, ${username}! (Super Admin)`
-      });
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      // Clear localStorage
-      localStorage.removeItem('skoolific_super_admin_username');
-      
-      // Optionally delete credentials from keyring
-      // await invoke('delete_credentials', { username: credentials.username });
-      
-      setCredentials(null);
-      setIsAuthenticated(false);
-      
-      // Show logout notification
-      await invoke('show_notification', {
-        title: 'Logged Out',
-        body: 'You have been logged out successfully'
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('skoolific_super_admin_session');
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   if (loading) {
@@ -109,7 +72,7 @@ function App() {
       {!isAuthenticated ? (
         <Login onLogin={handleLogin} />
       ) : (
-        <Dashboard credentials={credentials} onLogout={handleLogout} />
+        <Dashboard credentials={user} onLogout={handleLogout} />
       )}
     </div>
   );

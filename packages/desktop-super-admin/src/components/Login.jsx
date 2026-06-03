@@ -4,7 +4,6 @@ import './Login.css';
 function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [branchCode, setBranchCode] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -15,12 +14,10 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      // Validate inputs
-      if (!username || !password || !branchCode) {
+      if (!username || !password) {
         throw new Error('All fields are required');
       }
-
-      await onLogin(username, password, branchCode, rememberMe);
+      await onLogin(username, password, rememberMe);
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {
@@ -32,24 +29,11 @@ function Login({ onLogin }) {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>Skoolific Super Admin</h1>
+          <h1>🏫 Skoolific Super Admin</h1>
           <p>Cross-Branch Management System</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="branchCode">Branch Code</label>
-            <input
-              id="branchCode"
-              type="text"
-              value={branchCode}
-              onChange={(e) => setBranchCode(e.target.value)}
-              placeholder="Enter branch code"
-              disabled={loading}
-              autoFocus
-            />
-          </div>
-
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
@@ -57,8 +41,9 @@ function Login({ onLogin }) {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
+              placeholder="Enter username (e.g. diradmin)"
               disabled={loading}
+              autoFocus
             />
           </div>
 
@@ -82,7 +67,7 @@ function Login({ onLogin }) {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 disabled={loading}
               />
-              <span>Remember me (secure credential storage)</span>
+              <span>Remember me</span>
             </label>
           </div>
 
@@ -94,7 +79,8 @@ function Login({ onLogin }) {
         </form>
 
         <div className="login-footer">
-          <p>Version 2.0.0 | Super Admin</p>
+          <p>Version 2.0.0 | Dire Schools Super Admin</p>
+          <p className="login-hint">Demo: <strong>diradmin</strong> / <strong>admin123</strong></p>
         </div>
       </div>
     </div>

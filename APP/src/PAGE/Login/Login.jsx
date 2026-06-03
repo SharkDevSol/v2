@@ -35,6 +35,7 @@ const Login = () => {
     if (isLoggedIn) {
       const from = location.state?.from?.pathname || '/';
       navigate(from, { replace: true });
+      return;
     }
     
     // Load saved branch code from localStorage

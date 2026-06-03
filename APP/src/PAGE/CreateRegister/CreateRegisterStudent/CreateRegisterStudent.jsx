@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import axios from 'axios';
+import api from '../../../utils/api';
 import * as XLSX from 'xlsx';
 import Webcam from 'react-webcam';
 import { useTranslation } from 'react-i18next';
@@ -225,7 +226,7 @@ const AddStudentS = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    axios.get(`${API_BASE_URL}/students/classes`, { timeout: 10000 })
+    api.get(`/students/classes`, { timeout: 10000 })
       .then(response => {
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
           setAvailableClasses(response.data);
@@ -245,7 +246,7 @@ const AddStudentS = () => {
       .finally(() => setIsLoading(false));
 
     // Fetch form structure with custom field metadata
-    axios.get(`${API_BASE_URL}/students/form-structure`, { timeout: 10000 })
+    api.get(`/students/form-structure`, { timeout: 10000 })
       .then(response => {
         // Ensure we have a valid structure with arrays
         const data = response.data || {};
@@ -261,7 +262,7 @@ const AddStudentS = () => {
       });
       
     // V2 Enhancement: Fetch Task1 configuration
-    axios.get(`${API_BASE_URL}/schedule/config`)
+    api.get(`/schedule/config`)
       .then(response => {
         if (response.data) {
           setTask1Config(response.data);
@@ -309,7 +310,7 @@ const AddStudentS = () => {
     if (!className) return;
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/students/columns/${className}`, { timeout: 10000 });
+      const response = await api.get(`/students/columns/${className}`, { timeout: 10000 });
       if (response.data && Array.isArray(response.data)) {
         setTableColumns(response.data.filter(col => !['username', 'password', 'guardian_username', 'guardian_password'].includes(col.column_name)));
       } else {
@@ -335,7 +336,7 @@ const AddStudentS = () => {
     
     try {
       setIsLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/students/search-guardian/${encodeURIComponent(phone)}`, { timeout: 10000 });
+      const response = await api.get(`/students/search-guardian/${encodeURIComponent(phone)}`, { timeout: 10000 });
       setFetchedGuardian({
         name: response.data.guardian_name,
         phone,
@@ -403,7 +404,7 @@ const AddStudentS = () => {
     if (window.confirm('Are you sure you want to delete the form structure? This will drop all class tables.')) {
       setIsLoading(true);
       try {
-        await axios.delete(`${API_BASE_URL}/students/delete-form`);
+        await api.delete(`/students/delete-form`);
         setAvailableClasses([]);
         setTableColumns([]);
         setSelectedClass('');
@@ -466,7 +467,7 @@ const AddStudentS = () => {
           }
           
           // Send data to backend for bulk import
-          const response = await axios.post(`${API_BASE_URL}/students/bulk-import`, {
+          const response = await api.post(`/students/bulk-import`, {
             className: selectedClass,
             students: data
           }, { timeout: 30000 });
@@ -547,7 +548,7 @@ const AddStudentS = () => {
         formData.append(key, value.toString());
       });
 
-      const response = await axios.post(`${API_BASE_URL}/students/add-student`, formData, {
+      const response = await api.post(`/students/add-student`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 10000
       });

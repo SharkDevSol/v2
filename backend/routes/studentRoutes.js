@@ -18,11 +18,14 @@ const { uploadLimiter } = require('../middleware/rateLimiter');
 
 // Enable CORS for all routes in this router
 router.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
-    : 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-branch-code'],
+  credentials: true
 }));
 
 // Apply input sanitization
@@ -86,10 +89,11 @@ const initGlobalMachineIds = async () => {
 initGlobalMachineIds();
 
 // Get all classes
-router.get('/classes', async (req, res) => {
+router.get('/classes', authenticateWithBranch, async (req, res) => {
   try {
-    const result = await db.query('SELECT table_name FROM information_schema.tables WHERE table_schema = $1', ['classes_schema']);
-    res.json(result.rows.map(row => row.table_name));
+    const pool = req.branchPool;
+    const result = await pool.query('SELECT id, class_name, grade_level FROM classes ORDER BY class_name');
+    res.json(result.rows.map(row => row.class_name));
   } catch (err) {
     console.error('Error fetching classes:', err);
     res.status(500).json({ error: 'Failed to fetch classes' });

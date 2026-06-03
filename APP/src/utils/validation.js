@@ -152,10 +152,10 @@ export const ValidationRules = {
     return allowedTypes.includes(file.type);
   },
 
-  // Branch code validation (first letter + last 2 chars)
+  // Branch code validation (2-5 alphanumeric uppercase chars)
   branchCode: (value) => {
     if (!value) return true;
-    const branchCodeRegex = /^[a-zA-Z][a-zA-Z0-9]{2}$/;
+    const branchCodeRegex = /^[a-zA-Z0-9]{2,5}$/;
     return branchCodeRegex.test(value);
   },
 
