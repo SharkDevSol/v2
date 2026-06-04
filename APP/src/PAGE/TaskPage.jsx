@@ -37,7 +37,7 @@ function TaskPage() {
     }
   };
 
-  const progress = Math.round((completed.length / 7) * 100);
+  const progress = Math.round((completed.length / 6) * 100);
 
   const tasks = [
     { 
