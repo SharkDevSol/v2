@@ -41,7 +41,6 @@ const SubjectConfiguration = ({ onSubjectsConfigured }) => {
         setNewSubjectName('');
         setMessage('Subject added!');
         fetchSubjects();
-        if (onSubjectsConfigured) onSubjectsConfigured();
       } else {
         setMessage(data.error || 'Failed to add subject');
       }
