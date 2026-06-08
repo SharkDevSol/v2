@@ -204,17 +204,14 @@ app.use(httpsRedirect);
 // 2. Security headers (helmet)
 app.use(securityHeaders);
 
-// 3. CORS configuration
+// 3. CORS configuration - allows all *.skoolific.com subdomains + configured origins
 const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? [process.env.FRONTEND_URL || 'https://v2.skoolific.com']  // Production domain
+  ? [process.env.FRONTEND_URL || 'https://v2.skoolific.com']
   : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5052'];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
-    if (!origin) {
-      return callback(null, true);
-    }
+    if (!origin) return callback(null, true);
     
     // In development, allow all local network IPs
     if (process.env.NODE_ENV !== 'production') {
@@ -224,6 +221,11 @@ app.use(cors({
           origin.match(/^http:\/\/10\.\d+\.\d+\.\d+/)) {
         return callback(null, true);
       }
+    }
+    
+    // Allow any *.skoolific.com subdomain (multi-school deployment)
+    if (origin.match(/^https?:\/\/[a-z0-9-]+\.skoolific\.com$/)) {
+      return callback(null, true);
     }
     
     // Check if origin is in allowed list
@@ -236,7 +238,7 @@ app.use(cors({
   },
   methods: 'GET,POST,PUT,DELETE,PATCH',
   credentials: true,
-  maxAge: 86400 // Cache preflight for 24 hours
+  maxAge: 86400
 }));
 
 // 4. Rate limiting - apply to all API routes
@@ -249,6 +251,17 @@ app.use('/api/staff/login', loginLimiter);
 // 6. Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Branch database context middleware - auto-routes all DB queries to the correct branch
+const { branchContext } = require('./config/db');
+app.use((req, res, next) => {
+  const branchCode = req.headers['x-branch-code'] || req.body?.branchCode || req.query?.branchCode;
+  if (branchCode) {
+    branchContext.run(branchCode, () => next());
+  } else {
+    next();
+  }
+});
 
 // 7. Input sanitization (comprehensive)
 app.use(sanitizeRequest);

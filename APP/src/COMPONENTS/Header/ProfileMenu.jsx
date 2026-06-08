@@ -19,6 +19,8 @@ const ProfileMenu = ({ user, onLogout, onProfileClick, className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  const branchCode = localStorage.getItem('branchCode') || sessionStorage.getItem('branchCode');
+
   const profileMenuClasses = [
     styles.profileMenu,
     className
@@ -101,6 +103,11 @@ const ProfileMenu = ({ user, onLogout, onProfileClick, className = '' }) => {
         <div className={styles.userInfo}>
           <span className={styles.userName}>{user?.name || t('common.user', 'User')}</span>
           <span className={styles.userRole}>{user?.role || ''}</span>
+          {branchCode && (
+            <span className={styles.branchBadge} title={`Connected to branch: ${branchCode}`}>
+              {branchCode}
+            </span>
+          )}
         </div>
 
         <ChevronDown
@@ -129,6 +136,9 @@ const ProfileMenu = ({ user, onLogout, onProfileClick, className = '' }) => {
             <div className={styles.dropdownUserInfo}>
               <p className={styles.dropdownUserName}>{user?.name || t('common.user', 'User')}</p>
               <p className={styles.dropdownUserRole}>{user?.role || ''}</p>
+              {branchCode && (
+                <p className={styles.dropdownBranchBadge}>Branch: {branchCode}</p>
+              )}
             </div>
           </div>
 

@@ -755,7 +755,11 @@ router.get('/config', async (req, res) => {
       short_break_duration: 10,
       total_shifts: 2,
       teaching_days_per_week: 5,
-      school_days: [1,2,3,4,5]
+      school_days: [1,2,3,4,5],
+      has_kg: false,
+      has_evening_class: false,
+      shift_rotation: false,
+      terms: 1
     });
   }
 });
@@ -763,24 +767,54 @@ router.get('/config', async (req, res) => {
 // Update school configuration
 router.put('/config', async (req, res) => {
   const config = req.body;
+  console.log('📝 PUT /config received:', JSON.stringify(config));
   try {
+    await pool.query('CREATE SCHEMA IF NOT EXISTS schedule_schema');
     await pool.query(`
-      UPDATE schedule_schema.school_config SET
-        periods_per_shift = $1,
-        period_duration = $2,
-        short_break_duration = $3,
-        total_shifts = $4,
-        teaching_days_per_week = $5,
-        school_days = $6,
+      CREATE TABLE IF NOT EXISTS schedule_schema.school_config (
+        id SERIAL PRIMARY KEY,
+        periods_per_shift INTEGER DEFAULT 7,
+        period_duration INTEGER DEFAULT 45,
+        short_break_duration INTEGER DEFAULT 10,
+        total_shifts INTEGER DEFAULT 2,
+        teaching_days_per_week INTEGER DEFAULT 5,
+        school_days INTEGER[] DEFAULT '{1,2,3,4,5}',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    // Add new columns for existing tables
+    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS has_kg BOOLEAN DEFAULT false');
+    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS has_evening_class BOOLEAN DEFAULT false');
+    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS shift_rotation BOOLEAN DEFAULT false');
+    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS terms INTEGER DEFAULT 1');
+    const result = await pool.query(`
+      INSERT INTO schedule_schema.school_config (id, periods_per_shift, period_duration, short_break_duration, total_shifts, teaching_days_per_week, school_days, has_kg, has_evening_class, shift_rotation, terms)
+      VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      ON CONFLICT (id) DO UPDATE SET
+        periods_per_shift = EXCLUDED.periods_per_shift,
+        period_duration = EXCLUDED.period_duration,
+        short_break_duration = EXCLUDED.short_break_duration,
+        total_shifts = EXCLUDED.total_shifts,
+        teaching_days_per_week = EXCLUDED.teaching_days_per_week,
+        school_days = EXCLUDED.school_days,
+        has_kg = EXCLUDED.has_kg,
+        has_evening_class = EXCLUDED.has_evening_class,
+        shift_rotation = EXCLUDED.shift_rotation,
+        terms = EXCLUDED.terms,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = 1
+      RETURNING id, terms, has_kg, has_evening_class, shift_rotation, total_shifts
     `, [
       config.periods_per_shift,
       config.period_duration,
       config.short_break_duration,
       config.total_shifts,
       config.teaching_days_per_week,
-      config.school_days
+      config.school_days,
+      config.has_kg,
+      config.has_evening_class,
+      config.shift_rotation,
+      config.terms
     ]);
     res.json({ message: 'Configuration updated successfully' });
   } catch (error) {

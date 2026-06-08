@@ -55,7 +55,7 @@ api.interceptors.request.use(
     }
     
     // Get branch code
-    const branchCode = localStorage.getItem('branchCode') || sessionStorage.getItem('branchCode');
+    const branchCode = (localStorage.getItem('branchCode') || sessionStorage.getItem('branchCode') || '').toUpperCase();
     if (branchCode) {
       config.headers['X-Branch-Code'] = branchCode;
     }
@@ -369,6 +369,26 @@ export function isAuthenticated() {
 // ===========================================
 // EXPORT
 // ===========================================
+
+/**
+ * Also intercept the GLOBAL axios instance so that ALL components
+ * using raw `import axios from 'axios'` also get auth + branch headers
+ */
+axios.defaults.baseURL = getBaseURL();
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    const branchCode = (localStorage.getItem('branchCode') || sessionStorage.getItem('branchCode') || '').toUpperCase();
+    if (branchCode) {
+      config.headers['X-Branch-Code'] = branchCode;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 /**
  * Export configured Axios instance as default

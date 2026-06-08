@@ -81,6 +81,26 @@
   max-width: 150px;
 }
 
+/* Branch Badge */
+.branchBadge {
+  display: inline-block;
+  padding: 1px 6px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.dropdownBranchBadge {
+  font-size: var(--font-size-xs);
+  color: var(--primary);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
 /* Chevron */
 .chevron {
   flex-shrink: 0;

@@ -20,7 +20,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     // Add branch code header if available
-    const branchCode = localStorage.getItem('branchCode') || sessionStorage.getItem('branchCode');
+    const branchCode = (localStorage.getItem('branchCode') || sessionStorage.getItem('branchCode') || '').toUpperCase();
     if (branchCode) {
       config.headers['x-branch-code'] = branchCode;
     }

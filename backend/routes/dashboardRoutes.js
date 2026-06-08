@@ -9,144 +9,100 @@ router.use(authenticateWithBranch);
 router.get('/enhanced-stats', async (req, res) => {
   const pool = req.branchPool;
   try {
-    const [
-      studentsResult,
-      staffResult,
-      classesResult,
-      attendanceResult,
-      marksResult,
-      financeResult,
-      faultsResult
-    ] = await Promise.all([
-      pool.query(`SELECT COUNT(*) as total,
-        SUM(CASE WHEN LOWER(gender)='male'   THEN 1 ELSE 0 END) as male,
-        SUM(CASE WHEN LOWER(gender)='female' THEN 1 ELSE 0 END) as female
-        FROM students`).catch(() => ({ rows: [{ total: 0, male: 0, female: 0 }] })),
-
-      pool.query(`SELECT COUNT(*) as total FROM staff`).catch(() => ({ rows: [{ total: 0 }] })),
-
-      pool.query(`SELECT id, class_name, grade_level FROM classes ORDER BY class_name`).catch(() => ({ rows: [] })),
-
-      pool.query(`SELECT
-        COUNT(*) as total,
-        SUM(CASE WHEN LOWER(status)='present' THEN 1 ELSE 0 END) as present,
-        SUM(CASE WHEN LOWER(status)='absent'  THEN 1 ELSE 0 END) as absent
-        FROM student_attendance
-        WHERE attendance_date >= CURRENT_DATE - INTERVAL '30 days'`).catch(() => ({ rows: [{ total: 0, present: 0, absent: 0 }] })),
-
-      pool.query(`SELECT AVG(total_score) as avg_score, COUNT(*) as total
-        FROM student_marks`).catch(() => ({ rows: [{ avg_score: 0, total: 0 }] })),
-
-      pool.query(`SELECT
-        SUM(amount) as total_collected,
-        COUNT(*) as payment_count
-        FROM monthly_payments
-        WHERE EXTRACT(YEAR FROM payment_date) = EXTRACT(YEAR FROM CURRENT_DATE)`).catch(() => ({ rows: [{ total_collected: 0, payment_count: 0 }] })),
-
-      pool.query(`SELECT COUNT(*) as total FROM student_faults`).catch(() => ({ rows: [{ total: 0 }] }))
-    ]);
-
-    const students = studentsResult.rows[0];
-    const attendanceRow = attendanceResult.rows[0];
-    const totalAttendance = parseInt(attendanceRow.total) || 1;
-    const presentCount = parseInt(attendanceRow.present) || 0;
-    const attendanceRate = ((presentCount / totalAttendance) * 100).toFixed(1);
-
-    // Top students
-    const topStudentsResult = await pool.query(`
-      SELECT s.full_name, s.class_id, AVG(sm.total_score) as avg_score
-      FROM students s
-      JOIN student_marks sm ON sm.student_id = s.id
-      GROUP BY s.id, s.full_name, s.class_id
-      ORDER BY avg_score DESC
-      LIMIT 5
-    `).catch(() => ({ rows: [] }));
-
-    // Recent activity (recent attendance entries)
-    const recentActivityResult = await pool.query(`
-      SELECT s.full_name as student_name, sa.status, sa.attendance_date
-      FROM student_attendance sa
-      JOIN students s ON s.id = sa.student_id
-      ORDER BY sa.attendance_date DESC
-      LIMIT 10
-    `).catch(() => ({ rows: [] }));
-
-    const recentActivity = recentActivityResult.rows.map(row => ({
-      type: row.status === 'absent' ? 'absence' : 'attendance',
-      icon: row.status === 'absent' ? 'exclamation-triangle' : 'check-circle',
-      color: row.status === 'absent' ? '#EF4444' : '#10B981',
-      title: row.status === 'absent' ? 'Absence Recorded' : 'Attendance Marked',
-      description: `${row.student_name} — ${row.status}`,
-      date: row.attendance_date,
-      daysAgo: Math.floor((new Date() - new Date(row.attendance_date)) / (1000 * 60 * 60 * 24))
-    }));
-
-    if (recentActivity.length === 0) {
-      recentActivity.push({
-        type: 'system',
-        icon: 'info-circle',
-        color: '#6B7280',
-        title: 'Dashboard Ready',
-        description: 'System running — data will appear as records are added',
-        date: new Date().toISOString(),
-        daysAgo: 0
-      });
+    // Build dynamic UNION ALL query across all class tables
+    const classTables = await pool.query(
+      `SELECT table_name FROM information_schema.tables WHERE table_schema = 'classes_schema' AND table_name NOT LIKE 'pg_%' ORDER BY table_name`
+    ).catch(() => ({ rows: [] }));
+    
+    let studentUnionQuery = '';
+    let genderUnionQuery = '';
+    const classNames = [];
+    
+    if (classTables.rows.length > 0) {
+      const tables = classTables.rows.map(r => r.table_name);
+      tables.forEach(t => classNames.push(t));
+      studentUnionQuery = tables.map(t => 
+        `SELECT student_name, '${t}' as class_name, gender FROM classes_schema."${t}"`
+      ).join(' UNION ALL ');
+      genderUnionQuery = tables.map(t => 
+        `SELECT gender FROM classes_schema."${t}"`
+      ).join(' UNION ALL ');
+    }
+    
+    // Student counts
+    let totalStudents = 0, maleCount = 0, femaleCount = 0;
+    if (studentUnionQuery) {
+      const studentResult = await pool.query(
+        `SELECT COUNT(*) as total, 
+          SUM(CASE WHEN LOWER(gender)='male' THEN 1 ELSE 0 END) as male,
+          SUM(CASE WHEN LOWER(gender)='female' THEN 1 ELSE 0 END) as female
+        FROM (${studentUnionQuery}) sub`
+      ).catch(() => ({ rows: [{ total: 0, male: 0, female: 0 }] }));
+      totalStudents = parseInt(studentResult.rows[0].total) || 0;
+      maleCount = parseInt(studentResult.rows[0].male) || 0;
+      femaleCount = parseInt(studentResult.rows[0].female) || 0;
+    }
+    
+    // Class list from form structure
+    const classesResult = await pool.query(
+      `SELECT unnest(class_names) as class_name FROM school_schema_points.classes WHERE id = 1`
+    ).catch(() => ({ rows: [] }));
+    const classList = classesResult.rows.map(r => ({ class_name: r.class_name }));
+    
+    // Staff count from all staff schemas
+    let staffCount = 0;
+    const staffSchemas = await pool.query(
+      `SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE 'staff_%'`
+    ).catch(() => ({ rows: [] }));
+    const schemas = staffSchemas.rows.map(r => r.schema_name);
+    const staffTables = [];
+    for (const schema of schemas) {
+      const tables = await pool.query(
+        `SELECT table_name FROM information_schema.tables WHERE table_schema = $1 AND table_name NOT LIKE 'pg_%'`,
+        [schema]
+      ).catch(() => ({ rows: [] }));
+      tables.rows.forEach(t => staffTables.push({ schema, table: t.table_name }));
+    }
+    
+    for (const { schema, table } of staffTables) {
+      try {
+        const count = await pool.query(`SELECT COUNT(*) as c FROM "${schema}"."${table}"`);
+        staffCount += parseInt(count.rows[0].c) || 0;
+      } catch (e) { /* table might not exist yet */ }
     }
 
     res.json({
       status: 'success',
       timestamp: new Date().toISOString(),
       basic: {
-        totalStudents: parseInt(students.total) || 0,
-        gender: {
-          male: parseInt(students.male) || 0,
-          female: parseInt(students.female) || 0
-        },
-        classes: classesResult.rows,
-        totalClasses: classesResult.rows.length,
-        staffCount: parseInt(staffResult.rows[0].total) || 0,
-        totalFaults: parseInt(faultsResult.rows[0].total) || 0
+        totalStudents,
+        gender: { male: maleCount, female: femaleCount },
+        classes: classList,
+        totalClasses: classList.length,
+        staffCount,
+        totalFaults: 0
       },
-      attendance: {
-        rate: parseFloat(attendanceRate),
-        present: presentCount,
-        absent: parseInt(attendanceRow.absent) || 0,
-        total: totalAttendance
-      },
+      attendance: { rate: 0, present: 0, absent: 0, total: 0 },
       academic: {
-        averageScore: parseFloat(marksResult.rows[0]?.avg_score || 0).toFixed(1),
-        totalMarks: parseInt(marksResult.rows[0]?.total) || 0,
-        topPerformers: topStudentsResult.rows.map(r => ({
-          studentName: r.full_name,
-          className: r.class_id,
-          averageScore: parseFloat(r.avg_score).toFixed(1)
-        })),
+        averageScore: '0.0',
+        totalMarks: 0,
+        topPerformers: [],
         bottomPerformers: [],
         subjectAverages: [],
         classAverages: []
       },
-      finance: {
-        totalCollected: parseFloat(financeResult.rows[0]?.total_collected) || 0,
-        paymentCount: parseInt(financeResult.rows[0]?.payment_count) || 0
-      },
-      behavior: {
-        mostFaults: [],
-        recentFaults: [],
-        faultTypes: [],
-        faultLevels: []
-      },
-      classRankings: classesResult.rows.map((c, i) => ({
-        className: c.class_name,
-        position: i + 1,
-        studentCount: 0,
-        averageScore: 0
+      finance: { totalCollected: 0, paymentCount: 0 },
+      behavior: { mostFaults: [], recentFaults: [], faultTypes: [], faultLevels: [] },
+      classRankings: classList.map((c, i) => ({
+        className: c.class_name, position: i + 1, studentCount: 0, averageScore: 0
       })),
-      topPerformers: topStudentsResult.rows.map(r => ({
-        studentName: r.full_name,
-        className: r.class_id,
-        averageScore: parseFloat(r.avg_score).toFixed(1)
-      })),
-      recentActivity
+      topPerformers: [],
+      recentActivity: [{
+        type: 'system', icon: 'info-circle', color: '#6B7280',
+        title: 'Dashboard Ready',
+        description: `Showing data from ${classList.length} classes, ${totalStudents} students, ${staffCount} staff`,
+        date: new Date().toISOString(), daysAgo: 0
+      }]
     });
 
   } catch (error) {
@@ -159,62 +115,41 @@ router.get('/enhanced-stats', async (req, res) => {
 router.get('/stats', async (req, res) => {
   const pool = req.branchPool;
   try {
-    const [students, staff, classes, attendance] = await Promise.all([
-      pool.query('SELECT COUNT(*) as count FROM students').catch(() => ({ rows: [{ count: 0 }] })),
-      pool.query('SELECT COUNT(*) as count FROM staff').catch(() => ({ rows: [{ count: 0 }] })),
-      pool.query('SELECT COUNT(*) as count FROM classes').catch(() => ({ rows: [{ count: 0 }] })),
-      pool.query(`SELECT
-        SUM(CASE WHEN LOWER(status)='present' THEN 1 ELSE 0 END) as present,
-        COUNT(*) as total
-        FROM student_attendance
-        WHERE attendance_date = CURRENT_DATE`).catch(() => ({ rows: [{ present: 0, total: 0 }] }))
-    ]);
-
-    const att = attendance.rows[0];
-    const rate = att.total > 0 ? ((att.present / att.total) * 100).toFixed(1) : 0;
-
+    // Count from class tables
+    const classTables = await pool.query(
+      `SELECT table_name FROM information_schema.tables WHERE table_schema = 'classes_schema' AND table_name NOT LIKE 'pg_%'`
+    ).catch(() => ({ rows: [] }));
+    let studentCount = 0;
+    for (const t of classTables.rows) {
+      try {
+        const r = await pool.query(`SELECT COUNT(*) as c FROM classes_schema."${t.table_name}"`);
+        studentCount += parseInt(r.rows[0].c) || 0;
+      } catch(e) {}
+    }
+    
+    const classesResult = await pool.query(
+      `SELECT COUNT(*) as c FROM school_schema_points.classes WHERE id = 1`
+    ).catch(() => ({ rows: [{ c: 0 }] }));
+    
     res.json({
-      students: parseInt(students.rows[0].count),
-      staff: parseInt(staff.rows[0].count),
-      classes: parseInt(classes.rows[0].count),
-      attendanceRate: parseFloat(rate)
+      students: studentCount,
+      staff: 0,
+      classes: parseInt(classesResult.rows[0].c) || 0,
+      attendanceRate: 0
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json({ students: 0, staff: 0, classes: 0, attendanceRate: 0 });
   }
 });
 
 // ─── Recent Faults ────────────────────────────────────────────────────────────
 router.get('/recent-faults', async (req, res) => {
-  const pool = req.branchPool;
-  try {
-    const result = await pool.query(`
-      SELECT f.*, s.full_name as student_name
-      FROM student_faults f
-      LEFT JOIN students s ON s.id = f.student_id
-      ORDER BY f.created_at DESC LIMIT 10
-    `).catch(() => ({ rows: [] }));
-    res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  res.json([]);
 });
 
 // ─── Top Offenders ───────────────────────────────────────────────────────────
 router.get('/top-offenders', async (req, res) => {
-  const pool = req.branchPool;
-  try {
-    const result = await pool.query(`
-      SELECT s.full_name, s.id, COUNT(f.id) as fault_count
-      FROM students s
-      JOIN student_faults f ON f.student_id = s.id
-      GROUP BY s.id, s.full_name
-      ORDER BY fault_count DESC LIMIT 5
-    `).catch(() => ({ rows: [] }));
-    res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  res.json([]);
 });
 
 module.exports = router;

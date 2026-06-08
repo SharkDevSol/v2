@@ -859,6 +859,62 @@
   opacity: 0.7;
 }
 
+/* ── Read-Only Completed View ── */
+.completedBadge {
+  display: inline-block;
+  padding: 4px 14px;
+  background: #4CAF50;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.readOnlySection {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.readOnlySection h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.25rem;
+}
+
+.dataGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.dataItem {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.dataLabel {
+  display: block;
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.dataValue {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .container { padding: 1.25rem 1rem 3rem; }

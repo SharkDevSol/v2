@@ -18,17 +18,31 @@ async function q(pool, sql, params = []) {
 // ─── Students ────────────────────────────────────────────────────────────────
 router.get('/students/summary', async (req, res) => {
   const pool = req.branchPool;
-  const rows = await q(pool, `SELECT COUNT(*) as total,
-    SUM(CASE WHEN LOWER(gender)='male'   THEN 1 ELSE 0 END) as male,
-    SUM(CASE WHEN LOWER(gender)='female' THEN 1 ELSE 0 END) as female
-    FROM students`);
-  const r = rows[0] || {};
-  res.json({ success: true, data: {
-    total: parseInt(r.total)||0,
-    male: parseInt(r.male)||0,
-    female: parseInt(r.female)||0,
-    trend: 0
-  }});
+  try {
+    // Get all class tables
+    const classTables = await pool.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = 'classes_schema' AND table_name NOT LIKE 'pg_%'`).catch(() => ({ rows: [] }));
+    const unionQuery = classTables.rows.map(t => 
+      `SELECT student_name, gender FROM classes_schema."${t.table_name}"`
+    ).join(' UNION ALL ');
+    
+    if (!unionQuery) return res.json({ success: true, data: { total: 0, male: 0, female: 0, trend: 0 }});
+    
+    const result = await pool.query(
+      `SELECT COUNT(*) as total,
+        SUM(CASE WHEN LOWER(gender)='male' THEN 1 ELSE 0 END) as male,
+        SUM(CASE WHEN LOWER(gender)='female' THEN 1 ELSE 0 END) as female
+      FROM (${unionQuery}) sub`
+    ).catch(() => ({ rows: [{ total: 0, male: 0, female: 0 }] }));
+    const r = result.rows[0] || {};
+    res.json({ success: true, data: {
+      total: parseInt(r.total)||0,
+      male: parseInt(r.male)||0,
+      female: parseInt(r.female)||0,
+      trend: 0
+    }});
+  } catch(e) {
+    res.json({ success: true, data: { total: 0, male: 0, female: 0, trend: 0 }});
+  }
 });
 
 router.get('/students/by-class', async (req, res) => {
@@ -48,17 +62,32 @@ router.get('/students/by-gender', async (req, res) => {
 // ─── Staff ───────────────────────────────────────────────────────────────────
 router.get('/staff/summary', async (req, res) => {
   const pool = req.branchPool;
-  const rows = await q(pool, `SELECT COUNT(*) as total,
-    SUM(CASE WHEN LOWER(gender)='male'   THEN 1 ELSE 0 END) as male,
-    SUM(CASE WHEN LOWER(gender)='female' THEN 1 ELSE 0 END) as female
-    FROM staff`);
-  const r = rows[0] || {};
-  res.json({ success: true, data: {
-    total: parseInt(r.total)||0,
-    male: parseInt(r.male)||0,
-    female: parseInt(r.female)||0,
-    teachers: 0, trend: 0
-  }});
+  try {
+    const countInSchema = async (schemaName) => {
+      try {
+        const tables = await pool.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = $1 AND table_name NOT LIKE 'pg_%'`, [schemaName]);
+        let total = 0;
+        for (const t of tables.rows) {
+          const c = await pool.query(`SELECT COUNT(*) as c FROM "${schemaName}"."${t.table_name}"`);
+          total += parseInt(c.rows[0].c) || 0;
+        }
+        return total;
+      } catch(e) { return 0; }
+    };
+    
+    const teachers = await countInSchema('staff_teachers');
+    const administrative = await countInSchema('staff_administrative_staff');
+    const supportive = await countInSchema('staff_supportive_staff');
+    const total = teachers + administrative + supportive;
+    
+    res.json({ success: true, data: {
+      total, male: 0, female: 0,
+      teachers, administrative, supportive,
+      trend: 0
+    }});
+  } catch(e) {
+    res.json({ success: true, data: { total: 0, male: 0, female: 0, teachers: 0, administrative: 0, supportive: 0, trend: 0 }});
+  }
 });
 
 router.get('/staff/by-type',   async (req, res) => { const pool = req.branchPool; const rows = await q(pool, `SELECT staff_type as type, COUNT(*) as count FROM staff GROUP BY staff_type`); res.json({ success: true, data: rows }); });

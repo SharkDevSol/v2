@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiPlus, FiTrash2, FiChevronDown, FiType, FiEdit2, FiCalendar, FiCheckSquare, FiUpload, FiGlobe } from 'react-icons/fi';
-import axios from 'axios';
+import api from '../../../utils/api';
 import styles from './StudentFormBuilder.module.css';
 import { useLanguageSelection } from '../../../context/LanguageSelectionContext';
 
@@ -31,7 +31,7 @@ const StudentFormBuilder = ({ onSuccess }) => {
   useEffect(() => {
     const fetchTask1Config = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/schedule/config`);
+        const response = await api.get('/schedule/config');
         if (response.data) {
           setTask1Config(response.data);
           console.log('Task1 Config loaded:', response.data);
@@ -47,6 +47,35 @@ const StudentFormBuilder = ({ onSuccess }) => {
       }
     };
     fetchTask1Config();
+  }, []);
+
+  // Load existing form structure if already created
+  const [hasExistingForm, setHasExistingForm] = useState(false);
+  useEffect(() => {
+    const loadFormStructure = async () => {
+      try {
+        const response = await api.get('/students/form-structure');
+        if (response.data && response.data.classes && response.data.classes.length > 0) {
+          setHasExistingForm(true);
+          setClasses(response.data.classes);
+          setClassCount(response.data.classes.length);
+          setCustomFields(response.data.customFields || []);
+          if (response.data.classConfigs) {
+            setClassConfigs(response.data.classConfigs);
+          } else {
+            // Build default classConfigs for existing classes
+            const defaultConfigs = {};
+            response.data.classes.forEach(className => {
+              defaultConfigs[className] = { isKG: false, isEvening: false, shift: 1 };
+            });
+            setClassConfigs(defaultConfigs);
+          }
+        }
+      } catch (error) {
+        console.log('No existing form or form loading error:', error.message);
+      }
+    };
+    loadFormStructure();
   }, []);
 
   const fieldTypes = [
@@ -212,7 +241,7 @@ const StudentFormBuilder = ({ onSuccess }) => {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/students/create-form`, {
+      await api.post('/students/create-form', {
         classCount,
         classes,
         customFields,
@@ -242,9 +271,14 @@ const StudentFormBuilder = ({ onSuccess }) => {
               onChange={handleClassCountChange} 
               min="1"
               max="20"
-              disabled={isLoading} 
+              disabled={isLoading || hasExistingForm} 
               className={styles.input}
             />
+            {hasExistingForm && (
+              <p style={{ color: '#4CAF50', fontSize: '0.8rem', marginTop: '4px' }}>
+                Form already created — class count cannot be changed
+              </p>
+            )}
           </div>
           {classes.map((cls, index) => (
             <div key={index} className={styles.classConfigGroup}>

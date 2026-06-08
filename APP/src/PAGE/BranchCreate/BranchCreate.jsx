@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './BranchCreate.module.css';
-import { FiUpload, FiCalendar, FiMapPin, FiPhone, FiMail, FiUser, FiSave, FiRefreshCw } from 'react-icons/fi';
+import { FiUpload, FiCalendar, FiMapPin, FiPhone, FiMail, FiUser, FiSave, FiRefreshCw, FiDatabase } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import { regions } from './regionsData'; // Assume we have a regions data file
+import { regions } from './regionsData';
+import axios from 'axios';
+import { API_ENDPOINTS } from '../../config/api.config';
 
 const BranchCreate = () => {
   const [formData, setFormData] = useState({
     branchName: '',
-    branchCode: generateBranchCode(),
+    branchCode: '',
     region: '',
     address: '',
     phone: '',
@@ -17,12 +19,20 @@ const BranchCreate = () => {
     establishDate: '',
     logo: null,
     status: true,
-    logoPreview: null
+    logoPreview: null,
+    // Database fields
+    databaseName: '',
+    databaseHost: 'localhost',
+    databasePort: '5432',
+    databaseUser: '',
+    databasePassword: ''
   });
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [createdBranch, setCreatedBranch] = useState(null);
+  const [apiError, setApiError] = useState('');
 
   function generateBranchCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -32,6 +42,22 @@ const BranchCreate = () => {
     }
     return result;
   }
+
+  function generateDatabaseName(branchName) {
+    if (!branchName.trim()) return '';
+    const cleaned = branchName.trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '');
+    const branchCount = cleaned.length > 0 ? 'b1' : '';
+    return cleaned + branchCount;
+  }
+
+  useEffect(() => {
+    if (!formData.branchCode) {
+      setFormData(prev => ({ ...prev, branchCode: generateBranchCode() }));
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -52,26 +78,74 @@ const BranchCreate = () => {
       return;
     }
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    const updatedValue = type === 'checkbox' ? checked : value;
+
+    setFormData(prev => {
+      const newData = { ...prev, [name]: updatedValue };
+      // Auto-generate database name when branch name changes
+      if (name === 'branchName') {
+        newData.databaseName = generateDatabaseName(value);
+      }
+      return newData;
+    });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     
-    if (Object.keys(validationErrors).length === 0) {
-      setIsSubmitting(true);
-      // Simulate API call
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
-      }, 1500);
-    } else {
+    if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    setApiError('');
+    setCreatedBranch(null);
+
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      const response = await axios.post(
+        API_ENDPOINTS.BRANCHES.CREATE,
+        {
+          branchName: formData.branchName,
+          branchCode: formData.branchCode,
+          databaseName: formData.databaseName,
+          databaseHost: formData.databaseHost || 'localhost',
+          databasePort: parseInt(formData.databasePort) || 5432,
+          databaseUser: formData.databaseUser,
+          databasePassword: formData.databasePassword,
+          schoolAddress: formData.address,
+          schoolPhone: formData.phone,
+          schoolEmail: formData.email,
+          adminName: formData.principalName,
+          adminPhone: formData.principalPhone,
+          adminEmail: formData.email
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      setCreatedBranch(response.data.branch);
+      setShowSuccess(true);
+      
+      // Reset form after success
+      setTimeout(() => {
+        setShowSuccess(false);
+        setCreatedBranch(null);
+      }, 8000);
+
+    } catch (error) {
+      console.error('Branch creation error:', error);
+      const message = error.response?.data?.message || error.response?.data?.error || error.message;
+      setApiError(message || 'Failed to create branch. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -88,9 +162,15 @@ const BranchCreate = () => {
       establishDate: '',
       logo: null,
       status: true,
-      logoPreview: null
+      logoPreview: null,
+      databaseName: '',
+      databaseHost: 'localhost',
+      databasePort: '5432',
+      databaseUser: '',
+      databasePassword: ''
     });
     setErrors({});
+    setApiError('');
   };
 
   const validateForm = () => {
@@ -103,6 +183,9 @@ const BranchCreate = () => {
     else if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Email is invalid';
     if (!formData.principalName.trim()) newErrors.principalName = 'Principal name is required';
     if (!formData.establishDate) newErrors.establishDate = 'Establish date is required';
+    if (!formData.databaseName.trim()) newErrors.databaseName = 'Database name is required';
+    if (!formData.databaseUser.trim()) newErrors.databaseUser = 'Database user is required';
+    if (!formData.databasePassword.trim()) newErrors.databasePassword = 'Database password is required';
     
     return newErrors;
   };
@@ -128,7 +211,25 @@ const BranchCreate = () => {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -50, opacity: 0 }}
         >
-          Branch created successfully!
+          <strong>Branch created successfully!</strong>
+          {createdBranch && (
+            <div style={{ marginTop: '8px', fontSize: '14px' }}>
+              Branch Code: <strong>{createdBranch.branch_code}</strong> | 
+              Database: <strong>{createdBranch.database_name}</strong>
+              <br />
+              Default login: <strong>admin</strong> / <strong>admin123</strong>
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {apiError && (
+        <motion.div 
+          className={styles.errorBanner}
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+        >
+          {apiError}
         </motion.div>
       )}
 
@@ -260,6 +361,93 @@ const BranchCreate = () => {
                   />
                 </div>
                 {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* Database Configuration */}
+          <div className={styles.formSection}>
+            <h2 className={styles.sectionTitle}>
+              <FiDatabase style={{ marginRight: '6px' }} />
+              Database Configuration
+            </h2>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="databaseName" className={styles.label}>
+                Database Name <span className={styles.required}>*</span>
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="text"
+                  id="databaseName"
+                  name="databaseName"
+                  value={formData.databaseName}
+                  onChange={handleChange}
+                  className={`${styles.input} ${errors.databaseName ? styles.error : ''}`}
+                  placeholder="Auto-generated from branch name"
+                />
+                {errors.databaseName && <span className={styles.errorMessage}>{errors.databaseName}</span>}
+              </div>
+            </div>
+
+            <div className={styles.formRow}>
+              <div className={styles.formGroup} style={{ flex: 1 }}>
+                <label htmlFor="databaseHost" className={styles.label}>Host</label>
+                <input
+                  type="text"
+                  id="databaseHost"
+                  name="databaseHost"
+                  value={formData.databaseHost}
+                  onChange={handleChange}
+                  className={styles.input}
+                />
+              </div>
+              <div className={styles.formGroup} style={{ width: '120px' }}>
+                <label htmlFor="databasePort" className={styles.label}>Port</label>
+                <input
+                  type="number"
+                  id="databasePort"
+                  name="databasePort"
+                  value={formData.databasePort}
+                  onChange={handleChange}
+                  className={styles.input}
+                />
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="databaseUser" className={styles.label}>
+                Database User <span className={styles.required}>*</span>
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="text"
+                  id="databaseUser"
+                  name="databaseUser"
+                  value={formData.databaseUser}
+                  onChange={handleChange}
+                  className={`${styles.input} ${errors.databaseUser ? styles.error : ''}`}
+                  placeholder="PostgreSQL user for this school"
+                />
+                {errors.databaseUser && <span className={styles.errorMessage}>{errors.databaseUser}</span>}
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="databasePassword" className={styles.label}>
+                Database Password <span className={styles.required}>*</span>
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="password"
+                  id="databasePassword"
+                  name="databasePassword"
+                  value={formData.databasePassword}
+                  onChange={handleChange}
+                  className={`${styles.input} ${errors.databasePassword ? styles.error : ''}`}
+                  placeholder="Database user password"
+                />
+                {errors.databasePassword && <span className={styles.errorMessage}>{errors.databasePassword}</span>}
               </div>
             </div>
           </div>

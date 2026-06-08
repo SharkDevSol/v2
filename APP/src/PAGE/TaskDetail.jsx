@@ -15,6 +15,8 @@ import { useLanguageSelection, AVAILABLE_LANGUAGES } from '../context/LanguageSe
 function TaskDetail() {
   const { taskId } = useParams();
   const navigate = useNavigate();
+  const currentTaskId = parseInt(taskId);
+  const TOTAL_TASKS = 6;
   const [year, setYear] = useState(new Date().getFullYear());
   const [terms, setTerms] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -69,8 +71,6 @@ function TaskDetail() {
     }
   };
 
-  const TOTAL_TASKS = 6;
-  
   const handleComplete = async () => {
     const id = parseInt(taskId);
     console.log(`🔵 Attempting to complete task ${id}`);
@@ -95,15 +95,15 @@ function TaskDetail() {
       console.log(`📊 Task status:`, statusResponse.data);
       const completedCount = statusResponse.data.completedTasks.length;
       
+      setIsCompleted(true);
+      setIsEditing(false);
+      
       if (completedCount >= TOTAL_TASKS) {
-        // All tasks completed, redirect to dashboard
-        console.log(`🎉 All tasks completed! Redirecting to dashboard...`);
-        navigate('/dashboard', { replace: true });
+        console.log(`🎉 All tasks completed!`);
       } else {
-        // More tasks remaining, go back to tasks list
-        console.log(`📋 ${completedCount}/${TOTAL_TASKS} tasks completed. Redirecting to tasks page...`);
-        navigate('/tasks');
+        console.log(`📋 ${completedCount}/${TOTAL_TASKS} tasks completed.`);
       }
+      // Stay on page to show read-only view instead of navigating away
     } catch (error) {
       console.error('❌ Error completing task:', error);
       console.error('Error details:', error.response?.data);
@@ -144,6 +144,7 @@ function TaskDetail() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase(),
         },
         body: JSON.stringify({ 
           terms,
@@ -220,9 +221,183 @@ function TaskDetail() {
   // Language selection hook for Task 1
   const { selectedLanguages, toggleLanguage, availableLanguages } = useLanguageSelection();
 
+  // Track if task is already completed and edit mode
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(true);
+
+  // Check if task is already completed
+  useEffect(() => {
+    const checkCompletion = async () => {
+      try {
+        const response = await api.get('/tasks/status');
+        if (response.data.success && response.data.completedTasks) {
+          setIsCompleted(response.data.completedTasks.includes(parseInt(taskId)));
+        }
+      } catch (error) {
+        const stored = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+        setIsCompleted(stored.includes(parseInt(taskId)));
+      } finally {
+        setCheckingStatus(false);
+      }
+    };
+    checkCompletion();
+  }, [taskId]);
+
+  // Load saved schedule config for display
+  const [savedConfig, setSavedConfig] = useState(null);
+  useEffect(() => {
+    if (taskId === '1' && isCompleted) {
+      const loadConfig = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/schedule/config`, {
+            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setSavedConfig(data);
+            // Populate local state from saved server data
+            if (data.periods_per_shift) setPeriodsPerShift(data.periods_per_shift);
+            if (data.period_duration) setPeriodDuration(data.period_duration);
+            if (data.total_shifts) setShiftCount(data.total_shifts);
+            if (data.school_days) setSchoolDays(data.school_days);
+            if (data.terms) setTerms(data.terms);
+            if (data.shift_rotation !== undefined) setShiftRotation(data.shift_rotation);
+            if (data.has_kg !== undefined) setHasKG(data.has_kg);
+            if (data.has_evening_class !== undefined) setHasEveningClass(data.has_evening_class);
+          }
+        } catch (e) {
+          console.error('Error loading saved config:', e);
+        }
+      };
+      loadConfig();
+    }
+  }, [taskId, isCompleted]);
+
+  if (checkingStatus) {
+    return <div className={styles.container}><p style={{textAlign:'center',padding:'3rem'}}>Loading task status...</p></div>;
+  }
+
+  // Navigation bar component
+  const TaskNav = () => (
+    <div style={{
+      display: 'flex', gap: '10px', marginBottom: '20px',
+      padding: '12px 16px', background: '#f5f5f5', borderRadius: '8px',
+      alignItems: 'center', flexWrap: 'wrap'
+    }}>
+      <button onClick={() => navigate('/tasks')} style={{
+        padding: '8px 16px', border: '1px solid #ccc', borderRadius: '6px',
+        background: 'white', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 500
+      }}>
+        ← Task Dashboard
+      </button>
+      {currentTaskId > 1 && (
+        <button onClick={() => navigate(`/tasks/${currentTaskId - 1}`)} style={{
+          padding: '8px 16px', border: '1px solid #ccc', borderRadius: '6px',
+          background: 'white', cursor: 'pointer', fontSize: '0.875rem'
+        }}>
+          ← Previous
+        </button>
+      )}
+      {currentTaskId < TOTAL_TASKS && (
+        <button onClick={() => navigate(`/tasks/${currentTaskId + 1}`)} style={{
+          padding: '8px 16px', border: 'none', borderRadius: '6px',
+          background: 'linear-gradient(135deg, #667eea, #764ba2)',
+          color: 'white', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 500
+        }}>
+          Next →
+        </button>
+      )}
+      <span style={{ marginLeft: 'auto', fontSize: '0.8rem', color: '#888' }}>
+        Task {currentTaskId} of {TOTAL_TASKS}
+      </span>
+    </div>
+  );
+
   if (taskId === '1') {
+    // Read-only view when completed and not editing
+    if (isCompleted && !isEditing) {
+      const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const selectedDayNames = schoolDays.map(d => dayNames[d]).join(', ');
+      
+      return (
+        <div className={styles.container}>
+          <TaskNav />
+          <h1 className={styles.title}>School Year Setup ✓</h1>
+          <div className={styles.completedBadge}>Completed</div>
+          
+          <div className={styles.readOnlySection}>
+            <h3>Current Configuration</h3>
+            <div className={styles.dataGrid}>
+              <div className={styles.dataItem}>
+                <span className={styles.dataLabel}>Academic Year</span>
+                <span className={styles.dataValue}>{academicYear || `${year}-${year+1}`}</span>
+              </div>
+              <div className={styles.dataItem}>
+                <span className={styles.dataLabel}>Number of Terms</span>
+                <span className={styles.dataValue}>{terms} Term{terms > 1 ? 's' : ''}</span>
+              </div>
+              <div className={styles.dataItem}>
+                <span className={styles.dataLabel}>School Days</span>
+                <span className={styles.dataValue}>{selectedDayNames}</span>
+              </div>
+              <div className={styles.dataItem}>
+                <span className={styles.dataLabel}>Number of Shifts</span>
+                <span className={styles.dataValue}>{shiftCount} Shift{shiftCount > 1 ? 's' : ''}</span>
+              </div>
+              {shiftCount === 2 && (
+                <div className={styles.dataItem}>
+                  <span className={styles.dataLabel}>Shift Rotation</span>
+                  <span className={styles.dataValue}>{shiftRotation ? 'Enabled' : 'Disabled'}</span>
+                </div>
+              )}
+              <div className={styles.dataItem}>
+                <span className={styles.dataLabel}>Periods Per Shift</span>
+                <span className={styles.dataValue}>{periodsPerShift}</span>
+              </div>
+              <div className={styles.dataItem}>
+                <span className={styles.dataLabel}>Period Duration</span>
+                <span className={styles.dataValue}>{periodDuration} minutes</span>
+              </div>
+              <div className={styles.dataItem}>
+                <span className={styles.dataLabel}>KG Classes</span>
+                <span className={styles.dataValue}>{hasKG ? 'Yes' : 'No'}</span>
+              </div>
+              <div className={styles.dataItem}>
+                <span className={styles.dataLabel}>Evening Classes</span>
+                <span className={styles.dataValue}>{hasEveningClass ? 'Yes' : 'No'}</span>
+              </div>
+              {savedConfig && (
+                <>
+                  <div className={styles.dataItem}>
+                    <span className={styles.dataLabel}>Short Break Duration</span>
+                    <span className={styles.dataValue}>{savedConfig.short_break_duration || 10} min</span>
+                  </div>
+                  <div className={styles.dataItem}>
+                    <span className={styles.dataLabel}>Teaching Days/Week</span>
+                    <span className={styles.dataValue}>{savedConfig.teaching_days_per_week || schoolDays.length}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.actionSection}>
+            <button 
+              onClick={() => setIsEditing(true)}
+              className={styles.mergeButton}
+              style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}
+            >
+              Edit Configuration
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className={styles.container}>
+        <TaskNav />
         <h1 className={styles.title}>School Year Setup</h1>
         <p className={styles.description}>
           Configure the academic year, number of terms, and form languages.
@@ -528,6 +703,7 @@ function TaskDetail() {
   if (taskId === '2') {
     return (
       <div className={styles.container}>
+        <TaskNav />
         <h1 className={styles.title}>Create Student Registration Form</h1>
         <p className={styles.description}>
           Set up classes and custom fields for the student registration system.
@@ -543,6 +719,7 @@ function TaskDetail() {
   if (taskId === '3') {
     return (
       <div className={styles.container}>
+        <TaskNav />
         <h1 className={styles.title}>Create Staff Registration Form</h1>
         <p className={styles.description}>
           Set up the staff type and custom fields for staff registration.
@@ -558,6 +735,7 @@ function TaskDetail() {
   if (taskId === '4') {
     return (
       <div className={styles.container}>
+        <TaskNav />
         <h1 className={styles.title}>Configure Subjects and Classes</h1>
         <p className={styles.description}>
           Set up subjects and map them to classes for your school.
@@ -585,7 +763,9 @@ function TaskDetail() {
       const loadInitialData = async () => {
         try {
           // Check if teacher assignments already exist
-          const checkResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`);
+          const checkResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, {
+            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+          });
           if (checkResponse.ok) {
             const checkData = await checkResponse.json();
             
@@ -600,14 +780,18 @@ function TaskDetail() {
           }
 
           // Load class-subject mappings
-          const classSubjectsResponse = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`);
+          const classSubjectsResponse = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`, {
+            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+          });
           if (classSubjectsResponse.ok) {
             const classSubjectsData = await classSubjectsResponse.json();
             setClassSubjects(classSubjectsData);
           }
 
           // Load teachers from schedule system with work times
-          const teachersResponse = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`);
+          const teachersResponse = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`, {
+            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+          });
           if (teachersResponse.ok) {
             const teachersData = await teachersResponse.json();
             setTeachers(teachersData);
@@ -669,6 +853,7 @@ function TaskDetail() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase(),
           },
           body: JSON.stringify({ assignments: assignmentData }),
         });
@@ -683,6 +868,7 @@ function TaskDetail() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase(),
           },
           body: JSON.stringify({ 
             assignments: assignmentData,
@@ -702,7 +888,9 @@ function TaskDetail() {
         });
         
         // Fetch the updated assignments to display
-        const dataResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`);
+        const dataResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, {
+          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+        });
         if (dataResponse.ok) {
           const data = await dataResponse.json();
           setMergeData(data);
@@ -719,6 +907,7 @@ function TaskDetail() {
 
     return (
       <div className={styles.container}>
+        <TaskNav />
         <h1 className={styles.title}>Task 5: Assign Teachers to Classes and Subjects</h1>
         <p className={styles.description}>
           Manually assign teachers to their respective classes and subjects for scheduling and period management.
@@ -914,6 +1103,7 @@ function TaskDetail() {
   if (taskId === '6') {
     return (
       <div className={styles.container}>
+        <TaskNav />
         <h1 className={styles.title}>Task 6: Schedule Configuration & Generation</h1>
         <p className={styles.description}>
           Configure school schedule settings and generate timetables using teacher assignments from Task 5.
@@ -940,6 +1130,7 @@ function TaskDetail() {
 
   return (
     <div className={styles.container}>
+      <TaskNav />
       <h1 className={styles.title}>Task {taskId}</h1>
       <p className={styles.description}>
         This is an empty task page. Click the button below to mark it as complete.

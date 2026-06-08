@@ -20,7 +20,7 @@ const { uploadLimiter } = require('../middleware/rateLimiter');
 router.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) return callback(null, true);
+    if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.includes('skoolific.com')) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -92,7 +92,7 @@ initGlobalMachineIds();
 router.get('/classes', authenticateWithBranch, async (req, res) => {
   try {
     const pool = req.branchPool;
-    const result = await pool.query('SELECT id, class_name, grade_level FROM classes ORDER BY class_name');
+    const result = await pool.query('SELECT unnest(class_names) as class_name FROM school_schema_points.classes WHERE id = 1 ORDER BY class_name');
     res.json(result.rows.map(row => row.class_name));
   } catch (err) {
     console.error('Error fetching classes:', err);
@@ -153,10 +153,14 @@ router.get('/form-structure', async (req, res) => {
       }
     }
     
+    // Add class_configs column if not exists
+    await db.query(`ALTER TABLE school_schema_points.classes ADD COLUMN IF NOT EXISTS class_configs JSONB DEFAULT '{}'::jsonb`);
+    
     // Column exists, query with custom_fields
-    const result = await db.query('SELECT class_names, custom_fields FROM school_schema_points.classes WHERE id = 1');
+    const result = await db.query('SELECT class_names, custom_fields, class_configs FROM school_schema_points.classes WHERE id = 1');
     if (result.rows.length > 0) {
       let customFields = [];
+      let classConfigs = {};
       try {
         // Parse the JSONB field if it exists and is valid
         if (result.rows[0].custom_fields) {
@@ -164,17 +168,22 @@ router.get('/form-structure', async (req, res) => {
             ? result.rows[0].custom_fields 
             : JSON.parse(result.rows[0].custom_fields);
         }
+        if (result.rows[0].class_configs) {
+          classConfigs = typeof result.rows[0].class_configs === 'object'
+            ? result.rows[0].class_configs
+            : JSON.parse(result.rows[0].class_configs);
+        }
       } catch (err) {
-        console.error('Error parsing custom_fields:', err);
-        customFields = [];
+        console.error('Error parsing form structure:', err);
       }
       
       res.json({
         classes: result.rows[0].class_names,
-        customFields: customFields
+        customFields: customFields,
+        classConfigs: classConfigs
       });
     } else {
-      res.json({ classes: [], customFields: [] });
+      res.json({ classes: [], customFields: [], classConfigs: {} });
     }
   } catch (err) {
     console.error('Error fetching form structure:', err);
@@ -225,7 +234,7 @@ router.get('/search-guardian/:phone', async (req, res) => {
 
 // Create form structure - FIXED JSON SERIALIZATION
 router.post('/create-form', async (req, res) => {
-  const { classCount, classes, customFields } = req.body;
+  const { classCount, classes, customFields, classConfigs } = req.body;
   
   // Validate input
   if (!classes || !Array.isArray(classes) || classes.length === 0) {
@@ -337,7 +346,8 @@ router.post('/create-form', async (req, res) => {
         id INTEGER PRIMARY KEY, 
         class_count INTEGER NOT NULL, 
         class_names TEXT[] NOT NULL,
-        custom_fields JSONB DEFAULT '[]'::jsonb
+        custom_fields JSONB DEFAULT '[]'::jsonb,
+        class_configs JSONB DEFAULT '{}'::jsonb
       )
     `);
     
@@ -355,15 +365,18 @@ router.post('/create-form', async (req, res) => {
       customFieldsForDB = JSON.stringify([]);
     }
     
+    let classConfigsForDB = JSON.stringify(classConfigs || {});
+    
     // Insert or update the form structure
     await client.query(`
-      INSERT INTO school_schema_points.classes (id, class_count, class_names, custom_fields)
-      VALUES (1, $1, $2, $3::jsonb)
+      INSERT INTO school_schema_points.classes (id, class_count, class_names, custom_fields, class_configs)
+      VALUES (1, $1, $2, $3::jsonb, $4::jsonb)
       ON CONFLICT (id) DO UPDATE 
       SET class_count = EXCLUDED.class_count, 
           class_names = EXCLUDED.class_names, 
-          custom_fields = EXCLUDED.custom_fields
-    `, [classes.length, classes, customFieldsForDB]);
+          custom_fields = EXCLUDED.custom_fields,
+          class_configs = EXCLUDED.class_configs
+    `, [classes.length, classes, customFieldsForDB, classConfigsForDB]);
 
     await client.query('COMMIT');
     
@@ -1065,7 +1078,7 @@ router.post('/bulk-import', async (req, res) => {
   const client = await db.connect();
   
   try {
-    await client.query('BEGIN');
+    // Ensure global_id_tracker table exists
     
     // Ensure global_id_tracker table exists
     try {
@@ -1115,7 +1128,7 @@ router.post('/bulk-import', async (req, res) => {
     }
     
     if (missingClasses.length > 0) {
-      await client.query('ROLLBACK');
+      client.release();
       return res.status(400).json({ 
         error: `The following classes do not exist: ${missingClasses.join(', ')}. Please create them first at the "Create Form Structure" page.`,
         missingClasses,
@@ -1165,7 +1178,7 @@ router.post('/bulk-import', async (req, res) => {
           if (!studentData.student_name || !studentData.age || !studentData.gender) {
             results.failedCount++;
             results.errors.push({
-              row: i + 2, // +2 because Excel is 1-indexed and has header row
+              row: i + 2,
               class: targetClass,
               error: 'Missing required fields: student_name, age, or gender'
             });
@@ -1382,8 +1395,6 @@ router.post('/bulk-import', async (req, res) => {
       // Update the counter for this class
       classIdCounters[targetClass] = currentClassId;
     }
-    
-    await client.query('COMMIT');
     
     res.json({
       message: `Bulk import completed`,

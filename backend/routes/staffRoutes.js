@@ -649,6 +649,21 @@ router.get('/columns/:staffType/:className', async (req, res) => {
   const schema = sanitizeStaffTypeToSchema(staffType);
 
   try {
+    // Ensure form_metadata.field_types exists
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS form_metadata.field_types (
+        id SERIAL PRIMARY KEY,
+        schema_name VARCHAR(100) NOT NULL,
+        table_name VARCHAR(100) NOT NULL,
+        column_name VARCHAR(100) NOT NULL,
+        field_type VARCHAR(50) NOT NULL,
+        required BOOLEAN DEFAULT FALSE,
+        options JSONB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(schema_name, table_name, column_name)
+      )
+    `);
+    
     // Get database column info
     const { rows } = await pool.query(
       `SELECT column_name, data_type, is_nullable
@@ -2240,6 +2255,18 @@ router.post('/bulk-import', async (req, res) => {
   const client = await pool.connect();
   
   try {
+    // Ensure staff_counter table exists in this branch
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS staff_counter (
+        id SERIAL PRIMARY KEY,
+        count INTEGER NOT NULL DEFAULT 0
+      )
+    `);
+    const scCheck = await client.query('SELECT count FROM staff_counter WHERE id = 1');
+    if (scCheck.rows.length === 0) {
+      await client.query('INSERT INTO staff_counter (id, count) VALUES (1, 0)');
+    }
+    
     await client.query('BEGIN');
     
     const schema = sanitizeStaffTypeToSchema(staffType);

@@ -49,9 +49,10 @@ router.post('/complete/:taskId', async (req, res) => {
     }
 
     const result = await pool.query(`
-      UPDATE task_completions 
-      SET completed = true, completed_at = CURRENT_TIMESTAMP
-      WHERE task_id = $1
+      INSERT INTO task_completions (task_id, completed, completed_at)
+      VALUES ($1, true, CURRENT_TIMESTAMP)
+      ON CONFLICT (task_id) 
+      DO UPDATE SET completed = true, completed_at = CURRENT_TIMESTAMP
       RETURNING *
     `, [taskId]);
 

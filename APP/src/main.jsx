@@ -6,6 +6,7 @@ import App from './App.jsx'
 import { AppProvider } from './context/AppContext.jsx'
 import { LanguageSelectionProvider } from './context/LanguageSelectionContext.jsx'
 import axios from 'axios'
+import './config/axios.config'   // Register global interceptors (auth token + branch code)
 
 // Configure axios defaults from environment variable
 axios.defaults.baseURL = import.meta.env.VITE_API_URL?.replace('/api', '') || '';

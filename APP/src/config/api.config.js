@@ -30,14 +30,26 @@ const ENV = import.meta.env.MODE || 'development';
  * 
  * Supports both VITE_BACKEND_URL (new) and VITE_API_URL (legacy) for backward compatibility
  */
+// Auto-detect domain from browser in production, fallback to env vars in dev/build
+function getAutoBaseURL() {
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    return window.location.origin;
+  }
+  const configured = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL?.replace('/api', '');
+  if (configured) return configured;
+  const envUrl = import.meta.env.VITE_API_URL || '';
+  if (envUrl) return envUrl.replace(/\/api\/?$/, '');
+  return 'https://v2.skoolific.com';
+}
+
 const BASE_URLS = {
   development: {
     backend: import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5052',
     frontend: import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'
   },
   production: {
-    backend: import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://v2.skoolific.com',
-    frontend: import.meta.env.VITE_FRONTEND_URL || 'https://v2.skoolific.com'
+    backend: getAutoBaseURL(),
+    frontend: getAutoBaseURL()
   },
   test: {
     backend: import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5052',
@@ -73,6 +85,17 @@ export const API_ENDPOINTS = {
     ADMIN_LOGIN: '/api/admin/login',
     STAFF_LOGIN: '/api/staff/login',
     STUDENT_LOGIN: '/api/students/login'
+  },
+
+  // Branch Management (V2 Multi-branch)
+  BRANCHES: {
+    BASE: '/api/v2/branches',
+    LIST: '/api/v2/branches',
+    CREATE: '/api/v2/branches',
+    VALIDATE: '/api/v2/branches/validate',
+    SCAN: '/api/v2/branches/scan',
+    AUTO_REGISTER: '/api/v2/branches/auto-register',
+    STATS: '/api/v2/branches/stats'
   },
 
   // Admin Management

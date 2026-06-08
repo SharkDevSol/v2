@@ -222,4 +222,59 @@ router.get('/stats', authenticateToken, authorizeRoles('super-admin'), (req, res
   res.json(stats);
 });
 
+/**
+ * GET /api/v2/branches/scan
+ * Scan for unregistered PostgreSQL databases (Super Admin only)
+ */
+router.get('/scan', authenticateToken, authorizeRoles('super-admin'), async (req, res) => {
+  try {
+    const unregistered = await dbManager.scanUnregisteredDatabases();
+    res.json({
+      total: unregistered.length,
+      databases: unregistered
+    });
+  } catch (error) {
+    console.error('Error scanning databases:', error);
+    res.status(500).json({
+      error: 'Failed to scan databases',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/v2/branches/auto-register
+ * Auto-register a database in branch_config with generated branch code (Super Admin only)
+ */
+router.post('/auto-register', authenticateToken, authorizeRoles('super-admin'), async (req, res) => {
+  try {
+    const { databaseName, customBranchCode, customBranchName } = req.body;
+
+    if (!databaseName) {
+      return res.status(400).json({ error: 'databaseName is required' });
+    }
+
+    const result = await dbManager.autoRegisterBranch(databaseName, customBranchCode, customBranchName);
+
+    if (result.alreadyRegistered) {
+      return res.json({
+        message: 'Database is already registered',
+        branch: result.branch
+      });
+    }
+
+    res.status(201).json({
+      message: 'Database registered successfully',
+      branch: result.branch,
+      branchCode: result.branchCode
+    });
+  } catch (error) {
+    console.error('Error auto-registering database:', error);
+    res.status(500).json({
+      error: 'Failed to auto-register database',
+      message: error.message
+    });
+  }
+});
+
 module.exports = router;

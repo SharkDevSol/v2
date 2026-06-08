@@ -81,6 +81,7 @@ const AddStudentS = () => {
   const [showCamera, setShowCamera] = useState(false);
   const [cameraMode, setCameraMode] = useState(null);
   const webcamRef = useRef(null);
+  const excelInputRef = useRef(null);
   
   // Multi-select states
   const [multiSelectValues, setMultiSelectValues] = useState({});
@@ -873,6 +874,7 @@ const AddStudentS = () => {
                   <input
                     type="file"
                     accept=".xlsx,.xls"
+                    ref={excelInputRef}
                     onChange={handleExcelUpload}
                     className={styles.hiddenFileInput}
                     disabled={isLoading}
@@ -882,6 +884,7 @@ const AddStudentS = () => {
                     variant="secondary"
                     icon={<FileSpreadsheet size={18} />}
                     disabled={isLoading}
+                    onClick={() => excelInputRef.current?.click()}
                   >
                     {t('common.upload', 'Upload')} Excel
                   </Button>
