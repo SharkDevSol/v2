@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './CreateMarklist/CreateMarklist.module.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const branchHeaders = () => ({ 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() });
 
 const SubjectConfiguration = ({ onSubjectsConfigured }) => {
   const [subjects, setSubjects] = useState([]);
@@ -18,7 +19,9 @@ const SubjectConfiguration = ({ onSubjectsConfigured }) => {
 
   const fetchSubjects = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/mark-list/subjects`);
+      const res = await fetch(`${API_BASE_URL}/mark-list/subjects`, {
+        headers: branchHeaders()
+      });
       const data = await res.json();
       setSubjects(data);
     } catch (err) {
@@ -33,7 +36,7 @@ const SubjectConfiguration = ({ onSubjectsConfigured }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/mark-list/add-subject`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...branchHeaders() },
         body: JSON.stringify({ subject_name: newSubjectName.trim() }),
       });
       const data = await res.json();
@@ -58,7 +61,7 @@ const SubjectConfiguration = ({ onSubjectsConfigured }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/mark-list/update-subject/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...branchHeaders() },
         body: JSON.stringify({ subject_name: editingName.trim() }),
       });
       const data = await res.json();
@@ -82,7 +85,10 @@ const SubjectConfiguration = ({ onSubjectsConfigured }) => {
     setLoading(true);
     setMessage('');
     try {
-      const res = await fetch(`${API_BASE_URL}/mark-list/delete-subject/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/mark-list/delete-subject/${id}`, {
+        method: 'DELETE',
+        headers: branchHeaders()
+      });
       const data = await res.json();
       if (res.ok) {
         setMessage('Subject deleted!');
@@ -220,9 +226,9 @@ const ClassSubjectMapping = ({ onMappingCompleted }) => {
   const fetchData = async () => {
     try {
       const [classesRes, subjectsRes, mappingsRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/mark-list/classes`),
-        fetch(`${API_BASE_URL}/mark-list/subjects`),
-        fetch(`${API_BASE_URL}/mark-list/subjects-classes`)
+        fetch(`${API_BASE_URL}/mark-list/classes`, { headers: branchHeaders() }),
+        fetch(`${API_BASE_URL}/mark-list/subjects`, { headers: branchHeaders() }),
+        fetch(`${API_BASE_URL}/mark-list/subjects-classes`, { headers: branchHeaders() })
       ]);
       const [classesData, subjectsData, mappingsData] = await Promise.all([
         classesRes.json(), subjectsRes.json(), mappingsRes.json()
@@ -255,7 +261,7 @@ const ClassSubjectMapping = ({ onMappingCompleted }) => {
         });
       const res = await fetch(`${API_BASE_URL}/mark-list/map-subjects-classes`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...branchHeaders() },
         body: JSON.stringify({ mappings: mappingsArray }),
       });
       const data = await res.json();
