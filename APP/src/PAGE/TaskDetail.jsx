@@ -244,6 +244,29 @@ function TaskDetail() {
     checkCompletion();
   }, [taskId]);
 
+  // Task 4 read-only data
+  const [task4Subjects, setTask4Subjects] = useState([]);
+  const [task4Mappings, setTask4Mappings] = useState([]);
+  const [task4DataLoading, setTask4DataLoading] = useState(false);
+  useEffect(() => {
+    if (taskId === '4' && isCompleted) {
+      setTask4DataLoading(true);
+      const load = async () => {
+        try {
+          const h = { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() };
+          const [s, m] = await Promise.all([
+            fetch(`${API_BASE_URL}/mark-list/subjects`, { headers: h }),
+            fetch(`${API_BASE_URL}/mark-list/subjects-classes`, { headers: h })
+          ]);
+          if (s.ok) setTask4Subjects(await s.json());
+          if (m.ok) setTask4Mappings(await m.json());
+        } catch (e) { console.error(e); }
+        finally { setTask4DataLoading(false); }
+      };
+      load();
+    }
+  }, [taskId, isCompleted]);
+
   // Load saved schedule config for display
   const [savedConfig, setSavedConfig] = useState(null);
   useEffect(() => {
@@ -733,6 +756,49 @@ function TaskDetail() {
   }
 
   if (taskId === '4') {
+    // Read-only view when completed
+    if (isCompleted && !isEditing) {
+      return (
+        <div className={styles.container}>
+          <TaskNav />
+          <h1 className={styles.title}>Configure Subjects and Classes ✓</h1>
+          <div className={styles.completedBadge}>Completed</div>
+          {task4DataLoading ? <p style={{padding:'2rem', textAlign:'center'}}>Loading...</p> : (
+            <div className={styles.readOnlySection}>
+              <h3>Subjects ({task4Subjects.length})</h3>
+              <div style={{display:'flex', flexWrap:'wrap', gap:'0.5rem', marginBottom:'1rem'}}>
+                {task4Subjects.map(s => (
+                  <span key={s.id} style={{background:'#e5e7eb', padding:'0.3rem 0.8rem', borderRadius:'20px', fontSize:'0.85rem'}}>
+                    {s.subject_name}
+                  </span>
+                ))}
+              </div>
+              <h3>Class Mappings ({task4Mappings.length})</h3>
+              <div style={{display:'flex', flexWrap:'wrap', gap:'0.5rem'}}>
+                {task4Mappings.map((m, i) => (
+                  <span key={i} style={{background:'#dbeafe', padding:'0.3rem 0.8rem', borderRadius:'20px', fontSize:'0.85rem'}}>
+                    {m.subject_name} → {m.class_name}
+                  </span>
+                ))}
+              </div>
+              <button onClick={() => setIsEditing(true)}
+                style={{marginTop:'1.5rem', padding:'10px 24px', border:'none', borderRadius:'8px',
+                  background:'linear-gradient(135deg, #667eea, #764ba2)', color:'white', cursor:'pointer', fontSize:'0.9rem', fontWeight:600}}>
+                Edit Configuration
+              </button>
+            </div>
+          )}
+          {error && <p className={styles.error}>{error}</p>}
+        </div>
+      );
+    }
+    
+    // Wrap handleComplete to navigate to tasks after
+    const task4Complete = async () => {
+      await handleComplete();
+      navigate('/tasks');
+    };
+    
     return (
       <div className={styles.container}>
         <TaskNav />
@@ -741,7 +807,7 @@ function TaskDetail() {
           Set up subjects and map them to classes for your school.
         </p>
         <div className={styles.contentArea}>
-          <SubjectMappingSetup onComplete={handleComplete} />
+          <SubjectMappingSetup onComplete={task4Complete} />
         </div>
         {error && <p className={styles.error}>{error}</p>}
       </div>
