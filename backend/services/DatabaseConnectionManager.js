@@ -64,6 +64,43 @@ class DatabaseConnectionManager {
       await pool.query('CREATE SCHEMA IF NOT EXISTS school_comms');
       await pool.query('CREATE SCHEMA IF NOT EXISTS schedule_schema');
       await pool.query('CREATE SCHEMA IF NOT EXISTS subjects_of_school_schema');
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS subjects_of_school_schema.subjects (
+          id SERIAL PRIMARY KEY,
+          subject_name VARCHAR(100) NOT NULL UNIQUE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS subjects_of_school_schema.subject_class_mappings (
+          id SERIAL PRIMARY KEY,
+          subject_name VARCHAR(100) NOT NULL,
+          class_name VARCHAR(50) NOT NULL,
+          subject_class VARCHAR(150) GENERATED ALWAYS AS (subject_name || ' Class ' || class_name) STORED,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(subject_name, class_name)
+        )
+      `);
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS subjects_of_school_schema.teachers_subjects (
+          id SERIAL PRIMARY KEY,
+          teacher_name VARCHAR(100) NOT NULL,
+          subject_class VARCHAR(150) NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(teacher_name, subject_class)
+        )
+      `);
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS subjects_of_school_schema.school_config (
+          id SERIAL PRIMARY KEY,
+          term_count INTEGER NOT NULL DEFAULT 2,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      const subConfigCheck = await pool.query('SELECT id FROM subjects_of_school_schema.school_config WHERE id = 1');
+      if (subConfigCheck.rows.length === 0) {
+        await pool.query('INSERT INTO subjects_of_school_schema.school_config (id, term_count) VALUES (1, 2)');
+      }
       await pool.query('CREATE SCHEMA IF NOT EXISTS staff_teachers');
       await pool.query('CREATE SCHEMA IF NOT EXISTS posts_schema');
       await pool.query('CREATE SCHEMA IF NOT EXISTS school_schema_points');
