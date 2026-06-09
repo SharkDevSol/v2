@@ -79,6 +79,10 @@ const CreateAccounts = lazy(() => import("./PAGE/CreateAccounts/CreateAccounts")
 const AdminSubAccounts = lazy(() => import("./PAGE/AdminSubAccounts/AdminSubAccounts"));
 const TaskPage = lazy(() => import("./PAGE/TaskPage"));
 const TaskDetail = lazy(() => import("./PAGE/TaskDetail"));
+const TaskDetailWrapper = () => {
+  const { taskId } = useParams();
+  return <Suspense fallback={<PageLoader />}><TaskDetail key={taskId} /></Suspense>;
+};
 
 // Mobile App Installation
 const InstallStudentApp = lazy(() => import("./PAGE/InstallApp/InstallStudentApp"));
@@ -221,7 +225,7 @@ function App() {
               
               {/* Tasks routes - separate from dashboard */}
               <Route path="tasks" element={<LazyRoute component={TaskPage} />} />
-              <Route path="tasks/:taskId" element={<LazyRoute component={TaskDetail} />} />
+              <Route path="tasks/:taskId" element={<TaskDetailWrapper />} />
               
               {/* Report Pages */}
               <Route path="reports/students" element={<LazyRoute component={StudentsReport} />} />
