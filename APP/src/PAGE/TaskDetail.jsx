@@ -1,16 +1,16 @@
 // PAGE/TaskDetail.jsx - FIXED VERSION
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import styles from './TaskDetail.module.css';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://v2.skoolific.com/api';
 import StudentFormBuilder from '../PAGE/CreateRegister/CreateRegisterStudent/StudentFormBuilder';
 import StaffFormBuilder from '../PAGE/CreateRegister/CreateRegisterStaff/StaffFormBuilder';
 import CreateRegisterStaff from '../PAGE/CreateRegister/CreateRegisterStaff/CreateRegisterStaff';
 import SubjectMappingSetup from '../PAGE/CreateMarklist/SubjectMappingSetup';
 import Task7 from '../PAGE/Task7';
 import { useLanguageSelection, AVAILABLE_LANGUAGES } from '../context/LanguageSelectionContext';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://v2.skoolific.com/api';
 
 function TaskDetail() {
   const { taskId } = useParams();
@@ -824,55 +824,50 @@ function TaskDetail() {
     );
   }
 
-  // Task 5: Load data when entering task 5
-  const prevTaskId = useRef(taskId);
+  // Task 5: Load existing data on component mount
   useEffect(() => {
-    if (taskId === '5' && prevTaskId.current !== '5') {
-      prevTaskId.current = taskId;
-      const loadInitialData = async () => {
-        try {
-          const checkResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, {
-            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-          });
-          if (checkResponse.ok) {
-            const checkData = await checkResponse.json();
-            if (checkData.length > 0) {
-              setMergeData(checkData);
-              setStats({
-                insertedCount: checkData.length,
-                teacherCount: new Set(checkData.map(item => item.teacher_name)).size,
-                classSubjectCount: checkData.length
-              });
-            }
+    if (taskId !== '5') return;
+    const loadInitialData = async () => {
+      try {
+        const checkResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, {
+          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+        });
+        if (checkResponse.ok) {
+          const checkData = await checkResponse.json();
+          if (checkData.length > 0) {
+            setMergeData(checkData);
+            setStats({
+              insertedCount: checkData.length,
+              teacherCount: new Set(checkData.map(item => item.teacher_name)).size,
+              classSubjectCount: checkData.length
+            });
           }
-          const classSubjectsResponse = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`, {
-            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-          });
-          if (classSubjectsResponse.ok) {
-            setClassSubjects(await classSubjectsResponse.json());
-          }
-          const teachersResponse = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`, {
-            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-          });
-          if (teachersResponse.ok) {
-            const teachersData = await teachersResponse.json();
-            setTeachers(teachersData);
-            const workTimeMap = {};
-            teachersData.forEach(t => { workTimeMap[t.name] = t.staff_work_time || 'Full Time'; });
-            setTeacherWorkTimes(workTimeMap);
-          }
-        } catch (err) {
-          console.error('Error loading initial data:', err);
-        } finally {
-          setDataLoaded(true);
         }
-      };
-      loadInitialData();
-    } else {
-      prevTaskId.current = taskId;
-    }
-  });
-
+        const classSubjectsResponse = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`, {
+          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+        });
+        if (classSubjectsResponse.ok) {
+          setClassSubjects(await classSubjectsResponse.json());
+        }
+        const teachersResponse = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`, {
+          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+        });
+        if (teachersResponse.ok) {
+          const teachersData = await teachersResponse.json();
+          setTeachers(teachersData);
+          const workTimeMap = {};
+          teachersData.forEach(t => { workTimeMap[t.name] = t.staff_work_time || 'Full Time'; });
+          setTeacherWorkTimes(workTimeMap);
+        }
+      } catch (err) {
+        console.error('Error loading initial data:', err);
+        setError('Failed to load data. Make sure Tasks 4 and 5 are completed.');
+      } finally {
+        setDataLoaded(true);
+      }
+    };
+    loadInitialData();
+  }, [taskId]);
 
   if (taskId === '5') {
 
