@@ -2572,13 +2572,14 @@ router.post('/generate-complete-schedule', async (req, res) => {
           }
           
           if (!assigned) {
-            // Try other teachers with subjects that still have capacity
+            // Only allow subjects CONFIGURED for this class
+            const classSubjectKeys = Object.keys(subjectClassLimits).filter(k => k.startsWith(`${className}|`));
+            const allowedSubjects = subjects.filter(s => classSubjectKeys.includes(`${className}|${s.subject_name}`));
             for (const teacher of teachers) {
               if (!(teacher.work_days || config.school_days).includes(day)) continue;
               if (!isTeacherAvailable(teacher.id, day, period, shiftId)) continue;
               if (!canTeacherTeach(teacher, day)) continue;
-              
-              for (const subject of subjects) {
+              for (const subject of allowedSubjects) {
                 const key = `${className}|${subject.subject_name}`;
                 if (subjectClassCounts[key] !== undefined && subjectClassCounts[key] >= subjectClassLimits[key]) continue;
                 if (!canPlaceSubject(className, day, period, shiftId, subject.id)) continue;
