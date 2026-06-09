@@ -246,12 +246,12 @@ router.post('/create-form', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Drop and recreate schema
-    await client.query('DROP SCHEMA IF EXISTS classes_schema CASCADE');
-    await client.query('CREATE SCHEMA classes_schema');
+    // Don't drop schema — create if not exists, preserve existing class data
+    await client.query('CREATE SCHEMA IF NOT EXISTS classes_schema');
     
-    // Create tables for each class
+    // Create tables for each class (only if they don't already exist)
     for (const className of classes) {
+      // Check if table already exists
       // Basic columns that every table should have
       const baseColumns = [
         'id SERIAL PRIMARY KEY',
@@ -314,10 +314,16 @@ router.post('/create-form', async (req, res) => {
       
       // Combine all columns
       const allColumns = [...baseColumns, ...customColumns];
-      const createTableSQL = `CREATE TABLE classes_schema."${className}" (${allColumns.join(', ')})`;
+      const createTableSQL = `CREATE TABLE IF NOT EXISTS classes_schema."${className}" (${allColumns.join(', ')})`;
       
-      console.log(`Creating table: ${createTableSQL}`);
+      console.log(`Ensuring table: ${className}`);
       await client.query(createTableSQL);
+      // Add new columns if they don't exist (for existing tables)
+      for (const col of allColumns) {
+        const colName = col.split(' ')[0];
+        if (colName === 'id') continue;
+        try { await client.query(`ALTER TABLE classes_schema."${className}" ADD COLUMN IF NOT EXISTS ${col}`); } catch(e) { /* column may already exist */ }
+      }
     }
 
     // Ensure school_schema_points schema exists
@@ -339,10 +345,9 @@ router.post('/create-form', async (req, res) => {
       await client.query('INSERT INTO school_schema_points.global_id_tracker (last_school_id) VALUES (0)');
     }
     
-    // Drop and recreate the classes table with proper JSONB handling
-    await client.query('DROP TABLE IF EXISTS school_schema_points.classes');
+    // Upsert metadata into school_schema_points.classes
     await client.query(`
-      CREATE TABLE school_schema_points.classes (
+      CREATE TABLE IF NOT EXISTS school_schema_points.classes (
         id INTEGER PRIMARY KEY, 
         class_count INTEGER NOT NULL, 
         class_names TEXT[] NOT NULL,
@@ -350,7 +355,6 @@ router.post('/create-form', async (req, res) => {
         class_configs JSONB DEFAULT '{}'::jsonb
       )
     `);
-    
     // FIX: Properly serialize customFields for JSONB
     let customFieldsForDB = null;
     if (customFields && Array.isArray(customFields) && customFields.length > 0) {
@@ -367,7 +371,6 @@ router.post('/create-form', async (req, res) => {
     
     let classConfigsForDB = JSON.stringify(classConfigs || {});
     
-    // Insert or update the form structure
     await client.query(`
       INSERT INTO school_schema_points.classes (id, class_count, class_names, custom_fields, class_configs)
       VALUES (1, $1, $2, $3::jsonb, $4::jsonb)
