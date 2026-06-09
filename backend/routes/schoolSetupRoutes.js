@@ -934,8 +934,16 @@ router.post('/sync-teacher-assignments', async (req, res) => {
 
   const client = await pool.connect();
   try {
+    await client.query(`CREATE TABLE IF NOT EXISTS school_schema_points.teachers_period (
+      id SERIAL PRIMARY KEY,
+      teacher_name VARCHAR(100) NOT NULL,
+      class_name VARCHAR(50) NOT NULL,
+      subject_name VARCHAR(100) NOT NULL,
+      staff_work_time VARCHAR(20) DEFAULT 'Full Time',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(teacher_name, class_name, subject_name)
+    )`);
     await client.query('BEGIN');
-
     await client.query('DELETE FROM school_schema_points.teachers_period');
 
     for (const assignment of assignments) {
