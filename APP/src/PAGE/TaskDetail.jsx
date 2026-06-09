@@ -9,7 +9,7 @@ import StudentFormBuilder from '../PAGE/CreateRegister/CreateRegisterStudent/Stu
 import StaffFormBuilder from '../PAGE/CreateRegister/CreateRegisterStaff/StaffFormBuilder';
 import CreateRegisterStaff from '../PAGE/CreateRegister/CreateRegisterStaff/CreateRegisterStaff';
 import SubjectMappingSetup from '../PAGE/CreateMarklist/SubjectMappingSetup';
-import Task7 from '../PAGE/Task7';
+import Task6 from '../PAGE/Task6';
 import { useLanguageSelection, AVAILABLE_LANGUAGES } from '../context/LanguageSelectionContext';
 
 function TaskDetail() {
@@ -122,7 +122,7 @@ function TaskDetail() {
   };
 
   // Enhanced handleComplete for Task 7 with schedule check
-  const handleCompleteTask7 = async () => {
+  const handleCompleteTask6 = async () => {
     const isScheduleCreated = await checkScheduleCreated();
     
     if (!isScheduleCreated) {
@@ -1269,8 +1269,8 @@ function TaskDetail() {
         </p>
 
         <div className={styles.contentArea}>
-          <Task7 
-            onComplete={handleCompleteTask7}
+          <Task6 
+            onComplete={handleCompleteTask6}
             onScheduleGenerated={checkScheduleCreated}
           />
         </div>

@@ -17,8 +17,8 @@ async function initTaskCompletionsTable() {
       )
     `);
     
-    // Insert default rows for all 7 tasks
-    for (let i = 1; i <= 7; i++) {
+    // Insert default rows for all 6 tasks
+    for (let i = 1; i <= 6; i++) {
       await pool.query(`
         INSERT INTO task_completions (task_id, completed)
         VALUES ($1, false)
@@ -40,7 +40,7 @@ router.post('/complete/:taskId', async (req, res) => {
     const taskId = parseInt(req.params.taskId);
     console.log(`📝 Received request to complete task ${taskId}`);
     
-    if (taskId < 1 || taskId > 7) {
+    if (taskId < 1 || taskId > 6) {
       console.log(`❌ Invalid task ID: ${taskId}`);
       return res.status(400).json({
         success: false,
@@ -80,10 +80,9 @@ router.get('/status', async (req, res) => {
       1: false, // School Year Setup
       2: false, // Create Student Registration Form
       3: false, // Create Staff Registration Form
-      4: false, // Add Staff Members
-      5: false, // Configure Subjects & Classes
-      6: false, // Teacher-Class-Subject Mapping
-      7: false  // Schedule Configuration
+      4: false, // Configure Subjects & Classes
+      5: false, // Assign Teachers to Classes
+      6: false  // Schedule Configuration
     };
 
     // Task 1: School Year Setup - Check if school config exists or schedule schema is initialized
@@ -133,39 +132,11 @@ router.get('/status', async (req, res) => {
       console.log('Task 3 check failed:', e.message);
     }
 
-    // Task 4: Add Staff Members - Check manual completion OR if staff exist in any staff table
+    // Task 4: Configure Subjects & Classes - Check if subject mappings exist
     try {
-      const manualCheck = await pool.query('SELECT completed FROM task_completions WHERE task_id = 4');
-      const manuallyCompleted = manualCheck.rows[0]?.completed || false;
-      
-      // Check if any staff exists in any of the staff tables
-      let hasStaff = false;
-      try {
-        // Try checking teaching staff
-        const teachingStaff = await pool.query('SELECT COUNT(*) FROM staff_teaching_staff.teaching');
-        hasStaff = hasStaff || parseInt(teachingStaff.rows[0].count) > 0;
-      } catch (e) {
-        // Table might not exist yet
-      }
-      
-      try {
-        // Try checking administrative staff
-        const adminStaff = await pool.query('SELECT COUNT(*) FROM staff_administrative_staff.administrative');
-        hasStaff = hasStaff || parseInt(adminStaff.rows[0].count) > 0;
-      } catch (e) {
-        // Table might not exist yet
-      }
-      
-      try {
-        // Try checking supportive staff
-        const supportiveStaff = await pool.query('SELECT COUNT(*) FROM staff_supportive_staff.supportive');
-        hasStaff = hasStaff || parseInt(supportiveStaff.rows[0].count) > 0;
-      } catch (e) {
-        // Table might not exist yet
-      }
-      
-      taskStatus[4] = manuallyCompleted || hasStaff;
-      console.log('Task 4 check:', { manuallyCompleted, hasStaff, result: taskStatus[4] });
+      const mappings = await pool.query('SELECT COUNT(*) FROM subjects_of_school_schema.subject_class_mappings');
+      taskStatus[4] = parseInt(mappings.rows[0].count) > 0;
+      console.log('Task 4 check:', { count: mappings.rows[0].count, result: taskStatus[4] });
     } catch (e) {
       console.log('Task 4 check failed:', e.message);
     }
@@ -179,27 +150,13 @@ router.get('/status', async (req, res) => {
       console.log('Task 5 check failed:', e.message);
     }
 
-    // Task 6: Teacher-Class-Subject Mapping - Check if teachers are assigned
+    // Task 6: Schedule Configuration - Check if schedule slots exist
     try {
-      const teacherAssignments = await pool.query('SELECT COUNT(*) FROM schedule_schema.teachers');
-      taskStatus[6] = parseInt(teacherAssignments.rows[0].count) > 0;
-      console.log('Task 6 check:', { count: teacherAssignments.rows[0].count, result: taskStatus[6] });
+      const schedule = await pool.query('SELECT COUNT(*) FROM schedule_schema.schedule_slots');
+      taskStatus[6] = parseInt(schedule.rows[0].count) > 0;
+      console.log('Task 6 check:', { count: schedule.rows[0].count, result: taskStatus[6] });
     } catch (e) {
       console.log('Task 6 check failed:', e.message);
-    }
-
-    // Task 7: Schedule Configuration - Check manual completion OR if schedule exists
-    try {
-      const manualCheck = await pool.query('SELECT completed FROM task_completions WHERE task_id = 7');
-      const manuallyCompleted = manualCheck.rows[0]?.completed || false;
-      
-      const schedules = await pool.query('SELECT COUNT(*) FROM schedule_schema.schedule');
-      const hasSchedule = parseInt(schedules.rows[0].count) > 0;
-      
-      taskStatus[7] = manuallyCompleted || hasSchedule;
-      console.log('Task 7 check:', { manuallyCompleted, hasSchedule, result: taskStatus[7] });
-    } catch (e) {
-      console.log('Task 7 check failed:', e.message);
     }
 
     // Calculate completed tasks
