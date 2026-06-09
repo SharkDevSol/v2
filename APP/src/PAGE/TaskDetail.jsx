@@ -1,5 +1,5 @@
 // PAGE/TaskDetail.jsx - FIXED VERSION
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import styles from './TaskDetail.module.css';
