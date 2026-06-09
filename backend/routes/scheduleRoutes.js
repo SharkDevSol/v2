@@ -1876,41 +1876,46 @@ router.post('/force-sync-data', async (req, res) => {
       }
     } catch (e) { /* class_configs might not exist */ }
 
+    // Helper to get shift for a class name from Task 2 config
+    const getShiftForClass = (className) => {
+      try {
+        if (classShifts && classShifts[className] && classShifts[className].shift) {
+          return parseInt(classShifts[className].shift);
+        }
+      } catch (e) {}
+      return 1; // default to shift 1
+    };
+
     // Sync class-subject configs with per-class shift from Task 2
-    const configsResult = await client.query(`
-      INSERT INTO schedule_schema.class_subject_configs 
-      (subject_class, shift_id, periods_per_week, teacher_name, staff_work_time, teaching_days)
-      SELECT 
-        CONCAT(subject_name, ' Class ', class_name) as subject_class,
-        ${Object.keys(classShifts).length > 0 ? `
-        COALESCE(
-          (SELECT (class_configs ->> tp.class_name)::jsonb ->> 'shift'
-           FROM school_schema_points.classes WHERE id = 1
-           AND class_configs ? tp.class_name)::int,
-          1
-        )` : '1'} as shift_id,
-        CASE 
-          WHEN LOWER(subject_name) LIKE '%math%' THEN 5
-          WHEN LOWER(subject_name) LIKE '%english%' OR LOWER(subject_name) = 'eng' THEN 3
-          WHEN LOWER(subject_name) LIKE '%science%' OR LOWER(subject_name) = 'bio' OR LOWER(subject_name) = 'sci' THEN 4
-          ELSE 4
-        END as periods_per_week,
-        teacher_name,
-        staff_work_time,
-        CASE 
-          WHEN LOWER(staff_work_time) LIKE '%part%' THEN ARRAY[1,3,5]::INTEGER[]
-          ELSE ARRAY[1,2,3,4,5]::INTEGER[]
-        END as teaching_days
+    const teachersPeriodData = await client.query(`
+      SELECT DISTINCT subject_name, class_name, teacher_name, staff_work_time
       FROM school_schema_points.teachers_period
       WHERE subject_name IS NOT NULL AND class_name IS NOT NULL
-      ON CONFLICT (subject_class) DO UPDATE SET
-        teacher_name = EXCLUDED.teacher_name,
-        staff_work_time = EXCLUDED.staff_work_time,
-        teaching_days = EXCLUDED.teaching_days,
-        updated_at = CURRENT_TIMESTAMP
     `);
 
-    console.log(`✓ Synced ${configsResult.rowCount} class-subject configs`);
+    let configsSynced = 0;
+    for (const row of teachersPeriodData.rows) {
+      const subjectClass = `${row.subject_name} Class ${row.class_name}`;
+      const shiftId = getShiftForClass(row.class_name);
+      const periodsPerWeek = row.subject_name.toLowerCase().includes('math') ? 5 :
+                            row.subject_name.toLowerCase().includes('english') || row.subject_name.toLowerCase() === 'eng' ? 3 :
+                            row.subject_name.toLowerCase().includes('science') || row.subject_name.toLowerCase() === 'bio' ? 4 : 4;
+      const teachingDays = row.staff_work_time && row.staff_work_time.toLowerCase().includes('part')
+                          ? [1, 3, 5] : [1, 2, 3, 4, 5];
+
+      await client.query(`
+        INSERT INTO schedule_schema.class_subject_configs 
+        (subject_class, shift_id, periods_per_week, teacher_name, staff_work_time, teaching_days)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (subject_class) DO UPDATE SET
+          shift_id = $2, periods_per_week = $3, teacher_name = COALESCE($4, class_subject_configs.teacher_name),
+          staff_work_time = COALESCE($5, class_subject_configs.staff_work_time),
+          teaching_days = $6, updated_at = CURRENT_TIMESTAMP
+      `, [subjectClass, shiftId, periodsPerWeek, row.teacher_name, row.staff_work_time, teachingDays]);
+      configsSynced++;
+    }
+
+    console.log(`✓ Synced ${configsSynced} class-subject configs`);
 
     await client.query('COMMIT');
     
@@ -1919,7 +1924,7 @@ router.post('/force-sync-data', async (req, res) => {
       details: {
         teachers_synced: teachersResult.rowCount,
         subjects_synced: subjectsSynced,
-        configs_synced: configsResult.rowCount
+        configs_synced: configsSynced
       }
     });
 
