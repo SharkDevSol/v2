@@ -834,18 +834,6 @@ const Task7 = ({ onComplete, onScheduleGenerated }) => {
             </div>
           )}
 
-          <div className={styles.rebalanceSection}>
-            <button 
-              onClick={rebalanceShifts}
-              className={styles.secondaryButton}
-            >
-              🔄 Auto-Rebalance Shifts
-            </button>
-            <p className={styles.helpText}>
-              Evenly distribute classes between Shift 1 and Shift 2
-            </p>
-          </div>
-
           <div className={styles.configurationSummary}>
             <h4>Current Shift Distribution</h4>
             <div className={styles.overviewStats}>
