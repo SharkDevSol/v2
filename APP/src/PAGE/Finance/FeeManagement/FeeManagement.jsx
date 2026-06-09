@@ -15,6 +15,8 @@ const FeeManagement = () => {
   const [showFeeTypesSection, setShowFeeTypesSection] = useState(false);
   const [customFeeTypes, setCustomFeeTypes] = useState([]);
 
+  const branchHeaders = () => ({ 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() });
+
   useEffect(() => {
     fetchFeeStructures();
     fetchCustomFeeTypes();
@@ -22,30 +24,17 @@ const FeeManagement = () => {
 
   const fetchFeeStructures = async () => {
     try {
-      // Try both 'authToken' and 'token' keys for compatibility
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      
-      // Check if token is valid (not null, undefined, or the string "null")
       if (!token || token === 'null' || token === 'undefined') {
-        console.error('No valid token found. Please log in again.');
-        console.log('Checked localStorage keys: authToken, token');
         setLoading(false);
         return;
       }
-      
-      console.log('Token found, length:', token.length);
-      
       const response = await fetch('/api/simple-fees', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, ...branchHeaders() }
       });
       if (response.ok) {
         const data = await response.json();
         setFeeStructures(data.data);
-      } else {
-        console.error('Failed to fetch:', response.status, response.statusText);
-        if (response.status === 401 || response.status === 403) {
-          console.error('Authentication failed. Please log in again.');
-        }
       }
     } catch (error) {
       console.error('Error fetching fee structures:', error);
@@ -58,7 +47,7 @@ const FeeManagement = () => {
     try {
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
       const response = await fetch('/api/simple-fees', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, ...branchHeaders() }
       });
       if (response.ok) {
         const data = await response.json();
@@ -105,7 +94,7 @@ const FeeManagement = () => {
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
       const response = await fetch(`/api/simple-fees/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, ...branchHeaders() }
       });
       if (response.ok) {
         fetchFeeStructures();
@@ -288,7 +277,7 @@ const FeeModal = ({ fee, onClose, onSuccess }) => {
     try {
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
       const response = await fetch('/api/simple-fees/metadata', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`, ...branchHeaders() }
       });
       
       if (response.ok) {
@@ -331,7 +320,8 @@ const FeeModal = ({ fee, onClose, onSuccess }) => {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          ...branchHeaders()
         },
         body: JSON.stringify(formData)
       });
