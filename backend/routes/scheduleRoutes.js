@@ -1642,10 +1642,58 @@ router.put('/config', async (req, res) => {
 // Get class-subject configs
 router.get('/class-subject-configs', async (req, res) => {
   try {
-    const result = await pool.query(`
+    // First try to get existing configs
+    let result = await pool.query(`
       SELECT * FROM schedule_schema.class_subject_configs 
       ORDER BY subject_class
-    `);
+    `).catch(() => ({ rows: [] }));
+    
+    // If empty, auto-populate from teachers_period + Task 2 classConfigs
+    if (result.rows.length === 0) {
+      // Load per-class shifts from Task 2
+      let classShifts = {};
+      try {
+        const ccResult = await pool.query(`SELECT class_configs FROM school_schema_points.classes WHERE id = 1`);
+        if (ccResult.rows.length > 0 && ccResult.rows[0].class_configs) {
+          classShifts = ccResult.rows[0].class_configs;
+        }
+      } catch(e) {}
+      
+      const getShiftForClass = (className) => {
+        try {
+          if (classShifts && classShifts[className] && classShifts[className].shift) {
+            return parseInt(classShifts[className].shift);
+          }
+        } catch(e) {}
+        return 1;
+      };
+      
+      const tpResult = await pool.query(`
+        SELECT DISTINCT subject_name, class_name, teacher_name, staff_work_time
+        FROM school_schema_points.teachers_period
+        WHERE subject_name IS NOT NULL AND class_name IS NOT NULL
+      `).catch(() => ({ rows: [] }));
+      
+      if (tpResult.rows.length > 0) {
+        for (const row of tpResult.rows) {
+          const subjectClass = `${row.subject_name} Class ${row.class_name}`;
+          const shiftId = getShiftForClass(row.class_name);
+          try {
+            await pool.query(`
+              INSERT INTO schedule_schema.class_subject_configs 
+              (subject_class, shift_id, periods_per_week, teacher_name, staff_work_time, teaching_days)
+              VALUES ($1, $2, $3, $4, $5, $6)
+              ON CONFLICT (subject_class) DO NOTHING
+            `, [subjectClass, shiftId, 4, row.teacher_name, row.staff_work_time, [1,2,3,4,5]]);
+          } catch(e) {}
+        }
+        // Re-fetch after insert
+        result = await pool.query(`
+          SELECT * FROM schedule_schema.class_subject_configs 
+          ORDER BY subject_class
+        `);
+      }
+    }
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching class-subject configs:', error.message);
