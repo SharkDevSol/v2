@@ -306,35 +306,61 @@ const Task7 = ({ onComplete, onScheduleGenerated }) => {
         
         setClassSubjects(processedData);
         
-        const initialMatrix = {};
-        processedData.forEach((subjectClass, index) => {
-          const subjectClassStr = getSubjectClassString(subjectClass);
-          const subjectName = getSubjectName(subjectClassStr);
-          const className = subjectClassStr.split(' Class ')[1] || '';
-          const teacherAssignment = getTeacherForClassSubject(subjectClassStr);
-          
-          let shiftId = 1;
-          if (className) {
-            const firstChar = className.charAt(0).toLowerCase();
-            if (firstChar >= 'm') {
-              shiftId = 2;
-            } else {
-              shiftId = (index % 2) + 1;
-            }
+        // Load per-class shifts from Task 2
+        let classShifts = {};
+        try {
+          const configsRes = await axios.get('/api/schedule/class-subject-configs');
+          if (configsRes.data && configsRes.data.length > 0) {
+            // Use shift from class_subject_configs (already synced from Task 2)
+            const initialMatrix = {};
+            configsRes.data.forEach(item => {
+              const key = item.subject_class || `${item.subject_name} Class ${item.class_name}`;
+              initialMatrix[key] = {
+                shift_id: item.shift_id || 1,
+                periods: getRecommendedPeriods(getSubjectName(key)),
+                days: basicConfig.school_days || [1, 2, 3, 4, 5]
+              };
+            });
+            // Also add any items from processedData that weren't in configs
+            processedData.forEach(key => {
+              if (!initialMatrix[key]) {
+                initialMatrix[key] = {
+                  shift_id: 1,
+                  periods: getRecommendedPeriods(getSubjectName(key)),
+                  days: basicConfig.school_days || [1, 2, 3, 4, 5]
+                };
+              }
+            });
+            setShiftPeriodMatrix(initialMatrix);
+          } else {
+            // Fallback: build from processedData with shift from classConfigs
+            const classConfigsRes = await axios.get('/api/students/form-structure');
+            const ccData = classConfigsRes.data?.classConfigs || {};
+            const fallbackMatrix = {};
+            processedData.forEach(key => {
+              const className = key.split(' Class ')[1] || '';
+              const cfg = ccData[className] || {};
+              fallbackMatrix[key] = {
+                shift_id: cfg.shift || 1,
+                periods: getRecommendedPeriods(getSubjectName(key)),
+                days: basicConfig.school_days || [1, 2, 3, 4, 5]
+              };
+            });
+            setShiftPeriodMatrix(fallbackMatrix);
           }
-          
-          let teachingDays = basicConfig.school_days || [1, 2, 3, 4, 5];
-          if (teacherAssignment && !isTeacherFullTime(teacherAssignment)) {
-            teachingDays = getRandomDays(teachingDays, 3);
-          }
-          
-          initialMatrix[subjectClassStr] = {
-            shift_id: shiftId,
-            periods: getRecommendedPeriods(subjectName),
-            days: teachingDays
-          };
-        });
-        setShiftPeriodMatrix(initialMatrix);
+        } catch(e) {
+          console.error('Error loading shifts:', e);
+          // Ultimate fallback: default shift 1
+          const fallbackMatrix = {};
+          processedData.forEach(key => {
+            fallbackMatrix[key] = {
+              shift_id: 1,
+              periods: getRecommendedPeriods(getSubjectName(key)),
+              days: basicConfig.school_days || [1, 2, 3, 4, 5]
+            };
+          });
+          setShiftPeriodMatrix(fallbackMatrix);
+        }
       }
     } catch (error) {
       console.error('Error fetching class-subjects:', error);
