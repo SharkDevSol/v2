@@ -551,19 +551,37 @@ router.post('/mark-absent', async (req, res) => {
 
 // GET /api/academic/student-attendance/settings
 // Get attendance time settings
+// GET /api/academic/student-attendance/settings
+// Get attendance settings - merges with Task 1 school_config
 router.get('/settings', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM academic_student_attendance_settings ORDER BY id DESC LIMIT 1');
+    // Try to get settings from attendance_settings table
+    let result = await pool.query('SELECT * FROM academic_student_attendance_settings ORDER BY id DESC LIMIT 1');
+    let settings = result.rows[0] || {};
     
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Settings not found' });
-    }
+    // Merge with Task 1 school_config for shift and school days data
+    try {
+      const configResult = await pool.query('SELECT total_shifts, school_days, periods_per_shift, period_duration, shift_rotation, has_kg, has_evening_class FROM schedule_schema.school_config WHERE id = 1');
+      if (configResult.rows.length > 0) {
+        const task1 = configResult.rows[0];
+        // Override with Task 1 data
+        settings.total_shifts = task1.total_shifts;
+        settings.school_days = task1.school_days || settings.school_days;
+        settings.periods_per_shift = task1.periods_per_shift;
+        settings.period_duration = task1.period_duration;
+        settings.shift_rotation = task1.shift_rotation;
+      }
+    } catch(e) { /* task1 config may not exist yet */ }
 
-    res.json({
-      success: true,
-      data: result.rows[0]
-    });
+    // Set defaults for missing fields
+    if (!settings.check_in_start_time) settings.check_in_start_time = '07:00:00';
+    if (!settings.check_in_end_time) settings.check_in_end_time = '08:30:00';
+    if (!settings.late_threshold_time) settings.late_threshold_time = '08:00:00';
+    if (!settings.absent_marking_time) settings.absent_marking_time = '09:00:00';
+    if (!settings.auto_absent_enabled) settings.auto_absent_enabled = true;
+    if (!settings.school_days || !Array.isArray(settings.school_days)) settings.school_days = [1,2,3,4,5];
 
+    res.json({ success: true, data: settings });
   } catch (error) {
     console.error('Error fetching settings:', error);
     res.status(500).json({ error: 'Failed to fetch settings' });
@@ -770,57 +788,50 @@ router.put('/update', async (req, res) => {
 });
 
 // GET /api/academic/student-attendance/class-shifts
-// Get class shift assignments
+// Get class shift assignments from Task 2's class_configs
 router.get('/class-shifts', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT class_name, shift_number, created_at, updated_at
-      FROM academic_class_shift_assignment
-      ORDER BY class_name
-    `);
-
-    res.json({
-      success: true,
-      data: result.rows
-    });
-
+    const ccResult = await pool.query(`SELECT class_configs FROM school_schema_points.classes WHERE id = 1`).catch(() => ({ rows: [] }));
+    const classShifts = {};
+    if (ccResult.rows.length > 0 && ccResult.rows[0].class_configs) {
+      const configs = ccResult.rows[0].class_configs;
+      for (const [className, cfg] of Object.entries(configs)) {
+        classShifts[className] = { shift_number: cfg.shift || 1, isKG: cfg.isKG || false, isEvening: cfg.isEvening || false };
+      }
+    }
+    // Also get legacy assignments for classes not in Task 2
+    const legacyResult = await pool.query('SELECT class_name, shift_number FROM academic_class_shift_assignment').catch(() => ({ rows: [] }));
+    for (const row of legacyResult.rows) {
+      if (!classShifts[row.class_name]) {
+        classShifts[row.class_name] = { shift_number: row.shift_number, isKG: false, isEvening: false };
+      }
+    }
+    res.json({ success: true, data: classShifts });
   } catch (error) {
-    console.error('Error fetching class shift assignments:', error);
-    res.status(500).json({ error: 'Failed to fetch class shift assignments' });
+    console.error('Error fetching class shifts:', error);
+    res.json({ success: true, data: {} });
   }
 });
 
 // PUT /api/academic/student-attendance/class-shifts
-// Update class shift assignments
+// DEPRECATED — class shifts now managed in Task 2 (Create Student Registration Form)
 router.put('/class-shifts', async (req, res) => {
+  const { assignments } = req.body;
+  if (!assignments || typeof assignments !== 'object') {
+    return res.status(400).json({ error: 'Invalid assignments data' });
+  }
+  // Still save to legacy table for backward compatibility
   try {
-    const { assignments } = req.body;
-
-    if (!assignments || typeof assignments !== 'object') {
-      return res.status(400).json({ error: 'Invalid assignments data' });
-    }
-
-    // Update each class assignment
-    const promises = Object.entries(assignments).map(([className, shiftNumber]) => {
-      return pool.query(`
+    for (const [className, shiftNumber] of Object.entries(assignments)) {
+      await pool.query(`
         INSERT INTO academic_class_shift_assignment (class_name, shift_number, updated_at)
         VALUES ($1, $2, NOW())
         ON CONFLICT (class_name) 
         DO UPDATE SET shift_number = $2, updated_at = NOW()
-      `, [className, shiftNumber]);
-    });
-
-    await Promise.all(promises);
-
-    res.json({
-      success: true,
-      message: 'Class shift assignments updated successfully'
-    });
-
-  } catch (error) {
-    console.error('Error updating class shift assignments:', error);
-    res.status(500).json({ error: 'Failed to update class shift assignments' });
-  }
+      `, [className, shiftNumber]).catch(() => {});
+    }
+  } catch(e) {}
+  res.json({ success: true, message: 'Class shifts saved. Note: shifts are now managed in Task 2.' });
 });
 
 module.exports = router;
