@@ -252,6 +252,31 @@ function TaskDetail() {
       }
     };
     checkCompletion();
+    
+    // Load Task 5 data when on task 5 (once)
+    if (taskId === '5' && !dataLoaded) {
+      const loadTask5 = async () => {
+        try {
+          const h = { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() };
+          const classSubjectsRes = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`, { headers: h });
+          if (classSubjectsRes.ok) setClassSubjects(await classSubjectsRes.json());
+          const teachersRes = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`, { headers: h });
+          if (teachersRes.ok) {
+            const teachersData = await teachersRes.json();
+            setTeachers(teachersData);
+            const w = {}; teachersData.forEach(t => { w[t.name] = t.staff_work_time || 'Full Time'; });
+            setTeacherWorkTimes(w);
+          }
+          const checkRes = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, { headers: h });
+          if (checkRes.ok) {
+            const checkData = await checkRes.json();
+            if (checkData.length > 0) { setMergeData(checkData); setStats({ insertedCount: checkData.length, teacherCount: new Set(checkData.map(item => item.teacher_name)).size, classSubjectCount: checkData.length }); }
+          }
+        } catch(e) { console.error(e); }
+        finally { setDataLoaded(true); }
+      };
+      loadTask5();
+    }
   }, [taskId]);
 
   // Task 4 read-only data
