@@ -302,6 +302,30 @@ function TaskDetail() {
     }
   }, [taskId, isCompleted]);
 
+  // Task 2 read-only state
+  const [mergeDataClasses, setMergeDataClasses] = useState([]);
+  const [classConfigsData, setClassConfigsData] = useState({});
+  const [task2CustomFields, setTask2CustomFields] = useState([]);
+  useEffect(() => {
+    if (taskId === '2' && isCompleted) {
+      const loadTask2 = async () => {
+        try {
+          const h = { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() };
+          const res = await fetch(`${API_BASE_URL}/students/form-structure`, { headers: h });
+          if (res.ok) {
+            const data = await res.json();
+            setMergeDataClasses(data.classes || []);
+            setClassConfigsData(data.classConfigs || {});
+            setTask2CustomFields(data.customFields || []);
+          }
+        } catch(e) { console.error(e); }
+      };
+      loadTask2();
+    }
+  }, [taskId, isCompleted]);
+
+  // Task 2 read-only view when completed
+
   // Load saved schedule config for display
   const [savedConfig, setSavedConfig] = useState(null);
   useEffect(() => {
@@ -754,6 +778,57 @@ function TaskDetail() {
             {loading ? 'Saving...' : 'Save and Complete'}
           </button>
         </form>
+      </div>
+    );
+  }
+
+  // Task 2 read-only view when completed
+  if (taskId === '2' && isCompleted && !isEditing) {
+    return (
+      <div className={styles.container}>
+        <TaskNav />
+        <h1 className={styles.title}>Create Student Registration Form ✓</h1>
+        <div className={styles.completedBadge}>Completed</div>
+        <div className={styles.readOnlySection}>
+          <h3>Classes ({mergeDataClasses.length})</h3>
+          {mergeDataClasses.length > 0 ? (
+            <div style={{display:'flex', flexDirection:'column', gap:'0.5rem'}}>
+              {mergeDataClasses.map((cls, i) => {
+                const cfg = classConfigsData[cls] || {};
+                return (
+                  <div key={i} style={{
+                    display:'flex', justifyContent:'space-between', alignItems:'center',
+                    background:'#f8f9fa', borderRadius:'8px', padding:'0.5rem 0.75rem'
+                  }}>
+                    <span style={{fontWeight:500}}>{cls}</span>
+                    <div style={{display:'flex', gap:'0.5rem', fontSize:'0.8rem'}}>
+                      {cfg.shift ? <span style={{padding:'2px 6px', background:'#dbeafe', borderRadius:'4px'}}>Shift {cfg.shift}</span> : ''}
+                      {cfg.isKG ? <span style={{padding:'2px 6px', background:'#d1fae5', borderRadius:'4px'}}>KG</span> : ''}
+                      {cfg.isEvening ? <span style={{padding:'2px 6px', background:'#fef3c7', borderRadius:'4px'}}>Evening</span> : ''}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : <p>No classes configured.</p>}
+          {task2CustomFields.length > 0 && (
+            <>
+              <h3 style={{marginTop:'1rem'}}>Custom Fields ({task2CustomFields.length})</h3>
+              <div style={{display:'flex', flexWrap:'wrap', gap:'0.5rem'}}>
+                {task2CustomFields.map((f, i) => (
+                  <span key={i} style={{padding:'0.3rem 0.8rem', background:'#f3e8ff', borderRadius:'20px', fontSize:'0.85rem'}}>
+                    {f.label} ({f.type}){f.required ? ' *' : ''}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
+          <button onClick={() => setIsEditing(true)}
+            style={{marginTop:'1.5rem', padding:'10px 24px', border:'none', borderRadius:'8px',
+              background:'linear-gradient(135deg, #667eea, #764ba2)', color:'white', cursor:'pointer', fontSize:'0.9rem', fontWeight:600}}>
+            Edit Configuration
+          </button>
+        </div>
       </div>
     );
   }
