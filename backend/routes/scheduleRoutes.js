@@ -1642,23 +1642,38 @@ router.put('/config', async (req, res) => {
 // Get class-subject configs
 router.get('/class-subject-configs', async (req, res) => {
   try {
-    // First try to get existing configs
+    // Always update shifts from Task 2 classConfigs
+    let classShifts = {};
+    try {
+      const ccResult = await pool.query(`SELECT class_configs FROM school_schema_points.classes WHERE id = 1`);
+      if (ccResult.rows.length > 0 && ccResult.rows[0].class_configs) {
+        classShifts = ccResult.rows[0].class_configs;
+      }
+    } catch(e) {}
+    
+    // Update existing configs with correct shifts from Task 2
+    const existing = await pool.query(`SELECT subject_class FROM schedule_schema.class_subject_configs`).catch(() => ({ rows: [] }));
+    for (const row of existing.rows) {
+      const match = row.subject_class.match(/ Class (.+)$/);
+      if (match) {
+        const className = match[1];
+        let shiftId = 1;
+        try {
+          if (classShifts && classShifts[className] && classShifts[className].shift) {
+            shiftId = parseInt(classShifts[className].shift);
+          }
+        } catch(e) {}
+        await pool.query('UPDATE schedule_schema.class_subject_configs SET shift_id = $1 WHERE subject_class = $2', [shiftId, row.subject_class]).catch(() => {});
+      }
+    }
+    
+    // If still empty, auto-populate from teachers_period
     let result = await pool.query(`
       SELECT * FROM schedule_schema.class_subject_configs 
       ORDER BY subject_class
     `).catch(() => ({ rows: [] }));
     
-    // If empty, auto-populate from teachers_period + Task 2 classConfigs
     if (result.rows.length === 0) {
-      // Load per-class shifts from Task 2
-      let classShifts = {};
-      try {
-        const ccResult = await pool.query(`SELECT class_configs FROM school_schema_points.classes WHERE id = 1`);
-        if (ccResult.rows.length > 0 && ccResult.rows[0].class_configs) {
-          classShifts = ccResult.rows[0].class_configs;
-        }
-      } catch(e) {}
-      
       const getShiftForClass = (className) => {
         try {
           if (classShifts && classShifts[className] && classShifts[className].shift) {
@@ -1677,17 +1692,13 @@ router.get('/class-subject-configs', async (req, res) => {
       if (tpResult.rows.length > 0) {
         for (const row of tpResult.rows) {
           const subjectClass = `${row.subject_name} Class ${row.class_name}`;
-          const shiftId = getShiftForClass(row.class_name);
-          try {
-            await pool.query(`
-              INSERT INTO schedule_schema.class_subject_configs 
-              (subject_class, shift_id, periods_per_week, teacher_name, staff_work_time, teaching_days)
-              VALUES ($1, $2, $3, $4, $5, $6)
-              ON CONFLICT (subject_class) DO NOTHING
-            `, [subjectClass, shiftId, 4, row.teacher_name, row.staff_work_time, [1,2,3,4,5]]);
-          } catch(e) {}
+          await pool.query(`
+            INSERT INTO schedule_schema.class_subject_configs 
+            (subject_class, shift_id, periods_per_week, teacher_name, staff_work_time, teaching_days)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT (subject_class) DO NOTHING
+          `, [subjectClass, getShiftForClass(row.class_name), 4, row.teacher_name, row.staff_work_time, [1,2,3,4,5]]).catch(() => {});
         }
-        // Re-fetch after insert
         result = await pool.query(`
           SELECT * FROM schedule_schema.class_subject_configs 
           ORDER BY subject_class
