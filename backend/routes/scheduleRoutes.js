@@ -2976,4 +2976,66 @@ router.get('/schedule-by-teacher', async (req, res) => {
   }
 });
 
+// POST /swap-slots — swap two schedule slots (editor)
+router.post('/swap-slots', async (req, res) => {
+  const { slot1_id, slot2_id } = req.body;
+  if (!slot1_id || !slot2_id) {
+    return res.status(400).json({ error: 'Both slot1_id and slot2_id are required' });
+  }
+  try {
+    const slot1 = await pool.query('SELECT * FROM schedule_schema.schedule_slots WHERE id = $1', [slot1_id]);
+    const slot2 = await pool.query('SELECT * FROM schedule_schema.schedule_slots WHERE id = $1', [slot2_id]);
+    if (slot1.rows.length === 0 || slot2.rows.length === 0) {
+      return res.status(404).json({ error: 'One or both slots not found' });
+    }
+    // Swap subject and teacher info only (keep day/period/class/shift)
+    await pool.query(`
+      UPDATE schedule_schema.schedule_slots SET subject_id = $1, teacher_id = $2, subject_name = $3, teacher_name = $4 WHERE id = $5
+    `, [slot2.rows[0].subject_id, slot2.rows[0].teacher_id, slot2.rows[0].subject_name, slot2.rows[0].teacher_name, slot1_id]);
+    await pool.query(`
+      UPDATE schedule_schema.schedule_slots SET subject_id = $1, teacher_id = $2, subject_name = $3, teacher_name = $4 WHERE id = $5
+    `, [slot1.rows[0].subject_id, slot1.rows[0].teacher_id, slot1.rows[0].subject_name, slot1.rows[0].teacher_name, slot2_id]);
+    res.json({ message: 'Slots swapped successfully' });
+  } catch (error) {
+    console.error('Error swapping slots:', error);
+    res.status(500).json({ error: 'Failed to swap slots' });
+  }
+});
+
+// GET /schedule-report — summary stats per shift/class/teacher
+router.get('/schedule-report', async (req, res) => {
+  try {
+    const stats = await pool.query(`
+      SELECT shift_id, COUNT(*) as total_slots,
+        COUNT(DISTINCT class_name) as classes,
+        COUNT(DISTINCT teacher_id) as teachers,
+        COUNT(DISTINCT subject_id) as subjects,
+        COUNT(DISTINCT day_of_week) as days,
+        COUNT(DISTINCT period_number) as periods_per_day
+      FROM schedule_schema.schedule_slots
+      WHERE teacher_id IS NOT NULL
+      GROUP BY shift_id ORDER BY shift_id
+    `);
+    const perClass = await pool.query(`
+      SELECT shift_id, class_name, COUNT(*) as slots,
+        COUNT(DISTINCT teacher_id) as teachers,
+        COUNT(DISTINCT subject_id) as subjects
+      FROM schedule_schema.schedule_slots
+      WHERE teacher_id IS NOT NULL
+      GROUP BY shift_id, class_name ORDER BY shift_id, class_name
+    `);
+    const perTeacher = await pool.query(`
+      SELECT teacher_name, COUNT(*) as slots,
+        COUNT(DISTINCT class_name) as classes,
+        COUNT(DISTINCT subject_id) as subjects
+      FROM schedule_schema.schedule_slots
+      WHERE teacher_id IS NOT NULL
+      GROUP BY teacher_name ORDER BY slots DESC
+    `);
+    res.json({ stats: stats.rows, perClass: perClass.rows, perTeacher: perTeacher.rows });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './Task7.module.css';
+import ScheduleEditor from './ScheduleEditor';
 
 const Task7 = ({ onComplete, onScheduleGenerated }) => {
   const [step, setStep] = useState(1);
@@ -1241,6 +1242,14 @@ const Task7 = ({ onComplete, onScheduleGenerated }) => {
           </div>
         </div>
       )}
+      <div style={{ marginTop: '3rem', borderTop: '2px solid #e5e7eb', paddingTop: '1.5rem' }}>
+        <details>
+          <summary style={{ cursor: 'pointer', fontSize: '1rem', fontWeight: 600, color: '#667eea' }}>
+            🗓️ Open Schedule Editor (Click to swap periods)
+          </summary>
+          <ScheduleEditor />
+        </details>
+      </div>
     </div>
   );
 };
