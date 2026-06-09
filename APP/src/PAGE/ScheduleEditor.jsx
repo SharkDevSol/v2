@@ -18,7 +18,7 @@ const ScheduleEditor = () => {
     setLoading(true);
     try {
       const [schedRes, reportRes] = await Promise.all([
-        fetch('/api/schedule/schedule-overview', { headers: h }),
+        fetch('/api/schedule/schedule', { headers: h }),
         fetch('/api/schedule/schedule-report', { headers: h })
       ]);
       if (schedRes.ok) setSchedule(await schedRes.json());
@@ -64,7 +64,7 @@ const ScheduleEditor = () => {
       {message && <p style={{ padding: '8px', background: '#f0fdf4', borderRadius: '6px', marginBottom: '1rem' }}>{message}</p>}
 
       {/* Report Section */}
-      {report && (
+      {report && Array.isArray(report.stats) && (
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
           {report.stats.map(s => (
             <div key={s.shift_id} style={{ background: '#f8f9fa', borderRadius: '8px', padding: '1rem', flex: '1', minWidth: '200px' }}>
@@ -79,7 +79,7 @@ const ScheduleEditor = () => {
         </div>
       )}
 
-      {report && report.perTeacher && (
+      {report && Array.isArray(report.perTeacher) && report.perTeacher.length > 0 && (
         <details style={{ marginBottom: '1rem' }}>
           <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Teacher Assignments</summary>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>

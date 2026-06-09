@@ -3024,13 +3024,16 @@ router.get('/schedule-report', async (req, res) => {
       WHERE teacher_id IS NOT NULL
       GROUP BY shift_id, class_name ORDER BY shift_id, class_name
     `);
+    // teacher_name is in schedule_schema.teachers, join to get it
     const perTeacher = await pool.query(`
-      SELECT teacher_name, COUNT(*) as slots,
-        COUNT(DISTINCT class_name) as classes,
-        COUNT(DISTINCT subject_id) as subjects
-      FROM schedule_schema.schedule_slots
-      WHERE teacher_id IS NOT NULL
-      GROUP BY teacher_name ORDER BY slots DESC
+      SELECT COALESCE(t.teacher_name, 'Unknown') as teacher_name,
+        COUNT(*) as slots,
+        COUNT(DISTINCT ss.class_name) as classes,
+        COUNT(DISTINCT ss.subject_id) as subjects
+      FROM schedule_schema.schedule_slots ss
+      LEFT JOIN schedule_schema.teachers t ON t.id = ss.teacher_id
+      WHERE ss.teacher_id IS NOT NULL
+      GROUP BY t.teacher_name ORDER BY slots DESC
     `);
     res.json({ stats: stats.rows, perClass: perClass.rows, perTeacher: perTeacher.rows });
   } catch (error) {
