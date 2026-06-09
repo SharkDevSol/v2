@@ -1700,7 +1700,7 @@ router.post('/set-comprehensive-config', async (req, res) => {
           
           const teacherResult = await client.query(`
             SELECT teacher_name, staff_work_time
-            FROM school_schema_points.teachers_period 
+      FROM school_schema_points.teachers_period tp
             WHERE subject_name = $1 AND class_name = $2
             LIMIT 1
           `, [subject_name, class_name]);
@@ -1867,16 +1867,28 @@ router.post('/force-sync-data', async (req, res) => {
 
     console.log(`✓ Synced ${subjectsSynced} subjects`);
 
-    // Sync class-subject configs
+    // Load per-class shift configs from Task 2
+    let classShifts = {};
+    try {
+      const ccResult = await client.query(`SELECT class_configs FROM school_schema_points.classes WHERE id = 1`);
+      if (ccResult.rows.length > 0 && ccResult.rows[0].class_configs) {
+        classShifts = ccResult.rows[0].class_configs;
+      }
+    } catch (e) { /* class_configs might not exist */ }
+
+    // Sync class-subject configs with per-class shift from Task 2
     const configsResult = await client.query(`
       INSERT INTO schedule_schema.class_subject_configs 
       (subject_class, shift_id, periods_per_week, teacher_name, staff_work_time, teaching_days)
       SELECT 
         CONCAT(subject_name, ' Class ', class_name) as subject_class,
-        CASE 
-          WHEN (ROW_NUMBER() OVER (ORDER BY class_name, subject_name)) % 2 = 0 THEN 2
-          ELSE 1
-        END as shift_id,
+        ${Object.keys(classShifts).length > 0 ? `
+        COALESCE(
+          (SELECT (class_configs ->> tp.class_name)::jsonb ->> 'shift'
+           FROM school_schema_points.classes WHERE id = 1
+           AND class_configs ? tp.class_name)::int,
+          1
+        )` : '1'} as shift_id,
         CASE 
           WHEN LOWER(subject_name) LIKE '%math%' THEN 5
           WHEN LOWER(subject_name) LIKE '%english%' OR LOWER(subject_name) = 'eng' THEN 3
