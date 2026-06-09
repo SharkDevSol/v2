@@ -2359,9 +2359,9 @@ router.post('/generate-complete-schedule', async (req, res) => {
       return !classSchedule[classKey];
     };
     
-    // Helper to check if teacher is available (teacher can only teach ONE class at a time!)
-    const isTeacherAvailable = (teacherId, day, period) => {
-      const teacherKey = `${teacherId}-${day}-${period}`;
+    // Helper to check if teacher is available (teacher can teach ONE class per shift at a time)
+    const isTeacherAvailable = (teacherId, day, period, shiftId) => {
+      const teacherKey = `${teacherId}-${day}-${period}-${shiftId}`;
       return !teacherSchedule[teacherKey];
     };
     
@@ -2402,7 +2402,7 @@ router.post('/generate-complete-schedule', async (req, res) => {
     // Helper to mark slot as used
     const markSlotUsed = (teacherId, className, day, period, shiftId, slot) => {
       const classKey = `${className}-${day}-${period}-${shiftId}`;
-      const teacherKey = `${teacherId}-${day}-${period}`;
+      const teacherKey = `${teacherId}-${day}-${period}-${shiftId}`;
       const dayKey = `${className}-${day}-${shiftId}`;
       
       classSchedule[classKey] = slot;
@@ -2472,7 +2472,7 @@ router.post('/generate-complete-schedule', async (req, res) => {
           
           // Check all constraints
           if (!isClassSlotAvailable(className, day, period, shiftId)) continue;
-          if (!isTeacherAvailable(assignment.teacher_id, day, period)) continue;
+          if (!isTeacherAvailable(assignment.teacher_id, day, period, shiftId)) continue;
           if (!canPlaceSubject(className, day, period, shiftId, assignment.subject_id)) continue;
           
           const slot = {
@@ -2554,7 +2554,7 @@ router.post('/generate-complete-schedule', async (req, res) => {
             const teacherDays = teacher.work_days || config.school_days;
             
             if (!teacherDays.includes(day)) continue;
-            if (!isTeacherAvailable(teacher.id, day, period)) continue;
+            if (!isTeacherAvailable(teacher.id, day, period, shiftId)) continue;
             if (!canTeacherTeach(teacher, day)) continue;
             if (!canPlaceSubject(className, day, period, shiftId, teacher.subject_id)) continue;
             
@@ -2582,7 +2582,7 @@ router.post('/generate-complete-schedule', async (req, res) => {
             for (const teacher of teachers) {
               const teacherDays = teacher.work_days || config.school_days;
               if (!teacherDays.includes(day)) continue;
-              if (!isTeacherAvailable(teacher.id, day, period)) continue;
+              if (!isTeacherAvailable(teacher.id, day, period, shiftId)) continue;
               if (!canTeacherTeach(teacher, day)) continue;
               
               // Find a subject that can be placed
