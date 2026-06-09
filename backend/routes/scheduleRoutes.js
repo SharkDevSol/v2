@@ -2499,128 +2499,103 @@ router.post('/generate-complete-schedule', async (req, res) => {
     
     console.log(`\n✅ After Step 1: ${scheduleSlots.length} slots scheduled`);
     
-    // STEP 2: Fill ALL remaining empty periods
-    console.log('\n📅 STEP 2: Filling ALL empty periods...');
+    // STEP 2: Fill remaining empty periods while respecting period limits
+    console.log('\n📅 STEP 2: Filling remaining empty periods...');
     let filledCount = 0;
     let skippedCount = 0;
+    
+    // Track periods scheduled per subject-class to enforce periods_per_week
+    const subjectClassCounts = {};
+    const subjectClassLimits = {};
+    for (const assignment of assignmentsResult.rows) {
+      const match = assignment.subject_class.match(/^(.+) Class (.+)$/);
+      if (match) {
+        const key = `${match[2]}|${assignment.subject_name || match[1]}`;
+        subjectClassLimits[key] = assignment.periods_per_week || 4;
+        subjectClassCounts[key] = 0;
+      }
+    }
+    // Count existing slots from STEP 1
+    for (const slot of scheduleSlots) {
+      if (slot.subject_name && slot.class_name) {
+        const key = `${slot.class_name}|${slot.subject_name}`;
+        if (subjectClassCounts[key] !== undefined) subjectClassCounts[key]++;
+      }
+    }
     
     // Get unique class-shift combinations that need filling
     const classShiftCombos = [];
     for (const className of classes) {
-      // Determine which shift this class belongs to based on existing assignments
       const classAssignments = assignmentsResult.rows.filter(a => {
         const match = a.subject_class.match(/Class (.+)$/);
         return match && match[1] === className;
       });
       const primaryShift = classAssignments.length > 0 ? classAssignments[0].shift_id : 1;
-      classShiftCombos.push({ className, shiftId: primaryShift });
+      classShiftCombos.push({ className, shiftId: primaryShift, assignments: classAssignments });
     }
     
-    for (const { className, shiftId } of classShiftCombos) {
+    for (const { className, shiftId, assignments } of classShiftCombos) {
       for (const day of config.school_days) {
         for (let period = 1; period <= config.periods_per_shift; period++) {
           if (!isClassSlotAvailable(className, day, period, shiftId)) continue;
           
-          // Find an available teacher and subject
           let assigned = false;
           
-          // Try teachers in order, preferring those who teach this class
-          const classTeachers = assignmentsResult.rows
-            .filter(a => {
-              const match = a.subject_class.match(/Class (.+)$/);
-              return match && match[1] === className && a.teacher_id;
-            })
-            .map(a => ({ 
-              id: a.teacher_id, 
-              teacher_name: a.teacher_name,
-              teacher_type: a.teacher_type,
-              work_days: a.work_days,
-              subject_id: a.subject_id,
-              subject_name: a.subject_name
+          // Try teachers/assignments for this class in order, skipping subjects at their limit
+          const classTeachers = (assignments || [])
+            .filter(a => a.teacher_id)
+            .map(a => ({
+              id: a.teacher_id, teacher_name: a.teacher_name,
+              teacher_type: a.teacher_type, work_days: a.work_days,
+              subject_id: a.subject_id, subject_name: a.subject_name,
+              subject_class_key: `${className}|${a.subject_name}`
             }));
           
-          // Add other teachers as fallback
-          const otherTeachers = teachers.filter(t => 
-            !classTeachers.find(ct => ct.id === t.id)
-          ).map(t => ({
-            ...t,
-            subject_id: subjects[0]?.id,
-            subject_name: subjects[0]?.subject_name
-          }));
-          
-          const allTeachers = [...classTeachers, ...otherTeachers];
-          
-          for (const teacher of allTeachers) {
-            const teacherDays = teacher.work_days || config.school_days;
+          for (const ct of classTeachers) {
+            const key = ct.subject_class_key;
+            if (subjectClassCounts[key] !== undefined && subjectClassCounts[key] >= subjectClassLimits[key]) continue;
+            if (!(ct.work_days || config.school_days).includes(day)) continue;
+            if (!isTeacherAvailable(ct.id, day, period, shiftId)) continue;
+            if (!canTeacherTeach({ teacher_type: ct.teacher_type }, day)) continue;
+            if (!canPlaceSubject(className, day, period, shiftId, ct.subject_id)) continue;
             
-            if (!teacherDays.includes(day)) continue;
-            if (!isTeacherAvailable(teacher.id, day, period, shiftId)) continue;
-            if (!canTeacherTeach(teacher, day)) continue;
-            if (!canPlaceSubject(className, day, period, shiftId, teacher.subject_id)) continue;
-            
-            const slot = {
-              day_of_week: day,
-              period_number: period,
-              class_name: className,
-              subject_id: teacher.subject_id,
-              subject_name: teacher.subject_name,
-              teacher_id: teacher.id,
-              teacher_name: teacher.teacher_name,
-              shift_group: period <= Math.ceil(config.periods_per_shift / 2) ? 'morning' : 'afternoon',
-              shift_id: shiftId
-            };
-            
-            scheduleSlots.push(slot);
-            markSlotUsed(teacher.id, className, day, period, shiftId, slot);
+            scheduleSlots.push({ day_of_week: day, period_number: period, class_name: className,
+              subject_id: ct.subject_id, subject_name: ct.subject_name, teacher_id: ct.id,
+              teacher_name: ct.teacher_name, shift_group: period <= Math.ceil(config.periods_per_shift/2) ? 'morning' : 'afternoon', shift_id: shiftId });
+            markSlotUsed(ct.id, className, day, period, shiftId, scheduleSlots[scheduleSlots.length-1]);
+            if (subjectClassCounts[key] !== undefined) subjectClassCounts[key]++;
             filledCount++;
             assigned = true;
             break;
           }
           
           if (!assigned) {
-            // Last resort: assign any available teacher with any subject
+            // Try other teachers with subjects that still have capacity
             for (const teacher of teachers) {
-              const teacherDays = teacher.work_days || config.school_days;
-              if (!teacherDays.includes(day)) continue;
+              if (!(teacher.work_days || config.school_days).includes(day)) continue;
               if (!isTeacherAvailable(teacher.id, day, period, shiftId)) continue;
               if (!canTeacherTeach(teacher, day)) continue;
               
-              // Find a subject that can be placed
-              let subjectToUse = null;
               for (const subject of subjects) {
-                if (canPlaceSubject(className, day, period, shiftId, subject.id)) {
-                  subjectToUse = subject;
-                  break;
-                }
+                const key = `${className}|${subject.subject_name}`;
+                if (subjectClassCounts[key] !== undefined && subjectClassCounts[key] >= subjectClassLimits[key]) continue;
+                if (!canPlaceSubject(className, day, period, shiftId, subject.id)) continue;
+                
+                scheduleSlots.push({ day_of_week: day, period_number: period, class_name: className,
+                  subject_id: subject.id, subject_name: subject.subject_name, teacher_id: teacher.id,
+                  teacher_name: teacher.teacher_name, shift_group: period <= Math.ceil(config.periods_per_shift/2) ? 'morning' : 'afternoon', shift_id: shiftId });
+                markSlotUsed(teacher.id, className, day, period, shiftId, scheduleSlots[scheduleSlots.length-1]);
+                if (subjectClassCounts[key] !== undefined) subjectClassCounts[key]++;
+                filledCount++;
+                assigned = true;
+                break;
               }
-              
-              if (!subjectToUse && subjects.length > 0) {
-                subjectToUse = subjects[0]; // Fallback to first subject
-              }
-              
-              const slot = {
-                day_of_week: day,
-                period_number: period,
-                class_name: className,
-                subject_id: subjectToUse?.id || null,
-                subject_name: subjectToUse?.subject_name || 'Study Period',
-                teacher_id: teacher.id,
-                teacher_name: teacher.teacher_name,
-                shift_group: period <= Math.ceil(config.periods_per_shift / 2) ? 'morning' : 'afternoon',
-                shift_id: shiftId
-              };
-              
-              scheduleSlots.push(slot);
-              markSlotUsed(teacher.id, className, day, period, shiftId, slot);
-              filledCount++;
-              assigned = true;
-              break;
+              if (assigned) break;
             }
           }
           
           if (!assigned) {
             skippedCount++;
-            console.log(`   ⚠️ Could not fill: ${className} Day ${day} Period ${period} Shift ${shiftId}`);
           }
         }
       }
