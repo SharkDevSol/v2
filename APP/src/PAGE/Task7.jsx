@@ -882,14 +882,13 @@ const Task7 = ({ onComplete, onScheduleGenerated }) => {
                         <div className={styles.configurationControls}>
                           <div className={styles.controlGroup}>
                             <label className={styles.controlLabel}>Shift</label>
-                            <select
-                              value={currentConfig.shift_id || 1}
-                              onChange={(e) => handleShiftChange(subjectClassStr, e.target.value)}
-                              className={styles.controlSelect}
-                            >
-                              <option value="1">Shift 1 (Morning)</option>
-                              <option value="2">Shift 2 (Afternoon)</option>
-                            </select>
+                            <div style={{
+                              padding: '8px 12px', background: '#f0f4ff', borderRadius: '6px',
+                              border: '1px solid #d0d7ff', fontSize: '0.85rem', fontWeight: 500,
+                              color: currentConfig.shift_id === 2 ? '#7c3aed' : '#2563eb'
+                            }}>
+                              Shift {currentConfig.shift_id || 1} ({currentConfig.shift_id === 2 ? 'Afternoon' : 'Morning'})
+                            </div>
                           </div>
 
                           <div className={styles.controlGroup}>
