@@ -824,49 +824,54 @@ function TaskDetail() {
     );
   }
 
-  // Task 5: Load existing data on component mount
+  // Task 5: Load data when entering task 5
+  const prevTaskId = useRef(taskId);
   useEffect(() => {
-    if (taskId !== '5') return;
-    const loadInitialData = async () => {
-      try {
-        const checkResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, {
-          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-        });
-        if (checkResponse.ok) {
-          const checkData = await checkResponse.json();
-          if (checkData.length > 0) {
-            setMergeData(checkData);
-            setStats({
-              insertedCount: checkData.length,
-              teacherCount: new Set(checkData.map(item => item.teacher_name)).size,
-              classSubjectCount: checkData.length
-            });
+    if (taskId === '5' && prevTaskId.current !== '5') {
+      prevTaskId.current = taskId;
+      const loadInitialData = async () => {
+        try {
+          const checkResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, {
+            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+          });
+          if (checkResponse.ok) {
+            const checkData = await checkResponse.json();
+            if (checkData.length > 0) {
+              setMergeData(checkData);
+              setStats({
+                insertedCount: checkData.length,
+                teacherCount: new Set(checkData.map(item => item.teacher_name)).size,
+                classSubjectCount: checkData.length
+              });
+            }
           }
+          const classSubjectsResponse = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`, {
+            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+          });
+          if (classSubjectsResponse.ok) {
+            setClassSubjects(await classSubjectsResponse.json());
+          }
+          const teachersResponse = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`, {
+            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+          });
+          if (teachersResponse.ok) {
+            const teachersData = await teachersResponse.json();
+            setTeachers(teachersData);
+            const workTimeMap = {};
+            teachersData.forEach(t => { workTimeMap[t.name] = t.staff_work_time || 'Full Time'; });
+            setTeacherWorkTimes(workTimeMap);
+          }
+        } catch (err) {
+          console.error('Error loading initial data:', err);
+        } finally {
+          setDataLoaded(true);
         }
-        const classSubjectsResponse = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`, {
-          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-        });
-        if (classSubjectsResponse.ok) {
-          setClassSubjects(await classSubjectsResponse.json());
-        }
-        const teachersResponse = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`, {
-          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-        });
-        if (teachersResponse.ok) {
-          const teachersData = await teachersResponse.json();
-          setTeachers(teachersData);
-          const workTimeMap = {};
-          teachersData.forEach(t => { workTimeMap[t.name] = t.staff_work_time || 'Full Time'; });
-          setTeacherWorkTimes(workTimeMap);
-        }
-      } catch (err) {
-        console.error('Error loading initial data:', err);
-      } finally {
-        setDataLoaded(true);
-      }
-    };
-    loadInitialData();
-  }, [taskId]);
+      };
+      loadInitialData();
+    } else {
+      prevTaskId.current = taskId;
+    }
+  });
 
 
   if (taskId === '5') {
