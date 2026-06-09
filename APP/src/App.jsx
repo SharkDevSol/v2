@@ -34,7 +34,6 @@ const Diagnostics = lazy(() => import("./PAGE/Diagnostics/Diagnostics"));
 const CreateRegisterStudent = lazy(() => import("./PAGE/CreateRegister/CreateRegisterStudent/CreateRegisterStudent"));
 const StudentFormBuilder = lazy(() => import("./PAGE/CreateRegister/CreateRegisterStudent/StudentFormBuilder"));
 const ListStudent = lazy(() => import("./PAGE/List/ListStudent/ListStudent"));
-const StudentFaults = lazy(() => import("./PAGE/StudentFaults/StudentFaultsS"));
 
 // Staff Management
 const CreateRegisterStaff = lazy(() => import("./PAGE/CreateRegister/CreateRegisterStaff/CreateRegisterStaff"));
@@ -66,7 +65,6 @@ const AdminChat = lazy(() => import("./PAGE/Communication/AdminChat"));
 const GuardianChat = lazy(() => import("./PAGE/Communication/GuardianChat"));
 const TeacherChat = lazy(() => import("./PAGE/Communication/TeacherChat"));
 const AdminCommunications = lazy(() => import("./PAGE/Communication/AdminCommunications"));
-const GuardianNotifications = lazy(() => import("./PAGE/Communication/GuardianNotifications"));
 
 // Schedule
 const ScheduleDashboard = lazy(() => import("./PAGE/Schedule/ScheduleDashboard"));
@@ -132,7 +130,6 @@ const GuardianWards = lazy(() => import("./Guardian/GuardianWards/GuardianWards"
 const GuardianAttendance = lazy(() => import("./Guardian/GuardianAttendance/GuardianAttendance"));
 const GuardianMarks = lazy(() => import("./Guardian/GuardianMarks/GuardianMarks"));
 const GuardianMessages = lazy(() => import("./Guardian/GuardianMessages/GuardianMessages"));
-const GuardianNotificationsPage = lazy(() => import("./Guardian/GuardianNotifications/GuardianNotifications"));
 
 // Finance Module
 const FinanceDashboard = lazy(() => import("./PAGE/Finance/FinanceDashboard"));
@@ -170,7 +167,6 @@ const StaffSpecificTiming = lazy(() => import("./PAGE/HR/StaffSpecificTiming"));
 const DeviceStatus = lazy(() => import("./PAGE/HR/DeviceStatus"));
 const LeaveManagement = lazy(() => import("./PAGE/HR/LeaveManagement"));
 const PayrollSystem = lazy(() => import("./PAGE/HR/PayrollSystem"));
-const PerformanceManagement = lazy(() => import("./PAGE/HR/PerformanceManagement"));
 const HRReports = lazy(() => import("./PAGE/HR/HRReports"));
 
 // Loading fallback component - renders LoadingScreen directly without wrapper
@@ -275,7 +271,6 @@ function App() {
               <Route path="class-teacher-assignment" element={<ClassTeacherAssignment />} />
               <Route path="live-attendance" element={<LiveAttendanceMonitor />} />
               <Route path="communication" element={<AdminChat />} />
-              <Route path="guardian-notifications" element={<GuardianNotifications />} />
               {/* Counsellor route removed */}
               <Route path="create-mark-list" element={<MarkListSystem />} />
               <Route path="Mark-List-Management" element={<MarkListManagement />} />
@@ -341,11 +336,9 @@ function App() {
               <Route path="hr/staff-shift-assignment" element={<Navigate to="/hr/attendance-time-settings" replace />} />
               <Route path="hr/leave" element={<LeaveManagement />} />
               <Route path="hr/payroll" element={<PayrollSystem />} />
-              <Route path="hr/performance" element={<PerformanceManagement />} />
               <Route path="hr/reports" element={<HRReports />} />
               
-              {/* Student Faults */}
-              <Route path="student-faults" element={<StudentFaults />} />
+              {/* Student Faults — merged into Faults page */}
               <Route path="faults" element={<FaultsPage />} />
             </Route>
             <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>}>
@@ -383,7 +376,6 @@ function App() {
               <Route path="wards" element={<GuardianWards />} />
               <Route path="attendance" element={<GuardianAttendance />} />
               <Route path="marks" element={<GuardianMarks />} />
-              <Route path="notifications" element={<GuardianNotificationsPage />} />
               <Route path="messages" element={<GuardianMessages />} />
               <Route path="profile" element={<GuardianProfilePage />} />
             </Route>
