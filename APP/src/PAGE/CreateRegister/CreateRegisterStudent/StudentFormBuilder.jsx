@@ -543,7 +543,7 @@ const StudentFormBuilder = ({ onSuccess }) => {
             disabled={isLoading || classCount <= 0}
             className={styles.button}
           >
-            {isLoading ? 'Creating Form Structure...' : 'Create Form Structure'}
+            {isLoading ? 'Saving Form Structure...' : (hasExistingForm ? 'Save Form Structure' : 'Create Form Structure')}
           </button>
           {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
         </div>
