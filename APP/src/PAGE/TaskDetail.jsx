@@ -849,6 +849,47 @@ function TaskDetail() {
     );
   }
 
+  // Task 5: Read-only view when completed
+  const task5Complete = async () => { await handleComplete(); };
+  if (taskId === '5' && isCompleted && !isEditing) {
+    return (
+      <div className={styles.container}>
+        <TaskNav />
+        <h1 className={styles.title}>Task 5: Assign Teachers to Classes and Subjects ✓</h1>
+        <div className={styles.completedBadge}>Completed</div>
+        <div className={styles.readOnlySection}>
+          <h3>Teacher Assignments ({mergeData.length})</h3>
+          {mergeData.length > 0 ? (
+            <div style={{display:'flex', flexDirection:'column', gap:'0.5rem'}}>
+              {mergeData.map((item, i) => (
+                <div key={i} style={{
+                  display:'flex', justifyContent:'space-between', alignItems:'center',
+                  background:'#f8f9fa', borderRadius:'8px', padding:'0.5rem 0.75rem'
+                }}>
+                  <span style={{fontWeight:500}}>{item.teacher_name}</span>
+                  <span style={{color:'#6b7280', fontSize:'0.85rem'}}>{item.subject_class}</span>
+                  <span style={{
+                    fontSize:'0.75rem', padding:'2px 8px', borderRadius:'12px',
+                    background: (item.staff_work_time || '').toLowerCase().includes('part') ? '#fef3c7' : '#d1fae5',
+                    color: (item.staff_work_time || '').toLowerCase().includes('part') ? '#92400e' : '#065f46'
+                  }}>
+                    {item.staff_work_time || 'Full Time'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : <p>No assignments found.</p>}
+          <button onClick={() => setIsEditing(true)}
+            style={{marginTop:'1.5rem', padding:'10px 24px', border:'none', borderRadius:'8px',
+              background:'linear-gradient(135deg, #667eea, #764ba2)', color:'white', cursor:'pointer', fontSize:'0.9rem', fontWeight:600}}>
+            Edit Assignments
+          </button>
+        </div>
+        {error && <p className={styles.error}>{error}</p>}
+      </div>
+    );
+  }
+  
   // Task 5 note: data loads on first visit — no hook needed
 
   if (taskId === '5') {
@@ -933,6 +974,9 @@ function TaskDetail() {
           const data = await dataResponse.json();
           setMergeData(data);
         }
+        
+        // Mark complete and navigate to tasks
+        task5Complete();
         
       } catch (err) {
         setError(err.message);
