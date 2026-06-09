@@ -299,9 +299,9 @@ function App() {
               <Route path="finance/payments" element={<FeePaymentManagement />} />
               <Route path="finance/monthly-payments" element={<MonthlyPayments />} />
               <Route path="finance/monthly-payment-settings" element={<MonthlyPaymentSettings />} />
-              <Route path="finance/expenses" element={<ExpenseManagement />} />
-              <Route path="finance/expense-approval" element={<ExpenseApproval />} />
-              <Route path="finance/budgets" element={<BudgetManagement />} />
+              <Route path="hr/expenses" element={<ExpenseManagement />} />
+              <Route path="hr/expense-approval" element={<ExpenseApproval />} />
+              <Route path="hr/budgets" element={<BudgetManagement />} />
               <Route path="finance/payroll" element={<PayrollManagement />} />
               <Route path="finance/reports" element={<FinanceReports />} />
               <Route path="finance/inventory-integration" element={<ComingSoon title="Inventory Integration" description="Connect finance with inventory for automated expense tracking." />} />
