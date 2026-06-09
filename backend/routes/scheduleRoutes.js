@@ -2444,7 +2444,9 @@ router.post('/generate-complete-schedule', async (req, res) => {
     
     // STEP 1: Process each assignment from configurations with subject distribution
     console.log('\n📅 STEP 1: Processing configured assignments with subject distribution rules...');
-    for (const assignment of assignmentsResult.rows) {
+    // Shuffle assignments to balance distribution across days
+    const shuffledAssignments = [...assignmentsResult.rows].sort(() => Math.random() - 0.5);
+    for (const assignment of shuffledAssignments) {
       if (!assignment.teacher_id) continue;
       
       const classMatch = assignment.subject_class.match(/Class (.+)$/);
