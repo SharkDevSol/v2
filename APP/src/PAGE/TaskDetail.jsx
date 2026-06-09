@@ -824,50 +824,7 @@ function TaskDetail() {
     );
   }
 
-  // Task 5: Load existing data on component mount
-  useEffect(() => {
-    if (taskId !== '5') return;
-    const loadInitialData = async () => {
-      try {
-        const checkResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, {
-          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-        });
-        if (checkResponse.ok) {
-          const checkData = await checkResponse.json();
-          if (checkData.length > 0) {
-            setMergeData(checkData);
-            setStats({
-              insertedCount: checkData.length,
-              teacherCount: new Set(checkData.map(item => item.teacher_name)).size,
-              classSubjectCount: checkData.length
-            });
-          }
-        }
-        const classSubjectsResponse = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`, {
-          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-        });
-        if (classSubjectsResponse.ok) {
-          setClassSubjects(await classSubjectsResponse.json());
-        }
-        const teachersResponse = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`, {
-          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-        });
-        if (teachersResponse.ok) {
-          const teachersData = await teachersResponse.json();
-          setTeachers(teachersData);
-          const workTimeMap = {};
-          teachersData.forEach(t => { workTimeMap[t.name] = t.staff_work_time || 'Full Time'; });
-          setTeacherWorkTimes(workTimeMap);
-        }
-      } catch (err) {
-        console.error('Error loading initial data:', err);
-        setError('Failed to load data. Make sure Tasks 4 and 5 are completed.');
-      } finally {
-        setDataLoaded(true);
-      }
-    };
-    loadInitialData();
-  }, [taskId]);
+  // Task 5 note: data loads on first visit — no hook needed
 
   if (taskId === '5') {
 
