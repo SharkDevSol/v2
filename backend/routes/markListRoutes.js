@@ -394,6 +394,18 @@ router.post('/create-mark-forms', async (req, res) => {
   try {
     await client.query('BEGIN');
     
+    // Check if mark list already exists for this subject+class+term
+    const schemaName = `subject_${subjectName.toLowerCase().replace(/[\s\-\.]+/g, '_')}_schema`;
+    const tableName = `${className.toLowerCase()}_term_${termNumber}`;
+    const existsCheck = await client.query(
+      `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = $1 AND table_name = $2)`,
+      [schemaName, tableName]
+    );
+    if (existsCheck.rows[0].exists) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ error: `Mark list already exists for ${subjectName} / ${className} / Term ${termNumber}. Delete it first if you want to recreate it.` });
+    }
+    
     // Validate class exists in classes_schema (case-insensitive)
     const classResult = await client.query(
       `SELECT table_name FROM information_schema.tables 
@@ -2019,6 +2031,29 @@ router.get('/lock-status/:subjectName/:className/:termNumber', async (req, res) 
   } catch (error) {
     console.error('Error checking lock status:', error);
     res.status(500).json({ error: 'Failed to check lock status', details: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+// DELETE /api/mark-list/delete-mark-form/:subjectName/:className/:termNumber
+// Delete a mark list form (table + config)
+router.delete('/delete-mark-form/:subjectName/:className/:termNumber', async (req, res) => {
+  const { subjectName, className, termNumber } = req.params;
+  const client = await pool.connect();
+  try {
+    const schemaName = `subject_${subjectName.toLowerCase().replace(/[\s\-\.]+/g, '_')}_schema`;
+    const tableName = `${className.toLowerCase()}_term_${termNumber}`;
+    
+    // Drop the mark list table
+    await client.query(`DROP TABLE IF EXISTS ${schemaName}.${tableName}`);
+    // Drop schema if empty
+    await client.query(`DROP SCHEMA IF EXISTS ${schemaName} CASCADE`);
+    
+    res.json({ message: `Mark list deleted: ${subjectName} / ${className} / Term ${termNumber}` });
+  } catch (error) {
+    console.error('Error deleting mark list:', error);
+    res.status(500).json({ error: 'Failed to delete mark list' });
   } finally {
     client.release();
   }

@@ -31,6 +31,7 @@ const MarkListForm = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [viewMode, setViewMode] = useState('create');
+  const [formExists, setFormExists] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -88,8 +89,10 @@ const MarkListForm = () => {
           setMarkList(data.markList);
           setFormConfig(data.config);
           setViewMode('view');
+          setFormExists(true);
         } else {
           // No existing mark list - reset to default components and show create form
+          setFormExists(false);
           setMarkComponents([
             { name: 'practical_1', percentage: 5 },
             { name: 'test_1', percentage: 10 },
@@ -173,12 +176,43 @@ const MarkListForm = () => {
       if (response.ok) {
         setMessage(`Mark list form created successfully! ${result.studentsCount} students added.`);
         setViewMode('view');
+        setFormExists(true);
         await loadMarkList();
+      } else if (response.status === 409) {
+        setMessage(result.error || 'This mark list already exists. Delete it first if you want to recreate.');
+        setFormExists(true);
       } else {
         setMessage(result.error || 'Failed to create mark form');
       }
     } catch (error) {
       setMessage('Error creating mark form: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteMarkForm = async () => {
+    if (!selectedSubject || !selectedClass || !selectedTerm) return;
+    if (!window.confirm(`Delete mark list for ${selectedSubject} / ${selectedClass} / Term ${selectedTerm}?`)) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/mark-list/delete-mark-form/${selectedSubject}/${selectedClass}/${selectedTerm}`,
+        { method: 'DELETE' }
+      );
+      const result = await response.json();
+      if (response.ok) {
+        setMessage('Mark list deleted successfully');
+        setFormExists(false);
+        setViewMode('create');
+        setMarkList([]);
+        setFormConfig(null);
+      } else {
+        setMessage(result.error || 'Failed to delete mark list');
+      }
+    } catch (error) {
+      setMessage('Error deleting mark list: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -198,6 +232,7 @@ const MarkListForm = () => {
         setMarkList(data.markList);
         setFormConfig(data.config);
         setViewMode('view');
+        setFormExists(true);
       } else {
         const errData = await response.json().catch(() => ({}));
         setMessage(errData.error || 'Mark list not found for this combination');
@@ -298,12 +333,6 @@ const MarkListForm = () => {
             onClick={() => setViewMode('create')}
           >
             Create Form
-          </button>
-          <button 
-            className={viewMode === 'view' ? 'active' : ''}
-            onClick={() => setViewMode('view')}
-          >
-            View/Edit Marks
           </button>
         </div>
       </div>
@@ -418,6 +447,16 @@ const MarkListForm = () => {
           >
             {loading ? 'Creating...' : 'Create Mark List Form'}
           </button>
+          {formExists && (
+            <button 
+              onClick={handleDeleteMarkForm}
+              disabled={loading}
+              className="delete-btn"
+              style={{ marginLeft: '10px', padding: '8px 16px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+            >
+              Delete Mark List
+            </button>
+          )}
         </div>
       )}
 
@@ -1022,8 +1061,7 @@ const MarkListManagement = () => {
   const tabs = [
     { id: 'subjects', label: '📚 Subject Setup', component: SubjectMappingSetup },
     { id: 'forms', label: 'Mark List Forms', component: MarkListForm },
-    { id: 'teachers', label: 'Teacher Assignment', component: TeacherAssignment },
-    { id: 'ranking', label: 'Class Ranking', component: ClassRanking }
+    { id: 'teachers', label: 'Teacher Assignment', component: TeacherAssignment }
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
