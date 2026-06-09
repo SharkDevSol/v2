@@ -2983,18 +2983,14 @@ router.post('/swap-slots', async (req, res) => {
     return res.status(400).json({ error: 'Both slot1_id and slot2_id are required' });
   }
   try {
-    const slot1 = await pool.query('SELECT * FROM schedule_schema.schedule_slots WHERE id = $1', [slot1_id]);
-    const slot2 = await pool.query('SELECT * FROM schedule_schema.schedule_slots WHERE id = $1', [slot2_id]);
-    if (slot1.rows.length === 0 || slot2.rows.length === 0) {
+    // Swap subject_id and teacher_id only (name columns don't exist in table)
+    const s1 = await pool.query('SELECT subject_id, teacher_id FROM schedule_schema.schedule_slots WHERE id = $1', [slot1_id]);
+    const s2 = await pool.query('SELECT subject_id, teacher_id FROM schedule_schema.schedule_slots WHERE id = $1', [slot2_id]);
+    if (s1.rows.length === 0 || s2.rows.length === 0) {
       return res.status(404).json({ error: 'One or both slots not found' });
     }
-    // Swap subject and teacher info only (keep day/period/class/shift)
-    await pool.query(`
-      UPDATE schedule_schema.schedule_slots SET subject_id = $1, teacher_id = $2, subject_name = $3, teacher_name = $4 WHERE id = $5
-    `, [slot2.rows[0].subject_id, slot2.rows[0].teacher_id, slot2.rows[0].subject_name, slot2.rows[0].teacher_name, slot1_id]);
-    await pool.query(`
-      UPDATE schedule_schema.schedule_slots SET subject_id = $1, teacher_id = $2, subject_name = $3, teacher_name = $4 WHERE id = $5
-    `, [slot1.rows[0].subject_id, slot1.rows[0].teacher_id, slot1.rows[0].subject_name, slot1.rows[0].teacher_name, slot2_id]);
+    await pool.query('UPDATE schedule_schema.schedule_slots SET subject_id = $1, teacher_id = $2 WHERE id = $3', [s2.rows[0].subject_id, s2.rows[0].teacher_id, slot1_id]);
+    await pool.query('UPDATE schedule_schema.schedule_slots SET subject_id = $1, teacher_id = $2 WHERE id = $3', [s1.rows[0].subject_id, s1.rows[0].teacher_id, slot2_id]);
     res.json({ message: 'Slots swapped successfully' });
   } catch (error) {
     console.error('Error swapping slots:', error);
