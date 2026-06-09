@@ -41,6 +41,16 @@ function TaskDetail() {
   });
   const [checkingSchedule, setCheckingSchedule] = useState(false);
 
+  // Task 5 state (moved to top level to fix React error #310)
+  const [mergeLoading, setMergeLoading] = useState(false);
+  const [mergeData, setMergeData] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [classSubjects, setClassSubjects] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [assignments, setAssignments] = useState({});
+  const [teacherWorkTimes, setTeacherWorkTimes] = useState({});
+
   // Function to check schedule generation status
   const checkScheduleCreated = async () => {
     setCheckingSchedule(true);
@@ -814,72 +824,52 @@ function TaskDetail() {
     );
   }
 
-  if (taskId === '5') {
-    const [mergeLoading, setMergeLoading] = useState(false);
-    const [mergeData, setMergeData] = useState([]);
-    const [stats, setStats] = useState(null);
-    const [dataLoaded, setDataLoaded] = useState(false);
-    const [classSubjects, setClassSubjects] = useState([]);
-    const [teachers, setTeachers] = useState([]);
-    const [assignments, setAssignments] = useState({});
-    const [teacherWorkTimes, setTeacherWorkTimes] = useState({});
-
-    // Load existing data on component mount
-    useEffect(() => {
-      const loadInitialData = async () => {
-        try {
-          // Check if teacher assignments already exist
-          const checkResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, {
-            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-          });
-          if (checkResponse.ok) {
-            const checkData = await checkResponse.json();
-            
-            if (checkData.length > 0) {
-              setMergeData(checkData);
-              setStats({
-                insertedCount: checkData.length,
-                teacherCount: new Set(checkData.map(item => item.teacher_name)).size,
-                classSubjectCount: checkData.length
-              });
-            }
-          }
-
-          // Load class-subject mappings
-          const classSubjectsResponse = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`, {
-            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-          });
-          if (classSubjectsResponse.ok) {
-            const classSubjectsData = await classSubjectsResponse.json();
-            setClassSubjects(classSubjectsData);
-          }
-
-          // Load teachers from schedule system with work times
-          const teachersResponse = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`, {
-            headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
-          });
-          if (teachersResponse.ok) {
-            const teachersData = await teachersResponse.json();
-            setTeachers(teachersData);
-            
-            // Create work time mapping
-            const workTimeMap = {};
-            teachersData.forEach(teacher => {
-              workTimeMap[teacher.name] = teacher.staff_work_time || 'Full Time';
+  // Task 5: Load existing data on component mount
+  useEffect(() => {
+    if (taskId !== '5') return;
+    const loadInitialData = async () => {
+      try {
+        const checkResponse = await fetch(`${API_BASE_URL}/mark-list/teacher-assignments`, {
+          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+        });
+        if (checkResponse.ok) {
+          const checkData = await checkResponse.json();
+          if (checkData.length > 0) {
+            setMergeData(checkData);
+            setStats({
+              insertedCount: checkData.length,
+              teacherCount: new Set(checkData.map(item => item.teacher_name)).size,
+              classSubjectCount: checkData.length
             });
-            setTeacherWorkTimes(workTimeMap);
           }
-
-        } catch (err) {
-          console.error('Error loading initial data:', err);
-          setError('Failed to load data. Please make sure Tasks 4 and 5 are completed.');
-        } finally {
-          setDataLoaded(true);
         }
-      };
+        const classSubjectsResponse = await fetch(`${API_BASE_URL}/mark-list/subjects-classes`, {
+          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+        });
+        if (classSubjectsResponse.ok) {
+          setClassSubjects(await classSubjectsResponse.json());
+        }
+        const teachersResponse = await fetch(`${API_BASE_URL}/school-setup/teachers-with-worktime`, {
+          headers: { 'x-branch-code': (localStorage.getItem('branchCode') || '').toUpperCase() }
+        });
+        if (teachersResponse.ok) {
+          const teachersData = await teachersResponse.json();
+          setTeachers(teachersData);
+          const workTimeMap = {};
+          teachersData.forEach(t => { workTimeMap[t.name] = t.staff_work_time || 'Full Time'; });
+          setTeacherWorkTimes(workTimeMap);
+        }
+      } catch (err) {
+        console.error('Error loading initial data:', err);
+        setError('Failed to load data. Make sure Tasks 4 and 5 are completed.');
+      } finally {
+        setDataLoaded(true);
+      }
+    };
+    loadInitialData();
+  }, [taskId]);
 
-      loadInitialData();
-    }, []);
+  if (taskId === '5') {
 
     const handleTeacherAssignment = (classSubjectKey, teacherName) => {
       setAssignments(prev => ({
