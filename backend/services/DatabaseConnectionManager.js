@@ -236,6 +236,51 @@ class DatabaseConnectionManager {
         )
       `);
 
+      // Create schedule_schema.schedule_slots table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS schedule_schema.schedule_slots (
+          id SERIAL PRIMARY KEY,
+          day_of_week INTEGER CHECK (day_of_week BETWEEN 1 AND 7),
+          period_number INTEGER CHECK (period_number BETWEEN 1 AND 20),
+          class_name VARCHAR(50) NOT NULL,
+          subject_id INTEGER,
+          teacher_id INTEGER,
+          shift_group VARCHAR(50) CHECK (shift_group IN ('morning', 'afternoon', 'evening')),
+          shift_id INTEGER DEFAULT 1,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      // Create schedule_schema.schedule_conflicts table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS schedule_schema.schedule_conflicts (
+          id SERIAL PRIMARY KEY,
+          conflict_type VARCHAR(50) NOT NULL,
+          teacher_name VARCHAR(100),
+          class_name VARCHAR(50),
+          subject_name VARCHAR(100),
+          day_of_week INTEGER,
+          period_number INTEGER,
+          conflict_details JSONB,
+          resolved BOOLEAN DEFAULT false,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      // Create school_schema_points.teachers table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS school_schema_points.teachers (
+          id SERIAL PRIMARY KEY,
+          global_staff_id INTEGER NOT NULL UNIQUE,
+          teacher_name VARCHAR(100) NOT NULL,
+          staff_work_time VARCHAR(50) NOT NULL DEFAULT 'Full Time',
+          role VARCHAR(100) NOT NULL,
+          staff_enrollment_type VARCHAR(50) NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
       // Create staff_counter table (global staff ID tracking)
       await pool.query(`
         CREATE TABLE IF NOT EXISTS staff_counter (
