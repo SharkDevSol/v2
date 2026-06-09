@@ -170,11 +170,11 @@ router.get('/status', async (req, res) => {
       console.log('Task 4 check failed:', e.message);
     }
 
-    // Task 5: Configure Subjects & Classes - Check if subjects exist
+    // Task 5: Assign Teachers to Classes - Check if teacher assignments exist
     try {
-      const subjects = await pool.query('SELECT COUNT(*) FROM subjects_of_school_schema.subjects');
-      taskStatus[5] = parseInt(subjects.rows[0].count) > 0;
-      console.log('Task 5 check:', { count: subjects.rows[0].count, result: taskStatus[5] });
+      const assignments = await pool.query('SELECT COUNT(*) FROM subjects_of_school_schema.teachers_subjects');
+      taskStatus[5] = parseInt(assignments.rows[0].count) > 0;
+      console.log('Task 5 check:', { count: assignments.rows[0].count, result: taskStatus[5] });
     } catch (e) {
       console.log('Task 5 check failed:', e.message);
     }

@@ -861,13 +861,13 @@ function TaskDetail() {
         }
       } catch (err) {
         console.error('Error loading initial data:', err);
-        setError('Failed to load data. Make sure Tasks 4 and 5 are completed.');
       } finally {
         setDataLoaded(true);
       }
     };
     loadInitialData();
   }, [taskId]);
+
 
   if (taskId === '5') {
 
