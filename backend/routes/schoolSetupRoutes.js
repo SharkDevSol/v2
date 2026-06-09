@@ -977,20 +977,26 @@ router.post('/sync-teacher-assignments', async (req, res) => {
 // Get teachers with work time
 router.get('/teachers-with-worktime', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT 
-        teacher_name as name,
-        role,
-        staff_work_time
-      FROM school_schema_points.teachers 
-      WHERE role = 'Teacher'
-      ORDER BY teacher_name
-    `);
+    // Try school_schema_points.teachers first, fall back to staff_teachers.teachers
+    let result;
+    try {
+      result = await pool.query(`
+        SELECT teacher_name as name, role, staff_work_time
+        FROM school_schema_points.teachers 
+        WHERE role = 'Teacher'
+        ORDER BY teacher_name
+      `);
+    } catch (e) {
+      // Fall back to staff_teachers.teachers
+      result = await pool.query(`
+        SELECT name as teacher_name, name as name, 'Teacher' as role, staff_work_time
+        FROM staff_teachers.teachers 
+        ORDER BY name
+      `);
+    }
     
     if (result.rows.length === 0) {
-      return res.status(404).json({ 
-        error: 'No teachers found. Please complete Task 4 first and add teachers with "Teacher" role.' 
-      });
+      return res.json([]);
     }
     
     res.json(result.rows);
