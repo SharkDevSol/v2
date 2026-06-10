@@ -53,7 +53,7 @@ const EvaluationDetailsView = lazy(() => import("./PAGE/Evaluation/EvaluationDet
 const MarkListView = lazy(() => import("./PAGE/MarkListView/MarkListView"));
 const StudentAttendanceSystem = lazy(() => import("./PAGE/Academic/StudentAttendanceSystem"));
 const StudentAttendanceTimeSettings = lazy(() => import("./PAGE/Academic/StudentAttendanceTimeSettings"));
-const AITestGenerator = lazy(() => import("./PAGE/Academic/AITestGenerator"));
+const AITestGenerator = lazy(() => import("./PAGE/AITestGenerator/AITestGenerator"));
 const MarkListSystem = lazy(() => import("./PAGE/CreateMarklist/CreateMarklist/CreateMarklist"));
 const MarkListManagement = lazy(() => import("./PAGE/CreateMarklist/MarkListManagement"));
 const SubjectMappingSetup = lazy(() => import("./PAGE/CreateMarklist/SubjectMappingSetup"));

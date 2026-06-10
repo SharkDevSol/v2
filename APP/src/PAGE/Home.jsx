@@ -13,7 +13,7 @@ import {
   FiFilePlus, 
   FiChevronDown, FiChevronRight, FiMenu, 
   FiLogOut, FiUser as FiProfile, 
-  FiSearch, FiAward,
+  FiSearch, FiAward, FiZap,
   FiPieChart, FiDatabase,
   FiCheckCircle, FiDollarSign, FiTrendingUp,
   FiShoppingCart, FiPackage, FiTool, FiClock, FiBell, FiRefreshCw, FiAlertCircle, FiMoon, FiSun, FiSmile, FiClipboard, FiEdit3
@@ -378,6 +378,11 @@ const Home = () => {
           path: "/evaluation-book/reports",
           icon: <FiFileText />,
           label: t('evalBookReports'),
+        },
+        {
+          path: "/ai-test-generator",
+          icon: <FiZap />,
+          label: '🤖 AI Test Generator',
         },
         {
           path: "/mark-list-view",
