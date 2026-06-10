@@ -11,6 +11,7 @@ import AddDeductionModal from './components/AddDeductionModal';
 import AddAllowanceModal from './components/AddAllowanceModal';
 import AddRetentionModal from './components/AddRetentionModal';
 import StaffDeductionsAllowancesModal from './components/StaffDeductionsAllowancesModal';
+import CalculateAttendanceDeductionsModal from './components/CalculateAttendanceDeductionsModal';
 import { getCurrentEthiopianMonth } from '../../utils/ethiopianCalendar';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://v2.skoolific.com';
@@ -31,6 +32,7 @@ const SalaryManagement = () => {
   const [showAddSalaryModal, setShowAddSalaryModal] = useState(false);
   const [showEditSalaryModal, setShowEditSalaryModal] = useState(false);
   const [showAddDeductionModal, setShowAddDeductionModal] = useState(false);
+  const [showCalculateAttendanceDeductions, setShowCalculateAttendanceDeductions] = useState(false);
   const [showAddAllowanceModal, setShowAddAllowanceModal] = useState(false);
   const [showAddRetentionModal, setShowAddRetentionModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -325,9 +327,14 @@ const SalaryManagement = () => {
       {activeTab !== 'staff' && (
         <div className={styles.actionBar}>
           {activeTab === 'deductions' && (
-            <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowAddDeductionModal(true)}>
-              {t('hr.salary.addDeduction', 'Add Deduction')}
-            </Button>
+            <>
+              <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowAddDeductionModal(true)}>
+                {t('hr.salary.addDeduction', 'Add Deduction')}
+              </Button>
+              <Button variant="secondary" icon={<RefreshCw size={16} />} onClick={() => setShowCalculateAttendanceDeductions(true)}>
+                Calculate from Attendance
+              </Button>
+            </>
           )}
           {activeTab === 'allowances' && (
             <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowAddAllowanceModal(true)}>
@@ -661,6 +668,15 @@ const SalaryManagement = () => {
           onClose={() => {
             setShowAddDeductionModal(false);
             setSelectedStaffForSalary(null);
+            fetchDeductions();
+          }}
+        />
+      )}
+
+      {showCalculateAttendanceDeductions && (
+        <CalculateAttendanceDeductionsModal
+          onClose={() => {
+            setShowCalculateAttendanceDeductions(false);
             fetchDeductions();
           }}
         />
