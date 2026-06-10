@@ -461,3 +461,42 @@
   padding: 20px;
   font-style: italic;
 }
+
+/* Reference display styles */
+.referenceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.referenceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.referenceLabel {
+  font-weight: 600;
+  color: #475569;
+  font-size: 13px;
+}
+
+.referenceValue {
+  font-weight: 500;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.shiftBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #dbeafe;
+  color: #1e40af;
+}
