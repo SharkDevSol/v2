@@ -1,9 +1,228 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const db = require('../config/db');
 
-// POST /api/ai/generate-test
-// Generate test questions using AI
+// ─── In-Memory Cache ──────────────────────────────────────────────────────────
+const cache = new Map();
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+function getCacheKey(body) {
+  const { subjectName, className, termNumber, componentName, totalMarks, questionTypes, difficulty, language, topic } = body;
+  const hash = crypto.createHash('md5').update(JSON.stringify({ subjectName, className, termNumber, componentName, totalMarks, questionTypes, difficulty, language, topic })).digest('hex');
+  return hash;
+}
+
+function getFromCache(key) {
+  const entry = cache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setCache(key, data) {
+  cache.set(key, { data, timestamp: Date.now() });
+  // Evict oldest entries if cache exceeds 500 items
+  if (cache.size > 500) {
+    const oldest = [...cache.entries()].sort((a, b) => a[1].timestamp - b[1].timestamp)[0];
+    if (oldest) cache.delete(oldest[0]);
+  }
+}
+
+// ─── Hallucination Validation ─────────────────────────────────────────────────
+function validateQuestions(questions, expectedTypes) {
+  const errors = [];
+  const validTypes = ['mcq', 'true_false', 'matching', 'fill_blank', 'short_answer', 'essay', 'multiple_true_false', 'numeric', 'transformation'];
+
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    
+    // Type must be valid
+    if (!validTypes.includes(q.type)) {
+      errors.push(`Question ${i + 1}: Invalid type "${q.type}"`);
+      continue;
+    }
+
+    // Question text required
+    if (!q.question || q.question.length < 5) {
+      errors.push(`Question ${i + 1}: Missing or too short question text`);
+      continue;
+    }
+
+    // Marks must be positive
+    if (!q.marks || q.marks < 1) {
+      errors.push(`Question ${i + 1}: Invalid marks value`);
+    }
+
+    // MCQ must have options and answer must be one of them
+    if (q.type === 'mcq') {
+      if (!q.options || q.options.length < 2) {
+        errors.push(`Question ${i + 1} (MCQ): Must have at least 2 options`);
+      }
+      if (q.answer) {
+        const answerUpper = q.answer.toUpperCase().trim();
+        const validOptions = q.options.map((o, idx) => String.fromCharCode(65 + idx));
+        const startsWithValid = validOptions.some(v => answerUpper.startsWith(v));
+        if (!startsWithValid) {
+          // Try matching answer text to options
+          const matchesOption = q.options.some(o => o.toUpperCase().includes(answerUpper) || answerUpper.includes(o.toUpperCase().substring(0, 10)));
+          if (!matchesOption) {
+            errors.push(`Question ${i + 1} (MCQ): Answer "${q.answer}" doesn't match any option`);
+          }
+        }
+      }
+    }
+
+    // True/False must have valid answer
+    if (q.type === 'true_false') {
+      const a = (q.answer || '').toLowerCase().trim();
+      if (a && !['true', 'false', 't', 'f', 'yes', 'no', 'y', 'n'].includes(a)) {
+        errors.push(`Question ${i + 1} (True/False): Answer must be True or False`);
+      }
+    }
+
+    // Fill-blank must have an answer
+    if (q.type === 'fill_blank' && !q.answer) {
+      errors.push(`Question ${i + 1} (Fill-in-blank): Missing answer`);
+    }
+
+    // Short answer and essay must have answer or rubric
+    if ((q.type === 'short_answer' || q.type === 'essay') && (!q.answer || q.answer.length < 2)) {
+      errors.push(`Question ${i + 1} (${q.type}): Answer too short or missing`);
+    }
+  }
+
+  return errors;
+}
+
+// ─── Prompt Builder with Hallucination Guardrails ─────────────────────────────
+function buildPrompt({ subjectName, className, termNumber, componentName, totalMarks, questionTypes, difficulty, language, topic, bonusQuestions, teacherNotes }) {
+  const gradeLevel = className.replace(/[^0-9]/g, '') || 'appropriate';
+  
+  let prompt = `You are an expert Ethiopian curriculum examiner. Generate a ${difficulty} difficulty exam.`;
+
+  prompt += `\n\nEXAM DETAILS:`;
+  prompt += `\n- Subject: ${subjectName}`;
+  prompt += `\n- Grade: ${gradeLevel}`;
+  prompt += `\n- Term: ${termNumber}`;
+  prompt += `\n- Component: ${componentName}`;
+  prompt += `\n- Language: ${language}`;
+  prompt += `\n- Total Marks: ${totalMarks}`;
+  if (topic) prompt += `\n- Topic/Unit: ${topic}`;
+  if (teacherNotes) prompt += `\n- Teacher Notes: ${teacherNotes}`;
+  
+  prompt += `\n\nQUESTION DISTRIBUTION (must total exactly ${totalMarks} marks):`;
+  for (const qt of questionTypes) {
+    prompt += `\n- ${getTypeLabel(qt.type)}: ${qt.count} questions × ${qt.marksPerQuestion} marks = ${qt.count * qt.marksPerQuestion}`;
+  }
+  if (bonusQuestions) {
+    prompt += `\n- BONUS: ${bonusQuestions.count} × ${bonusQuestions.marksPerQuestion} marks (${bonusQuestions.type})`;
+  }
+
+  prompt += `\n\nETHIOPIAN CURRICULUM REQUIREMENTS:`;
+  prompt += `\n- Questions must be appropriate for Grade ${gradeLevel} Ethiopian students`;
+  prompt += `\n- Use local context (Ethiopian examples, names, places)`;
+  prompt += `\n- Follow the Ethiopian Ministry of Education curriculum standards`;
+  prompt += `\n- DO NOT make up facts — only include accurate information`;
+  prompt += `\n- If unsure about an answer, clearly state "based on the curriculum"`;
+
+  prompt += `\n\nFORMAT each question EXACTLY:`;
+  prompt += `\n[QUESTION_START]`;
+  prompt += `\nTYPE: [question type from the list above]`;
+  prompt += `\nMARKS: [number]`;
+  prompt += `\nQUESTION: [clear question text appropriate for Grade ${gradeLevel}]`;
+  prompt += `\nOPTIONS: [for MCQ: A) option1 | B) option2 | C) option3 | D) option4]`;
+  prompt += `\nANSWER: [correct answer - must be accurate]`;
+  prompt += `\nEXPLANATION: [brief explanation of the correct answer]`;
+  prompt += `\n[QUESTION_END]`;
+
+  prompt += `\n\nCRITICAL RULES:`;
+  prompt += `\n1. The answer MUST be definitively correct — no ambiguity`;
+  prompt += `\n2. For MCQ, the answer MUST be one of the provided options`;
+  prompt += `\n3. Total marks of all questions must equal ${totalMarks}`;
+  prompt += `\n4. Mix question types, don't group them`;
+  prompt += `\n5. Each question MUST have a clear, unambiguous answer`;
+  prompt += `\n6. Questions must test understanding, not just memorization`;
+  prompt += `\n7. Use Ethiopian context (Birr, Ethiopian geography, history, etc.) where appropriate`;
+
+  return prompt;
+}
+
+function getTypeLabel(type) {
+  const labels = {
+    'mcq': 'Multiple Choice',
+    'true_false': 'True/False',
+    'multiple_true_false': 'Multiple True/False',
+    'matching': 'Matching',
+    'numeric': 'Numeric/Computational',
+    'fill_blank': 'Fill-in-the-Blank',
+    'short_answer': 'Short Answer',
+    'essay': 'Essay / Open-Ended',
+    'transformation': 'Transformation / Error Correction'
+  };
+  return labels[type] || type;
+}
+
+// ─── Question Parser ──────────────────────────────────────────────────────────
+function parseGeneratedQuestions(text) {
+  const questions = [];
+  const blocks = text.split('[QUESTION_START]');
+  
+  for (const block of blocks) {
+    if (!block.includes('[QUESTION_END]')) continue;
+    const content = block.split('[QUESTION_END]')[0].trim();
+    if (!content) continue;
+    
+    const typeMatch = content.match(/TYPE:\s*(.+)/i);
+    const marksMatch = content.match(/MARKS:\s*(\d+)/i);
+    
+    // Extract question text (everything between QUESTION: and OPTIONS:|ANSWER:|EXPLANATION:|end)
+    const questionMatch = content.match(/QUESTION:\s*(.+?)(?:\nOPTIONS:|\nANSWER:|\nEXPLANATION:|$)/is);
+    if (!questionMatch) continue;
+    
+    const optionsMatch = content.match(/OPTIONS:\s*(.+?)(?:\nANSWER:|$)/is);
+    const answerMatch = content.match(/ANSWER:\s*(.+?)(?:\nEXPLANATION:|$)/is);
+    const explanationMatch = content.match(/EXPLANATION:\s*(.+)/is);
+    
+    const type = (typeMatch?.[1] || 'mcq').trim().toLowerCase();
+    const marks = parseInt(marksMatch?.[1]) || 1;
+    
+    let options = [];
+    if (optionsMatch) {
+      const optText = optionsMatch[1].trim();
+      options = optText.split(/\s*\|\s*/).map(o => o.trim()).filter(o => o);
+    }
+    
+    // Clean question text - remove markdown
+    const questionText = questionMatch[1].trim().replace(/^\*\*|\*\*$/g, '');
+    
+    questions.push({
+      type,
+      marks,
+      question: questionText,
+      options,
+      answer: answerMatch?.[1]?.trim() || '',
+      explanation: explanationMatch?.[1]?.trim() || '',
+    });
+  }
+  
+  return questions;
+}
+
+function getQuestionTypeCounts(questions) {
+  const counts = {};
+  for (const q of questions) {
+    counts[q.type] = (counts[q.type] || 0) + 1;
+  }
+  return counts;
+}
+
+// ─── Routes ───────────────────────────────────────────────────────────────────
+
+// POST /api/ai/generate-test — Generate test questions with caching
 router.post('/generate-test', async (req, res) => {
   const {
     subjectName, className, termNumber, componentName,
@@ -12,12 +231,19 @@ router.post('/generate-test', async (req, res) => {
   } = req.body;
 
   if (!subjectName || !className || !termNumber || !componentName || !totalMarks || !questionTypes) {
-    return res.status(400).json({ error: 'Missing required fields: subjectName, className, termNumber, componentName, totalMarks, questionTypes' });
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Check cache first
+  const cacheKey = getCacheKey(req.body);
+  const cached = getFromCache(cacheKey);
+  if (cached) {
+    console.log('📦 Returning cached test result');
+    return res.json({ ...cached, fromCache: true });
   }
 
   try {
-    // Build the prompt for Gemini
-    const prompt = buildGeminiPrompt({
+    const prompt = buildPrompt({
       subjectName, className, termNumber, componentName,
       totalMarks, questionTypes, difficulty: difficulty || 'medium',
       language: language || 'English',
@@ -26,13 +252,11 @@ router.post('/generate-test', async (req, res) => {
       teacherNotes: teacherNotes || ''
     });
 
-    // Call DeepSeek API (OpenAI-compatible)
-    const apiKey = process.env.DEEPSEEK_API_KEY || process.env.AI_API_KEY;
+    const apiKey = process.env.DEEPSEEK_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'AI API key not configured. Set DEEPSEEK_API_KEY in .env' });
     }
 
-    // Use deepseek-v4-pro for best results with test generation (supports thinking mode)
     const model = 'deepseek-v4-pro';
     
     const response = await fetch('https://api.deepseek.com/chat/completions', {
@@ -44,37 +268,49 @@ router.post('/generate-test', async (req, res) => {
       body: JSON.stringify({
         model: model,
         messages: [
-          { role: "system", content: "You are an expert educational test generator for Ethiopian schools. Generate exam questions following the specified format exactly." },
+          { role: "system", content: "You are an expert Ethiopian curriculum examiner. Generate accurate, curriculum-aligned exam questions. Never make up facts. If you are unsure, use the thinking mode to reason carefully." },
           { role: "user", content: prompt }
         ],
-        temperature: 0.7,
+        temperature: 0.3, // Lower temperature = less hallucination
         max_tokens: 8192,
-        stream: false
+        stream: false,
+        thinking: { type: "enabled" },
+        reasoning_effort: "high"
       })
     });
 
     if (!response.ok) {
       const errorData = await response.text();
       console.error('DeepSeek API error:', errorData);
-      return res.status(502).json({ error: 'AI service error. Please try again in a moment.' });
+      return res.status(502).json({ error: 'AI service temporarily unavailable. Please try again.' });
     }
 
     const data = await response.json();
     const generatedText = data?.choices?.[0]?.message?.content || '';
     
-    // Parse the generated text into structured questions
-    const questions = parseGeneratedQuestions(generatedText, questionTypes);
+    // Parse and validate
+    const questions = parseGeneratedQuestions(generatedText);
+    const errors = validateQuestions(questions, questionTypes);
 
     if (questions.length === 0) {
-      return res.status(422).json({ error: 'AI returned no valid questions. Please try again with different settings.' });
+      return res.status(422).json({
+        error: 'AI returned no valid questions. Please try again with different settings.',
+        rawText: generatedText
+      });
     }
 
-    res.json({
+    const result = {
       success: true,
       questions,
       rawText: generatedText,
-      stats: { total: questions.length, ...getQuestionTypeCounts(questions) }
-    });
+      stats: { total: questions.length, ...getQuestionTypeCounts(questions) },
+      warnings: errors.length > 0 ? errors : undefined
+    };
+
+    // Cache the result
+    setCache(cacheKey, result);
+
+    res.json(result);
 
   } catch (error) {
     console.error('AI test generation error:', error);
@@ -108,10 +344,8 @@ router.post('/save-test', async (req, res) => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`);
       
-      // Clear existing questions for this test
       await client.query(`DELETE FROM ${schemaName}.${tableName}`);
       
-      // Insert each question
       for (const q of questions) {
         await client.query(`
           INSERT INTO ${schemaName}.${tableName} (question_data, question_type, marks, time_limit, language)
@@ -137,95 +371,17 @@ router.post('/save-test', async (req, res) => {
   }
 });
 
-// POST /api/ai/publish-test — Publish a saved test to students
+// POST /api/ai/publish-test — Publish a saved test
 router.post('/publish-test', async (req, res) => {
   const { testId } = req.body;
   if (!testId) return res.status(400).json({ error: 'testId required' });
-  // TODO: Publish to students (broadcast to student apps)
   res.json({ success: true, message: 'Test published' });
 });
 
-function buildGeminiPrompt({ subjectName, className, termNumber, componentName, totalMarks, questionTypes, difficulty, language, topic, bonusQuestions, teacherNotes }) {
-  let prompt = `Generate a ${difficulty} difficulty test for "${subjectName}" (Class: ${className}, Term ${termNumber}, Component: ${componentName})`;
-  if (topic) prompt += `\nTopic/Unit: ${topic}`;
-  prompt += `\nLanguage: ${language}`;
-  prompt += `\nTotal Marks: ${totalMarks}`;
-  prompt += `\n\nQuestion distribution:`;
-  
-  for (const qt of questionTypes) {
-    prompt += `\n- ${qt.type}: ${qt.count} questions, ${qt.marksPerQuestion} marks each (total: ${qt.count * qt.marksPerQuestion})`;
-  }
-  
-  if (bonusQuestions) {
-    prompt += `\n\nBonus questions: ${bonusQuestions.count} questions of type "${bonusQuestions.type}" (${bonusQuestions.marksPerQuestion} marks each)`;
-  }
-  
-  if (teacherNotes) prompt += `\n\nTeacher notes: ${teacherNotes}`;
-  
-  prompt += `\n\nThe questions must be appropriate for Ethiopian curriculum and context (Grade ${className.replace(/[^0-9]/g, '') || 'appropriate'} level).`;
-  prompt += `\n\nIMPORTANT: Format each question EXACTLY as follows:`;
-  prompt += `\n[QUESTION_START]`;
-  prompt += `\nTYPE: [mcq|true_false|matching|fill_blank|short_answer|essay|multiple_true_false|numeric|transformation]`;
-  prompt += `\nMARKS: [number]`;
-  prompt += `\nQUESTION: [the question text]`;
-  prompt += `\nOPTIONS: [for mcq: A) option1 | B) option2 | C) option3 | D) option4]`;
-  prompt += `\nANSWER: [correct answer]`;
-  prompt += `\nEXPLANATION: [brief explanation]`;
-  prompt += `\n[QUESTION_END]`;
-  
-  prompt += `\n\nMix the question types together (not grouped by type).`;
-  prompt += `\nTotal marks must equal ${totalMarks}.`;
-  
-  return prompt;
-}
-
-function parseGeneratedQuestions(text, questionTypes) {
-  const questions = [];
-  const blocks = text.split('[QUESTION_START]');
-  
-  for (const block of blocks) {
-    if (!block.includes('[QUESTION_END]')) continue;
-    const content = block.split('[QUESTION_END]')[0].trim();
-    
-    const typeMatch = content.match(/TYPE:\s*(.+)/i);
-    const marksMatch = content.match(/MARKS:\s*(\d+)/i);
-    const questionMatch = content.match(/QUESTION:\s*(.+?)(?:\nOPTIONS:|$)/is);
-    const optionsMatch = content.match(/OPTIONS:\s*(.+?)(?:\nANSWER:|$)/is);
-    const answerMatch = content.match(/ANSWER:\s*(.+?)(?:\nEXPLANATION:|$)/is);
-    const explanationMatch = content.match(/EXPLANATION:\s*(.+)/is);
-    
-    if (!questionMatch) continue;
-    
-    const type = (typeMatch?.[1] || 'mcq').trim().toLowerCase();
-    const marks = parseInt(marksMatch?.[1]) || 1;
-    
-    // Parse options for MCQ
-    let options = [];
-    if (optionsMatch) {
-      const optText = optionsMatch[1].trim();
-      options = optText.split(/\s*\|\s*/).map(o => o.trim()).filter(o => o);
-    }
-    
-    questions.push({
-      type,
-      marks,
-      question: questionMatch[1].trim(),
-      options,
-      answer: answerMatch?.[1]?.trim() || '',
-      explanation: explanationMatch?.[1]?.trim() || '',
-    });
-  }
-  
-  // Validate total marks match requested
-  return questions;
-}
-
-function getQuestionTypeCounts(questions) {
-  const counts = {};
-  for (const q of questions) {
-    counts[q.type] = (counts[q.type] || 0) + 1;
-  }
-  return counts;
-}
+// POST /api/ai/clear-cache — Clear the response cache (for dev/testing)
+router.post('/clear-cache', (req, res) => {
+  cache.clear();
+  res.json({ success: true, message: 'Cache cleared' });
+});
 
 module.exports = router;
