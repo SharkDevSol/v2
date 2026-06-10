@@ -26,37 +26,41 @@ router.post('/generate-test', async (req, res) => {
       teacherNotes: teacherNotes || ''
     });
 
-    // Call Gemini API
-    const apiKey = process.env.GEMINI_API_KEY || process.env.AI_API_KEY;
+    // Call DeepSeek API (OpenAI-compatible)
+    const apiKey = process.env.DEEPSEEK_API_KEY || process.env.AI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'AI API key not configured. Set GEMINI_API_KEY in .env' });
+      return res.status(500).json({ error: 'AI API key not configured. Set DEEPSEEK_API_KEY in .env' });
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: prompt }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 8192,
-          }
-        })
-      }
-    );
+    // Use deepseek-v4-pro for best results with test generation (supports thinking mode)
+    const model = 'deepseek-v4-pro';
+    
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          { role: "system", content: "You are an expert educational test generator for Ethiopian schools. Generate exam questions following the specified format exactly." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 8192,
+        stream: false
+      })
+    });
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Gemini API error:', errorData);
-      return res.status(502).json({ error: 'AI service error. Please try again.' });
+      console.error('DeepSeek API error:', errorData);
+      return res.status(502).json({ error: 'AI service error. Please try again in a moment.' });
     }
 
     const data = await response.json();
-    const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const generatedText = data?.choices?.[0]?.message?.content || '';
     
     // Parse the generated text into structured questions
     const questions = parseGeneratedQuestions(generatedText, questionTypes);
