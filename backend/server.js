@@ -99,6 +99,7 @@ const deviceUserManagementRoutes = require('./routes/deviceUserManagement');
 const studentActivitiesRoutes = require('./routes/studentActivitiesRoutes');
 const superAdminRoutes = require('./routes/superAdminRoutes');
 const aiTestGeneratorRoutes = require('./routes/aiTestGenerator');
+const yearRolloverRoutes = require('./routes/yearRolloverRoutes');
 
 // Service imports for device user persistence
 const syncCoordinator = require('./services/SyncCoordinator');
@@ -387,6 +388,7 @@ app.use('/api/device-users', deviceUserManagementRoutes); // Device user persist
 app.use('/api/v2/branches', branchRoutes); // Multi-branch architecture routes
 app.use('/api/super-admin', superAdminRoutes); // Super Admin aggregation routes
 app.use('/api/ai', aiTestGeneratorRoutes); // AI Test Generator
+app.use('/api/year-rollover', yearRolloverRoutes); // Year Rollover
 
 // ===========================================
 // AI06 WEBSOCKET SERVICE
