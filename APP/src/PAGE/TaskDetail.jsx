@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { formatAPIError } from '../utils/errorMessages';
 import styles from './TaskDetail.module.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://v2.skoolific.com/api';
@@ -117,7 +118,7 @@ function TaskDetail() {
     } catch (error) {
       console.error('❌ Error completing task:', error);
       console.error('Error details:', error.response?.data);
-      setError(`Failed to mark task as complete: ${error.response?.data?.error || error.message}`);
+      setError(formatAPIError(error, 'Failed to mark task as complete'));
     }
   };
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
+import { formatAPIError } from '../utils/errorMessages';
 
 const DAY_NAMES = { 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday', 7: 'Sunday' };
 
@@ -23,7 +24,7 @@ const ScheduleEditor = () => {
       ]);
       if (schedRes.ok) setSchedule(await schedRes.json());
       if (reportRes.ok) setReport(await reportRes.json());
-    } catch (e) { setMessage('Error loading schedule: ' + e.message); }
+    } catch (e) { setMessage(formatAPIError(e, 'Failed to load schedule')); }
     finally { setLoading(false); }
   };
 
@@ -46,7 +47,7 @@ const ScheduleEditor = () => {
           const err = await res.json();
           setMessage('Swap failed: ' + (err.error || 'Unknown error'));
         }
-      } catch (e) { setMessage('Swap error: ' + e.message); }
+      } catch (e) { setMessage(formatAPIError(e, 'Failed to swap slots')); }
       setSelectedSlot(null);
     }
   };
