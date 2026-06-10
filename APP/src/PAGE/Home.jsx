@@ -16,7 +16,7 @@ import {
   FiSearch, FiAward,
   FiPieChart, FiDatabase,
   FiCheckCircle, FiDollarSign, FiTrendingUp,
-  FiShoppingCart, FiPackage, FiTool, FiClock, FiBell, FiRefreshCw, FiAlertCircle, FiMoon, FiSun
+  FiShoppingCart, FiPackage, FiTool, FiClock, FiBell, FiRefreshCw, FiAlertCircle, FiMoon, FiSun, FiSmile, FiClipboard, FiEdit3
 } from "react-icons/fi";
 import { FaGraduationCap, FaChalkboardTeacher, FaRegCalendarAlt } from "react-icons/fa";
 import { Home as HomeIcon, Users, BookOpen, DollarSign, Package, Briefcase, Settings } from 'lucide-react';
@@ -29,14 +29,13 @@ const Home = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
-    registration: false,
-    lists: false,
+    registration: true,
+    lists: true,
     finance: false,
-    inventory: false,
-    assets: false,
-    hr: false,
     academic: false,
-    administration: false
+    staff_management: false,
+    schedule: false,
+    kg: false,
   });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -471,6 +470,28 @@ const Home = () => {
           path: "/admin-sub-accounts",
           icon: <FiUsers />,
           label: t('subAccounts'),
+        },
+      ],
+    },
+    {
+      section: 'KG Management',
+      sectionKey: 'kg',
+      icon: <FiSmile />,
+      items: [
+        {
+          path: "/kg/evaluation",
+          icon: <FiClipboard />,
+          label: 'KG Evaluation',
+        },
+        {
+          path: "/kg/evaluation-book",
+          icon: <FiBook />,
+          label: 'KG Evaluation Book',
+        },
+        {
+          path: "/kg/assignments",
+          icon: <FiEdit3 />,
+          label: 'KG Assignments',
         },
       ],
     },

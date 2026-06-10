@@ -122,6 +122,11 @@ const GuardianEvaluationInbox = lazy(() => import("./PAGE/EvaluationBook").then(
 const GuardianFeedbackForm = lazy(() => import("./PAGE/EvaluationBook").then(module => ({ default: module.GuardianFeedbackForm })));
 const EvaluationBookReports = lazy(() => import("./PAGE/EvaluationBook").then(module => ({ default: module.EvaluationBookReports })));
 
+// KG Module
+const KGEvaluation = lazy(() => import("./PAGE/KG/KGEvaluation"));
+const KGEvaluationBook = lazy(() => import("./PAGE/Finance/ComingSoon"));
+const KGAssignments = lazy(() => import("./PAGE/Finance/ComingSoon"));
+
 // Guardian App
 const Guardian = lazy(() => import("./Guardian/Guardian"));
 const GuardianHome = lazy(() => import("./Guardian/GuardianHome/GuardianHome"));
@@ -264,6 +269,9 @@ function App() {
               <Route path="evaluation-book/guardian" element={<GuardianEvaluationInbox />} />
               <Route path="evaluation-book/guardian/feedback/:evaluationId" element={<GuardianFeedbackForm />} />
               <Route path="evaluation-book/reports" element={<EvaluationBookReports />} />
+              <Route path="kg/evaluation" element={<KGEvaluation />} />
+              <Route path="kg/evaluation-book" element={<KGEvaluationBook />} />
+              <Route path="kg/assignments" element={<KGAssignments />} />
               <Route path="mark-list-view" element={<MarkListView />} />
               <Route path="student-attendance-system" element={<StudentAttendanceSystem />} />
               <Route path="student-attendance-time-settings" element={<StudentAttendanceTimeSettings />} />
