@@ -14,7 +14,7 @@ const ethiopianMonths = [
   'Megabit', 'Miazia', 'Ginbot', 'Sene', 'Hamle', 'Nehase', 'Pagume'
 ];
 
-const AttendanceSystem = () => {
+const TeachersAttendance = () => {
   const { t } = useTranslation();
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [staff, setStaff] = useState([]);
@@ -1213,4 +1213,4 @@ const BulkAttendanceModal = ({ staff, ethMonth, ethYear, onClose, onSuccess }) =
   );
 };
 
-export default AttendanceSystem;
+export default TeachersAttendance;

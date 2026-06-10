@@ -14,9 +14,14 @@ const ShiftTimeSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [totalShifts, setTotalShifts] = useState(2);
 
   useEffect(() => {
     fetchShiftSettings();
+    // Load total_shifts from Task 1 config
+    axios.get(`${API_URL}/api/schedule/config`).then(r => {
+      if (r.data && r.data.total_shifts) setTotalShifts(r.data.total_shifts);
+    }).catch(() => {});
   }, []);
 
   const fetchShiftSettings = async () => {
@@ -112,7 +117,7 @@ const ShiftTimeSettings = () => {
       )}
 
       <div className={styles.shiftGrid}>
-        {shifts.map((shift) => (
+        {shifts.filter(s => totalShifts >= 2 || s.shift_name !== 'shift2').map((shift) => (
           <Card key={shift.shift_name} className={styles.shiftCard} title={shift.shift_name === 'shift1' ? t('hr.shift.shift1', 'Shift 1 (Morning)') : t('hr.shift.shift2', 'Shift 2 (Afternoon)')}>
             <div className={styles.formGrid}>
               <div>

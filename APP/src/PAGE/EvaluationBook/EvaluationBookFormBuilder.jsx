@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, Reorder } from 'framer-motion';
-import { 
-  FiPlus, FiTrash2, FiSave, FiX, FiEdit2, FiList, 
+import { FiPlus, FiTrash2, FiSave, FiX, FiEdit2, FiList, 
   FiType, FiStar, FiAlignLeft, FiMove, FiCheck, FiAlertCircle,
-  FiChevronDown, FiCheckSquare, FiCalendar, FiUpload, FiHash
-} from 'react-icons/fi';
+  FiChevronDown, FiCheckSquare, FiCalendar, FiUpload, FiHash, FiBarChart2 } from 'react-icons/fi';
 import styles from './EvaluationBookFormBuilder.module.css';
+import EvaluationBookReports from './EvaluationBookReports';
 
 const API_BASE = `${import.meta.env.VITE_API_URL || '/api'}/evaluation-book`;
 
@@ -28,6 +27,7 @@ const EvaluationBookFormBuilder = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showReports, setShowReports] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -196,6 +196,22 @@ const EvaluationBookFormBuilder = () => {
 
   // List View
   if (currentView === 'list') {
+    if (showReports) {
+      return (
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <div>
+              <h2>Evaluation Reports</h2>
+              <p>View evaluation response reports and analytics</p>
+            </div>
+            <button onClick={() => setShowReports(false)} className={styles.backButton}>
+              <FiBarChart2 /> Back to Templates
+            </button>
+          </div>
+          <EvaluationBookReports />
+        </div>
+      );
+    }
     return (
       <div className={styles.container}>
         <div className={styles.header}>
@@ -203,9 +219,14 @@ const EvaluationBookFormBuilder = () => {
             <h2>Evaluation Book Templates</h2>
             <p>Create and manage evaluation form templates for daily student assessments</p>
           </div>
-          <button onClick={handleCreateNew} className={styles.createButton}>
-            <FiPlus /> Create Template
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={() => setShowReports(true)} className={styles.createButton} style={{ background: '#6366f1' }}>
+              <FiBarChart2 /> View Reports
+            </button>
+            <button onClick={handleCreateNew} className={styles.createButton}>
+              <FiPlus /> Create Template
+            </button>
+          </div>
         </div>
 
         {error && <div className={styles.error}><FiAlertCircle /> {error}</div>}

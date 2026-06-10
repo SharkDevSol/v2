@@ -268,7 +268,7 @@ function App() {
               <Route path="evaluation-book/daily/:className" element={<DailyEvaluationForm />} />
               <Route path="evaluation-book/guardian" element={<GuardianEvaluationInbox />} />
               <Route path="evaluation-book/guardian/feedback/:evaluationId" element={<GuardianFeedbackForm />} />
-              <Route path="evaluation-book/reports" element={<EvaluationBookReports />} />
+              <Route path="evaluation-book/guardian/feedback/:evaluationId" element={<GuardianFeedbackForm />} />
               <Route path="kg/evaluation" element={<KGEvaluation />} />
               <Route path="kg/evaluation-book" element={<KGEvaluationBook />} />
               <Route path="kg/assignments" element={<KGAssignments />} />
