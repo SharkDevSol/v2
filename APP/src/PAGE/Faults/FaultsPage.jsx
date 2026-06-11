@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FiAlertCircle, FiUser, FiCalendar, FiFilter, FiDownload, FiSearch, FiBarChart2, FiTrendingUp, FiUsers, FiFileText, FiPlus, FiX, FiSave, FiTrash2 } from 'react-icons/fi';
 import axios from 'axios';
 import styles from './FaultsPage.module.css';
+import { useDebounce } from '../../hooks/useDebounce';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -12,6 +13,7 @@ const FaultsPage = () => {
   const [selectedClass, setSelectedClass] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const [dateFilter, setDateFilter] = useState('all');
   const [stats, setStats] = useState({
     totalFaults: 0,
@@ -220,7 +222,7 @@ const FaultsPage = () => {
     return faults.filter(fault => {
       const matchesClass = selectedClass === 'all' || fault.className === selectedClass;
       const matchesType = selectedType === 'all' || (fault.type || fault.fault_type) === selectedType;
-      const matchesSearch = searchTerm === '' || 
+      const matchesSearch = debouncedSearch === '' || 
         fault.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         fault.description.toLowerCase().includes(searchTerm.toLowerCase());
 

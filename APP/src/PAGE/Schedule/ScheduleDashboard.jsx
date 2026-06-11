@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import styles from './ScheduleDashboard.module.css';
+import { useDebounce } from '../../hooks/useDebounce';
+import { getCached, setCache, clearCache } from '../../utils/apiCache';
 
 import Select from '../../COMPONENTS/Select/Select';
 import Button from '../../COMPONENTS/Button/Button';
@@ -54,14 +56,24 @@ const ScheduleDashboard = () => {
     try {
       console.log('Starting comprehensive data fetch...');
       
-      // Fetch all data in parallel
-      const [scheduleResponse, conflictsResponse, configResponse, debugResponse, classesResponse] = await Promise.all([
-        axios.get('/api/schedule/schedule'),
-        axios.get('/api/schedule/conflicts'),
-        axios.get('/api/schedule/config'),
-        axios.get('/api/schedule/debug-schedule-status'),
-        axios.get('/api/schedule/all-classes')
-      ]);
+      const cacheKey = `schedule_${activeShift}`;
+      let scheduleResponse, classesResponse;
+      
+      const cached = getCached(cacheKey);
+      if (cached && forceRefresh === 0) {
+        scheduleResponse = { data: cached.schedule };
+        classesResponse = { data: cached.classes };
+      } else {
+        const [sRes, cRes] = await Promise.all([
+          axios.get('/api/schedule/schedule'),
+          axios.get('/api/schedule/all-classes')
+        ]);
+        scheduleResponse = sRes;
+        classesResponse = cRes;
+        setCache(cacheKey, { schedule: sRes.data, classes: cRes.data }, 30000);
+      }
+
+      const conflictsResponse = await axios.get('/api/schedule/conflicts');
 
       console.log('=== DATA FETCH COMPLETE ===');
       console.log('Schedule slots:', scheduleResponse.data.length);
