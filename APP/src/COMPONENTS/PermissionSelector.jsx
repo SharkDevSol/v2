@@ -13,7 +13,13 @@ const PermissionSelector = ({ selectedPermissions = [], onChange, disabled = fal
   const [expandedCategories, setExpandedCategories] = useState({
     registration: true,
     lists: true,
+    finance: true,
+    hr: true,
+    kg: false,
+    ai_test: false,
     academic: true,
+    evaluation: true,
+    communication: true,
     administration: true
   });
 
