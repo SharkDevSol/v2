@@ -42,6 +42,9 @@ const Setting = () => {
     newPassword: '',
     confirmPassword: ''
   });
+  const [usernameData, setUsernameData] = useState({
+    newUsername: JSON.parse(localStorage.getItem('adminUser') || '{}').username || ''
+  });
   
   // Local theme state
   const [localTheme, setLocalTheme] = useState(theme);
@@ -275,6 +278,32 @@ const Setting = () => {
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleUsernameChange = (e) => {
+    setUsernameData({ newUsername: e.target.value });
+  };
+
+  const changeUsername = async () => {
+    if (!usernameData.newUsername || usernameData.newUsername.length < 3) {
+      showMessage('error', 'Username must be at least 3 characters');
+      return;
+    }
+    setLoading(true);
+    try {
+      const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+      await api.post('/admin/change-username', {
+        currentUsername: adminUser.username,
+        newUsername: usernameData.newUsername
+      });
+      adminUser.username = usernameData.newUsername;
+      localStorage.setItem('adminUser', JSON.stringify(adminUser));
+      showMessage('success', 'Username changed successfully!');
+    } catch (error) {
+      showMessage('error', error.response?.data?.error || 'Failed to change username');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const changePassword = async () => {
@@ -746,6 +775,34 @@ const Setting = () => {
           {/* Password Tab */}
           {activeTab === 'password' && (
             <div className={styles.section}>
+              <h2 className={styles.sectionTitle}>{t('changePassword')}</h2>
+              
+              {/* Change Username Section */}
+              <div className={styles.brandingSection}>
+                <h3>Change Username</h3>
+                <p className={styles.hint}>Current: {JSON.parse(localStorage.getItem('adminUser') || '{}').username}</p>
+                <div className={styles.formGroup}>
+                  <label>New Username</label>
+                  <input
+                    type="text"
+                    name="newUsername"
+                    value={usernameData.newUsername}
+                    onChange={handleUsernameChange}
+                    placeholder="Enter new username"
+                  />
+                </div>
+                <button 
+                  className={styles.saveBtn}
+                  onClick={changeUsername}
+                  disabled={loading}
+                  style={{ background: `linear-gradient(135deg, ${theme.primaryColor}, ${theme.secondaryColor})` }}
+                >
+                  <FiUser /> {loading ? 'Saving...' : 'Change Username'}
+                </button>
+              </div>
+              
+              <hr style={{ margin: '24px 0', border: 'none', borderTop: '1px solid #e2e8f0' }} />
+              
               <h2 className={styles.sectionTitle}>{t('changePassword')}</h2>
               
               <div className={styles.formGroup}>
