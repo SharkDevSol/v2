@@ -25,7 +25,7 @@ const FaultsPage = () => {
   const [addForm, setAddForm] = useState({
     className: '',
     student_name: '',
-    fault_type: 'Late Arrival',
+    fault_type: '',
     fault_level: 'Minor',
     description: '',
     date: new Date().toISOString().split('T')[0]
@@ -120,7 +120,7 @@ const FaultsPage = () => {
       formData.append('reported_by', 'Admin');
       await axios.post(`${API_BASE_URL}/faults/add-fault`, formData, getAuthConfig());
       setShowAddModal(false);
-      setAddForm({ className: '', student_name: '', fault_type: 'Late Arrival', fault_level: 'Minor', description: '', date: new Date().toISOString().split('T')[0] });
+      setAddForm({ className: '', student_name: '', fault_type: '', fault_level: 'Minor', description: '', date: new Date().toISOString().split('T')[0] });
       setModalStudents([]);
       fetchAllFaults();
     } catch (err) {
@@ -529,9 +529,10 @@ const FaultsPage = () => {
 
               <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'1rem' }}>
                 <div>
-                  <label style={{ display:'block', fontSize:'0.875rem', fontWeight:600, color:'#374151', marginBottom:'0.4rem' }}>Fault Type *</label>
+                  <label style={{ display:'block', fontSize:'0.875rem', fontWeight:600, color:'#374151', marginBottom:'0.4rem' }}>Fault Type (optional)</label>
                   <select value={addForm.fault_type} onChange={e => setAddForm(f => ({ ...f, fault_type: e.target.value }))}
                     style={{ width:'100%', padding:'0.75rem', border:'2px solid #e5e7eb', borderRadius:'10px', fontSize:'0.9375rem' }}>
+                    <option value="">Not specified</option>
                     {faultTypes.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
