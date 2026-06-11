@@ -45,7 +45,7 @@ const Post = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await api.get('/api/posts/feed?role=staff');
+      const response = await api.get('/posts/feed?role=staff');
       setPosts(response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -103,7 +103,7 @@ const Post = () => {
 
     setUploading(true);
     try {
-      await api.post('/api/posts', data, {
+      await api.post('/posts', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setIsCreating(false);
@@ -128,7 +128,7 @@ const Post = () => {
 
   const handleLike = async (postId) => {
     try {
-      await api.put(`/api/posts/${postId}/like`);
+      await api.put(`/posts/${postId}/like`);
       setLikedPosts(prev => new Set([...prev, postId]));
       fetchPosts();
     } catch (error) {
