@@ -161,6 +161,8 @@ const EvaluationsReport = lazy(() => import("./PAGE/Reports/EvaluationsReport"))
 
 // Faults Page
 const FaultsPage = lazy(() => import("./PAGE/Faults/FaultsPage"));
+// Super Admin
+const SuperAdmin = lazy(() => import("./PAGE/SuperAdmin/SuperAdmin"));
 
 // HR & Staff Management Module
 const HRDashboard = lazy(() => import("./PAGE/HR/HRDashboard"));
@@ -348,6 +350,7 @@ function App() {
               
               {/* Student Faults — merged into Faults page */}
               <Route path="faults" element={<FaultsPage />} />
+              <Route path="super-admin" element={<SuperAdmin />} />
             </Route>
             <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>}>
               <Route index element={<PostStudents />} />

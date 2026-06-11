@@ -19,6 +19,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    const superAdminToken = localStorage.getItem('superAdminToken');
+    if (superAdminToken && config.url?.startsWith('/super-admin')) {
+      config.headers.Authorization = `Bearer ${superAdminToken}`;
+    }
     // Add branch code header if available
     const branchCode = (localStorage.getItem('branchCode') || sessionStorage.getItem('branchCode') || '').toUpperCase();
     if (branchCode) {
