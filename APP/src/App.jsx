@@ -9,6 +9,7 @@ import "./styles/theme.css";
 import "./styles/global.css";
 import "./styles/animations.css";
 import { Provider } from 'react-redux';
+import OfflineBanner from './COMPONENTS/OfflineBanner/OfflineBanner';
 import { store } from '../src/PAGE/store';
 import { useParams } from "react-router-dom";
 
@@ -423,6 +424,7 @@ function App() {
             </Suspense>
           </Provider>
         </div>
+        <OfflineBanner />
       </LanguageProvider>
     </ThemeProvider>
   );

@@ -12,12 +12,11 @@ import './config/axios.config'   // Register global interceptors (auth token + b
 axios.defaults.baseURL = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
 console.log('🌐 Axios configured with baseURL:', axios.defaults.baseURL);
 
-// Unregister all service workers and clear caches to force fresh load
+// Register service worker for offline support
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(registrations => {
-    registrations.forEach(reg => reg.unregister());
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
-  caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
 }
 
 // Fix: passive event listener warning from third-party libraries (antd, framer-motion)
