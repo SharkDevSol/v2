@@ -100,7 +100,7 @@ const ScheduleDashboard = () => {
 
     } catch (error) {
       console.error('Error fetching all data:', error);
-      setError('Failed to load schedule data. Please check if the schedule was generated in Task 7.');
+      setError('Failed to load schedule data. Please check if the schedule was generated in Task 6.');
       setSystemStatus('error');
     } finally {
       setLoading(false);
@@ -235,7 +235,7 @@ const ScheduleDashboard = () => {
           class: className,
           shift: activeShift,
           message: `No schedule data found for ${className} in Shift ${activeShift}`,
-          suggestion: 'Check if this class is assigned to the correct shift in Task 7 configuration',
+          suggestion: 'Check if this class is assigned to the correct shift in Task 6 configuration',
           priority: 'high'
         });
       }
@@ -398,7 +398,7 @@ const ScheduleDashboard = () => {
       console.log('Part-time schedule debug:', response.data);
       
       if (response.data.part_time_slots.length === 0) {
-        setError('❌ No part-time teacher slots found in schedule. Please regenerate schedule in Task 7.');
+        setError('❌ No part-time teacher slots found in schedule. Please regenerate schedule in Task 6.');
       } else {
         setSuccess(`✅ Found ${response.data.part_time_slots.length} part-time teacher slots across ${response.data.summary.days.length} days`);
       }
@@ -588,7 +588,7 @@ const ScheduleDashboard = () => {
       case 'healthy':
         return '✅ System is healthy and schedule is loaded';
       case 'no_schedule':
-        return '❌ No schedule generated. Please complete Task 7.';
+        return '❌ No schedule generated. Please complete Task 6.';
       case 'part_time_issues':
         return '⚠️ Part-time teachers detected but may have scheduling issues';
       case 'no_classes':
@@ -805,12 +805,12 @@ const ScheduleDashboard = () => {
             <div className={styles.noScheduleMessage}>
               <div className={styles.noScheduleIcon}>📋</div>
               <h4>No Schedule Generated</h4>
-              <p>You haven't generated a schedule yet. Please complete Task 7 to create your school timetable.</p>
+              <p>You haven't generated a schedule yet. Please complete Task 6 to create your school timetable.</p>
               <button 
-                onClick={() => navigate('/tasks/7')}
+                onClick={() => navigate('/tasks/6')}
                 className={styles.primaryButton}
               >
-                Go to Task 7 to Generate Schedule
+                Go to Task 6 to Generate Schedule
               </button>
             </div>
           ) : (
