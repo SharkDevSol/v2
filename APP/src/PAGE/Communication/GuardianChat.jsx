@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import io from 'socket.io-client';
-import { FiMessageCircle, FiArrowLeft } from 'react-icons/fi';
+import { FiMessageCircle, FiArrowLeft, FiAlertCircle } from 'react-icons/fi';
 import ChatWindow from '../../COMPONENTS/Chat/ChatWindow';
 import ConversationList from '../../COMPONENTS/Chat/ConversationList';
 import styles from './GuardianChat.module.css';
+
+const API_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://v2.skoolific.com';
 
 const GuardianChat = () => {
   const { t } = useTranslation();
@@ -14,6 +16,7 @@ const GuardianChat = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [error, setError] = useState('');
   const socketRef = useRef(null);
 
   // Get guardian info from localStorage
@@ -28,7 +31,7 @@ const GuardianChat = () => {
 
   useEffect(() => {
     // Initialize Socket.IO
-    socketRef.current = io('https://v2.skoolific.com');
+    socketRef.current = io(API_URL);
     socketRef.current.emit('join', currentUserId);
 
     // Listen for new messages
@@ -49,11 +52,12 @@ const GuardianChat = () => {
   const fetchConversations = async () => {
     try {
       console.log('Fetching conversations for user:', currentUserId);
-      const res = await axios.get(`https://v2.skoolific.com/api/chats/conversations?userId=${currentUserId}`);
+      const res = await axios.get(`${API_URL}/api/chats/conversations?userId=${currentUserId}`);
       console.log('Conversations fetched:', res.data);
       setConversations(res.data.map(c => ({ ...c, currentUserId })));
     } catch (error) {
       console.error('Error fetching conversations:', error);
+      setError('Failed to load conversations. Please check your connection.');
     } finally {
       setLoading(false);
     }
@@ -62,11 +66,11 @@ const GuardianChat = () => {
   const fetchMessages = async (conversationId) => {
     setMessagesLoading(true);
     try {
-      const res = await axios.get(`https://v2.skoolific.com/api/chats/conversations/${conversationId}/messages`);
+      const res = await axios.get(`${API_URL}/api/chats/conversations/${conversationId}/messages`);
       setMessages(res.data);
       
       // Mark as read
-      await axios.put('https://v2.skoolific.com/api/chats/messages/read', {
+      await axios.put(`${API_URL}/api/chats/messages/read`, {
         conversationId,
         userId: currentUserId
       });
@@ -74,6 +78,7 @@ const GuardianChat = () => {
       fetchConversations();
     } catch (error) {
       console.error('Error fetching messages:', error);
+      setError('Failed to load messages.');
     } finally {
       setMessagesLoading(false);
     }
@@ -92,7 +97,7 @@ const GuardianChat = () => {
   const handleSendMessage = async (formData) => {
     try {
       const res = await axios.post(
-        `https://v2.skoolific.com/api/chats/conversations/${activeConversation.id}/messages`,
+        `${API_URL}/api/chats/conversations/${activeConversation.id}/messages`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -117,6 +122,12 @@ const GuardianChat = () => {
 
   return (
     <main className={styles.container} aria-label={t('communication.messages.title', 'Messages')}>
+      {error && (
+        <div className={styles.errorBanner} role="alert" style={{ background:'#fee2e2', color:'#991b1b', padding:'10px 16px', margin:'8px 12px', borderRadius:'8px', display:'flex', alignItems:'center', gap:'8px', fontSize:'14px' }}>
+          <FiAlertCircle /> {error}
+          <button onClick={() => setError('')} style={{ marginLeft:'auto', background:'none', border:'none', cursor:'pointer', color:'#991b1b', fontWeight:600 }}>Dismiss</button>
+        </div>
+      )}
       {!activeConversation ? (
         <>
           <header className={styles.header}>
