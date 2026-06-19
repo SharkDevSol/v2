@@ -8,6 +8,18 @@ import { LanguageSelectionProvider } from './context/LanguageSelectionContext.js
 import axios from 'axios'
 import './config/axios.config'   // Register global interceptors (auth token + branch code)
 
+// Patch global fetch to add auth + branch headers (for pages using raw fetch())
+const origFetch = window.fetch;
+window.fetch = function(input, init) {
+  init = init || {};
+  init.headers = init.headers || {};
+  const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+  if (token) init.headers['Authorization'] = 'Bearer ' + token;
+  const branchCode = (localStorage.getItem('branchCode') || sessionStorage.getItem('branchCode') || '').toUpperCase();
+  if (branchCode) init.headers['X-Branch-Code'] = branchCode;
+  return origFetch.call(window, input, init);
+};
+
 // Configure axios defaults from environment variable
 axios.defaults.baseURL = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
 console.log('🌐 Axios configured with baseURL:', axios.defaults.baseURL);
