@@ -9,12 +9,12 @@
 
 .welcome h1 {
   font-size: 2rem;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .welcome p {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 1.1rem;
 }
 
@@ -30,7 +30,7 @@
 }
 
 .statCard > div {
-  background: white;
+  background: var(--bg-primary);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -57,17 +57,17 @@
 .statValue {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .statLabel {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.9rem;
   margin-top: 0.25rem;
 }
 
 .recentSection {
-  background: white;
+  background: var(--bg-primary);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -78,7 +78,7 @@
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .activityList {
@@ -96,7 +96,7 @@
 }
 
 .activityItem:hover {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .activityDot {
@@ -110,12 +110,12 @@
 
 .activityContent h3 {
   font-size: 1rem;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
 }
 
 .activityContent p {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }

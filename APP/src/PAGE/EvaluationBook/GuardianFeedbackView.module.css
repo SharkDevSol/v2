@@ -23,13 +23,13 @@
   padding: 8px 12px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  background: white;
+  background: var(--bg-primary);
   font-size: 0.9rem;
   color: #1e293b;
   min-width: 200px;
 }
 .evaluationCard {
-  background: white;
+  background: var(--bg-primary);
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 16px;

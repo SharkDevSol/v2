@@ -28,7 +28,7 @@
 
 .teacherName {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   font-size: 14px;
 }
 

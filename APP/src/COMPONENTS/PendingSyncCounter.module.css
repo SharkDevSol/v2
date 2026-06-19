@@ -10,7 +10,7 @@
 
 /* Variant styles */
 .counter.default {
-  background: white;
+  background: var(--bg-primary);
   border: 1px solid #e0e0e0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
@@ -22,7 +22,7 @@
 }
 
 .counter.card {
-  background: white;
+  background: var(--bg-primary);
   border: 1px solid #e0e0e0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 16px;
@@ -84,7 +84,7 @@
 .count {
   font-size: 20px;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
   min-width: 30px;
   text-align: center;
 }
@@ -96,7 +96,7 @@
 /* Label */
 .label {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   flex: 1;
 }
 
@@ -140,7 +140,7 @@
   margin: 0 0 12px 0;
   font-size: 13px;
   font-weight: 600;
-  color: #666;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -156,20 +156,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 6px;
   border: 1px solid #e0e0e0;
 }
 
 .breakdownLabel {
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .breakdownValue {
   font-size: 14px;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
   background-color: #ffc107;
   padding: 2px 8px;
   border-radius: 12px;

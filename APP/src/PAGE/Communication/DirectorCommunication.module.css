@@ -78,7 +78,7 @@
 }
 
 .statCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   padding: 20px 24px;
   display: flex;
@@ -131,7 +131,7 @@
 
 /* Sidebar */
 .sidebar {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -172,7 +172,7 @@
 
 .searchBox:focus-within {
   border-color: #667eea;
-  background: white;
+  background: var(--bg-primary);
 }
 
 .searchBox svg {
@@ -287,7 +287,7 @@
 
 /* Chat Area */
 .chatArea {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -470,7 +470,7 @@
 }
 
 .formActions button:nth-child(2) {
-  background: white;
+  background: var(--bg-primary);
   border: 2px solid #e2e8f0;
   color: #718096;
 }
@@ -577,7 +577,7 @@
   gap: 12px;
   margin-bottom: 10px;
   padding: 14px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
 }
 

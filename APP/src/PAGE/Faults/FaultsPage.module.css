@@ -40,7 +40,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.875rem 1.5rem;
-  background: white;
+  background: var(--bg-primary);
   color: #667eea;
   border: none;
   border-radius: 12px;
@@ -84,7 +84,7 @@
 }
 
 .statCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   padding: 1.5rem;
   display: flex;
@@ -130,7 +130,7 @@
 
 /* Filters Card */
 .filtersCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -165,7 +165,7 @@
   border-radius: 10px;
   font-size: 0.9375rem;
   transition: all 0.3s ease;
-  background: white;
+  background: var(--bg-primary);
 }
 
 .filterGroup select:focus,
@@ -177,7 +177,7 @@
 
 /* Faults Card */
 .faultsCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -204,7 +204,7 @@
 
 /* Student Fault Group Styles */
 .studentFaultGroup {
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border: 2px solid #e5e7eb;
   border-radius: 16px;
   overflow: hidden;
@@ -269,7 +269,7 @@
 }
 
 .faultItem {
-  background: white;
+  background: var(--bg-primary);
   border: 2px solid #e5e7eb;
   border-radius: 12px;
   padding: 1.25rem;

@@ -1833,7 +1833,7 @@
 
 /* Chat Redirect Card */
 .chatRedirectCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -1861,7 +1861,7 @@
 .chatRedirectTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -1918,7 +1918,7 @@
 
 /* Embedded Chat Interface */
 .chatInterface {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -1939,7 +1939,7 @@
 .chatHeader h2 {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
@@ -2044,7 +2044,7 @@
 }
 
 .modal {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   width: 100%;
   max-width: 500px;
@@ -2065,20 +2065,20 @@
 .modalHeader h2 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .closeBtn {
   width: 36px;
   height: 36px;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border: none;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 1.25rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -2147,7 +2147,7 @@
 }
 
 .contactItem:hover {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .contactItem:active {
@@ -2178,7 +2178,7 @@
 .contactInfo h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
 }
 
@@ -2599,7 +2599,7 @@
 .dailyAttendanceSection {
   margin-top: 30px;
   padding: 20px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
@@ -3138,7 +3138,7 @@
   display: flex;
   gap: 15px;
   padding: 15px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
@@ -3181,7 +3181,7 @@
 
 .notifContent p {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0 0 8px 0;
   line-height: 1.5;
 }

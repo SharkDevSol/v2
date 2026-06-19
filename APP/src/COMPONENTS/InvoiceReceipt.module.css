@@ -3,7 +3,7 @@
   width: 148mm;
   min-height: 105mm;
   padding: 6mm;
-  background: white;
+  background: var(--bg-primary);
   color: #000;
   font-family: 'Arial', sans-serif;
   position: relative;
@@ -54,20 +54,20 @@
 .schoolNameEn2 {
   font-size: 5px;
   margin: 1px 0;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .schoolNameAr {
   font-size: 5px;
   margin: 1px 0;
-  color: #333;
+  color: var(--text-primary);
   direction: rtl;
 }
 
 .contact {
   font-size: 5px;
   margin: 1px 0 0 0;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 /* Title Section */
@@ -88,7 +88,7 @@
 .receiptLabel {
   font-size: 5px;
   margin: 0 0 1px 0;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .receiptTitle {
@@ -107,7 +107,7 @@
 .dateLabel {
   font-size: 4px;
   margin: 0 0 1px 0;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .receiptNumber {
@@ -121,7 +121,7 @@
 .date {
   font-size: 4px;
   margin: 1px 0 0 0;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 /* Body Section */
@@ -137,7 +137,7 @@
 .labelAm {
   display: block;
   font-size: 4px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 1px;
 }
 
@@ -180,7 +180,7 @@
 .studentDetails {
   font-size: 4px;
   margin: 0;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .purpose {
@@ -192,7 +192,7 @@
 .invoiceRef {
   font-size: 4px;
   margin: 0;
-  color: #666;
+  color: var(--text-secondary);
   font-style: italic;
 }
 
@@ -237,7 +237,7 @@
 .signatureLabel {
   font-size: 4px;
   margin: 0 0 1px 0;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .signatureLabelEn {

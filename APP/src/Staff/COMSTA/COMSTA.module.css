@@ -2,7 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  color: #333;
+  color: var(--text-primary);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -184,7 +184,7 @@
 
 .exportButton {
   background-color: #f5f5f5;
-  color: #333;
+  color: var(--text-primary);
   border: none;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;

@@ -9,12 +9,12 @@
 
 .header h1 {
   font-size: 1.5rem;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .header p {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.95rem;
 }
 
@@ -30,8 +30,8 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 0.95rem;
-  background: white;
-  color: #333;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .performanceGrid {
@@ -42,7 +42,7 @@
 }
 
 .performanceCard {
-  background: white;
+  background: var(--bg-primary);
   padding: 1.25rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -71,13 +71,13 @@
 .cardHeader h3 {
   margin: 0 0 0.25rem 0;
   font-size: 1.125rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .cardHeader p {
   margin: 0;
   font-size: 0.875rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .cardStats {
@@ -99,16 +99,16 @@
 .statValue {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .statLabel {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .marksSection {
-  background: white;
+  background: var(--bg-primary);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -116,7 +116,7 @@
 
 .marksSection h2 {
   font-size: 1.125rem;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
@@ -141,7 +141,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border-radius: 8px;
 }
 
@@ -160,13 +160,13 @@
 .markSubject h4 {
   margin: 0 0 0.25rem 0;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .markSubject p {
   margin: 0;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .markScore {
@@ -178,7 +178,7 @@
 .score {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .grade {

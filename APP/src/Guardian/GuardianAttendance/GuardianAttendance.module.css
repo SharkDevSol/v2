@@ -9,12 +9,12 @@
 
 .header h1 {
   font-size: 1.5rem;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .header p {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.95rem;
 }
 
@@ -30,8 +30,8 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 0.95rem;
-  background: white;
-  color: #333;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .statsGrid {
@@ -42,7 +42,7 @@
 }
 
 .statCard {
-  background: white;
+  background: var(--bg-primary);
   padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -68,17 +68,17 @@
 .statValue {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .statLabel {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-secondary);
   margin-top: 0.125rem;
 }
 
 .attendanceList {
-  background: white;
+  background: var(--bg-primary);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -86,7 +86,7 @@
 
 .attendanceList h2 {
   font-size: 1.125rem;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
@@ -111,7 +111,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border-radius: 8px;
   gap: 1rem;
 }
@@ -121,7 +121,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 

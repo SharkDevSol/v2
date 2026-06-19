@@ -165,7 +165,7 @@
 }
 
 .statCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   padding: 20px;
   display: flex;
@@ -207,7 +207,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 24px;
@@ -259,7 +259,7 @@
 
 .searchBox:focus-within {
   border-color: #667eea;
-  background: white;
+  background: var(--bg-primary);
 }
 
 .searchBox svg {
@@ -276,7 +276,7 @@
 
 /* Table Container */
 .tableContainer {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -552,7 +552,7 @@
   
   .container {
     padding: 0;
-    background: white;
+    background: var(--bg-primary);
   }
   
   .tableContainer {
@@ -675,7 +675,7 @@
 .stickyCol {
   position: sticky;
   left: 0;
-  background: white;
+  background: var(--bg-primary);
   z-index: 2;
   box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
 }
@@ -683,7 +683,7 @@
 .stickyCol2 {
   position: sticky;
   left: 60px;
-  background: white;
+  background: var(--bg-primary);
   z-index: 2;
   box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
   min-width: 150px;
@@ -697,7 +697,7 @@
 
 .markTable tbody tr:hover .stickyCol,
 .markTable tbody tr:hover .stickyCol2 {
-  background: #f0f4f8;
+  background: var(--bg-tertiary);
 }
 
 .markTable tbody tr.passed .stickyCol,

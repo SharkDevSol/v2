@@ -95,7 +95,7 @@
 }
 
 .assignmentForm {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -138,7 +138,7 @@
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 14px;
-  background: white;
+  background: var(--bg-primary);
   cursor: pointer;
 }
 
@@ -168,7 +168,7 @@
 }
 
 .assignmentsSection {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -228,7 +228,7 @@
 }
 
 .assignmentCard {
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid #e5e7eb;
@@ -304,7 +304,7 @@
 }
 
 .unassignedSection {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

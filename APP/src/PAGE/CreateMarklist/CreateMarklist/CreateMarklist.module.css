@@ -370,7 +370,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: white;
+  background: var(--bg-primary);
 }
 
 .marklistActions {

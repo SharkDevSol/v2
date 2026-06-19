@@ -495,7 +495,7 @@ body.dark-mode .eventItem:hover {
   }
 
   .dashboard {
-    background: white;
+    background: var(--bg-primary);
   }
 
   .chartCard,

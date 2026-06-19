@@ -39,7 +39,7 @@
 .testCard,
 .previewCard,
 .setupCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 25px;
   margin-bottom: 25px;
@@ -270,7 +270,7 @@
 .previewDisplay {
   margin-top: 30px;
   padding: 25px;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border-radius: 12px;
   border: 2px solid #e0e0e0;
 }
@@ -289,7 +289,7 @@
 }
 
 .previewInfo {
-  background: white;
+  background: var(--bg-primary);
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -307,7 +307,7 @@
 .previewTable {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -326,7 +326,7 @@
 }
 
 .previewTable tbody tr:hover {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .previewTable tbody tr:last-child td {
@@ -378,7 +378,7 @@
 }
 
 .emailContent {
-  background: white;
+  background: var(--bg-primary);
   padding: 20px;
   border-radius: 8px;
   border: 1px solid #e0e0e0;

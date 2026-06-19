@@ -16,7 +16,7 @@
 
 /* Submission Area Styles */
 .submissionArea {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -38,7 +38,7 @@
 .adminName {
   font-weight: 600;
   font-size: 1.2rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .reportForm {
@@ -100,18 +100,18 @@
 .fileName {
   margin-left: 1rem;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .categorySelect {
   padding: 0.6rem 1rem;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
-  background: white;
+  background: var(--bg-primary);
   cursor: pointer;
   font-size: 0.9rem;
   min-width: 150px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .categorySelect:focus {
@@ -167,7 +167,7 @@
   border-radius: 8px;
   font-size: 1rem;
   transition: border 0.3s ease;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .searchInput:focus {
@@ -176,7 +176,7 @@
 }
 
 .filterButton {
-  background: white;
+  background: var(--bg-primary);
   border: 1px solid #e0e0e0;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;
@@ -202,7 +202,7 @@
 .historyTitle {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .reportsList {
@@ -212,7 +212,7 @@
 }
 
 .reportCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -257,12 +257,12 @@
 
 .avatar {
   font-size: 2rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .authorName {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .reportDate {

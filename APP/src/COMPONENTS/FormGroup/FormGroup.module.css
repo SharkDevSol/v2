@@ -167,7 +167,7 @@
   }
   
   .helperMessage {
-    color: #666;
+    color: var(--text-secondary);
   }
 }
 

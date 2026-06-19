@@ -20,7 +20,7 @@
 
 .header p {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .addButton {
@@ -41,7 +41,7 @@
 }
 
 .tableContainer {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -53,7 +53,7 @@
 }
 
 .table thead {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .table th {
@@ -61,7 +61,7 @@
   text-align: left;
   font-weight: 600;
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   border-bottom: 2px solid #e0e0e0;
 }
 
@@ -72,7 +72,7 @@
 }
 
 .accountRow:hover {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .expandButton {
@@ -81,7 +81,7 @@
   cursor: pointer;
   font-size: 12px;
   margin-right: 8px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .typeBadge {
@@ -124,7 +124,7 @@
 .loading, .noData {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .modalOverlay {
@@ -141,7 +141,7 @@
 }
 
 .modal {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   width: 90%;
   max-width: 600px;
@@ -185,7 +185,7 @@
   margin-bottom: 8px;
   font-weight: 500;
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .formGroup input,
@@ -209,7 +209,7 @@
 .cancelButton {
   padding: 10px 20px;
   border: 1px solid #e0e0e0;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;

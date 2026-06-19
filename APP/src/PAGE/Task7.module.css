@@ -44,7 +44,7 @@
 }
 
 .systemStatus {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -83,7 +83,7 @@
   font-weight: 500;
   padding: 1rem;
   border-radius: 8px;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border: 1px solid #e9ecef;
 }
 
@@ -93,7 +93,7 @@
 }
 
 .debugInfo {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 2rem;
@@ -117,7 +117,7 @@
   display: flex;
   justify-content: space-between;
   padding: 0.5rem;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 4px;
   border: 1px solid #dee2e6;
 }
@@ -239,7 +239,7 @@
 }
 
 .stepCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -335,7 +335,7 @@
 }
 
 .daysContainer {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   padding: 1.5rem;
   border-radius: 8px;
   border: 1px solid #e9ecef;
@@ -396,7 +396,7 @@
   text-align: center;
   font-weight: 500;
   color: #495057;
-  background: white;
+  background: var(--bg-primary);
   padding: 0.75rem;
   border-radius: 6px;
   border: 1px solid #dee2e6;
@@ -406,7 +406,7 @@
   text-align: center;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border-radius: 8px;
   border: 1px solid #e9ecef;
 }
@@ -507,7 +507,7 @@
 }
 
 .comprehensiveCard {
-  background: white;
+  background: var(--bg-primary);
   border: 1px solid #e9ecef;
   border-radius: 12px;
   padding: 1.5rem;
@@ -699,7 +699,7 @@
 .summaryValue {
   font-weight: 600;
   color: #2c3e50;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.9rem;
@@ -746,7 +746,7 @@
 }
 
 .generationStatus {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   padding: 2rem;
   border-radius: 12px;
   margin-bottom: 2rem;
@@ -787,7 +787,7 @@
 }
 
 .shiftStatItem {
-  background: white;
+  background: var(--bg-primary);
   padding: 12px;
   border-radius: 8px;
   text-align: center;
@@ -857,7 +857,7 @@
   display: flex;
   justify-content: space-between;
   padding: 1rem;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 6px;
   border: 1px solid #dee2e6;
 }
@@ -870,7 +870,7 @@
 .statValue {
   font-weight: 600;
   color: #2c3e50;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }

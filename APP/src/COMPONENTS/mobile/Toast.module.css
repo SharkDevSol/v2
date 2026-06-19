@@ -18,7 +18,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   animation: slideIn 0.3s ease;
@@ -66,7 +66,7 @@
   flex: 1;
   font-size: 0.9rem;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
   line-height: 1.4;
 }
 
@@ -88,7 +88,7 @@
 .closeButton:hover,
 .closeButton:active {
   background: rgba(0, 0, 0, 0.05);
-  color: #666;
+  color: var(--text-secondary);
 }
 
 /* Type variants */

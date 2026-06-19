@@ -129,7 +129,7 @@
 /* Details panel */
 .details {
   margin-top: 8px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -150,13 +150,13 @@
 
 .label {
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .value {
   font-size: 13px;
-  color: #333;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -198,7 +198,7 @@
   justify-content: center;
   gap: 8px;
   padding: 8px;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 

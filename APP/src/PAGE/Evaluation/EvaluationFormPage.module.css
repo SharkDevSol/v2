@@ -44,7 +44,7 @@
 }
 
 .header {
-  background: white;
+  background: var(--bg-primary);
   border-bottom: 1px solid #e5e7eb;
   padding: 20px;
   display: flex;
@@ -145,7 +145,7 @@
 }
 
 .studentsTable {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -153,7 +153,7 @@
 }
 
 .tableHeader {
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border-bottom: 2px solid #e5e7eb;
   display: grid;
   grid-template-columns: 200px 1fr 120px 100px;
@@ -288,7 +288,7 @@
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-size: 0.875rem;
-  background: white;
+  background: var(--bg-primary);
   transition: border-color 0.2s;
 }
 
@@ -305,7 +305,7 @@
   font-size: 0.75rem;
   resize: vertical;
   min-height: 40px;
-  background: white;
+  background: var(--bg-primary);
   transition: border-color 0.2s;
 }
 
@@ -404,7 +404,7 @@
 }
 
 .footer {
-  background: white;
+  background: var(--bg-primary);
   border-top: 1px solid #e5e7eb;
   padding: 20px;
   display: flex;

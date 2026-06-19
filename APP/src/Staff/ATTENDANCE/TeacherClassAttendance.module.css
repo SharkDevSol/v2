@@ -63,7 +63,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
-  background: white;
+  background: var(--bg-primary);
   padding: 25px;
   border-radius: 12px;
   margin-bottom: 30px;
@@ -78,7 +78,7 @@
 
 .filterGroup label {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   font-size: 14px;
 }
 
@@ -89,7 +89,7 @@
   border-radius: 8px;
   font-size: 14px;
   transition: all 0.3s ease;
-  background: white;
+  background: var(--bg-primary);
 }
 
 .select:focus,
@@ -234,7 +234,7 @@
 }
 
 .schoolDaysInfo {
-  background: white;
+  background: var(--bg-primary);
   padding: 15px 20px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -256,7 +256,7 @@
 }
 
 .card {
-  background: white;
+  background: var(--bg-primary);
   padding: 25px;
   border-radius: 12px;
   display: flex;
@@ -329,7 +329,7 @@
 }
 
 .tableContainer {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 25px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -464,7 +464,7 @@
 }
 
 .infoSection {
-  background: white;
+  background: var(--bg-primary);
   padding: 25px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -549,7 +549,7 @@
 }
 
 .modal {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   width: 90%;
   max-width: 500px;
@@ -679,7 +679,7 @@
 }
 
 .cancelButton {
-  background: white;
+  background: var(--bg-primary);
   color: #64748b;
   border: 2px solid #e2e8f0;
 }
@@ -775,7 +775,7 @@
 .weekDaysList li {
   padding: 10px 15px;
   margin: 5px 0;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
   border: 2px solid #e0e7ff;
   color: #334155;
@@ -828,7 +828,7 @@
 .weekNote {
   margin-top: 15px;
   padding: 12px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
   color: #1e40af;
   font-size: 14px;

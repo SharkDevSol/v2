@@ -13,7 +13,7 @@
 
 .header h1 {
   font-size: 28px;
-  color: #333;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -34,7 +34,7 @@
 }
 
 .createForm {
-  background: white;
+  background: var(--bg-primary);
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -44,7 +44,7 @@
 .createForm h2 {
   margin-top: 0;
   margin-bottom: 20px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .formGroup {
@@ -115,7 +115,7 @@
 
 .evaluationsList h2 {
   margin-bottom: 20px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .evaluationsGrid {
@@ -125,7 +125,7 @@
 }
 
 .evaluationCard {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -177,12 +177,12 @@
 
 .cardBody p {
   margin: 8px 0;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
 .cardBody strong {
-  color: #333;
+  color: var(--text-primary);
 }
 
 .cardActions {
@@ -230,7 +230,7 @@
 
 .areasSection h2 {
   margin-bottom: 20px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .areasGrid {
@@ -240,7 +240,7 @@
 }
 
 .areaCard {
-  background: white;
+  background: var(--bg-primary);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
@@ -249,13 +249,13 @@
 
 .areaCard h4 {
   margin: 0 0 10px 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 16px;
 }
 
 .areaCard p {
   margin: 0;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -275,7 +275,7 @@
   text-align: center;
   padding: 40px;
   font-size: 18px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .noData {

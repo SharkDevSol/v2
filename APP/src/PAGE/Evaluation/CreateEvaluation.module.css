@@ -9,12 +9,12 @@
 
 .formHeader h2 {
     font-size: 1.8rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
 }
 
 .formHeader p {
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 2rem;
 }
 

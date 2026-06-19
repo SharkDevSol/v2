@@ -247,7 +247,7 @@
 }
 
 .indicatorActive {
-  background: white;
+  background: var(--bg-primary);
   width: 24px;
   border-radius: 4px;
 }

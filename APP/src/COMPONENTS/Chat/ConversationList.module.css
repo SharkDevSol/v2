@@ -1,7 +1,7 @@
 .list {
   height: 100%;
   overflow-y: auto;
-  background: white;
+  background: var(--bg-primary);
 }
 
 .loading, .empty {
@@ -28,7 +28,7 @@
 }
 
 .item:hover {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .item.active {
@@ -63,7 +63,7 @@
 .name {
   font-weight: 600;
   font-size: 0.95rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .time {
@@ -73,7 +73,7 @@
 
 .preview {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

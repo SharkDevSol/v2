@@ -2,7 +2,7 @@
 :root {
   --primary-color: #FF6B35;
   --primary-light: #FF8C5A;
-  --text-color: #333;
+  --text-color: var(--text-primary);
   --bg-color: #ffffff;
   --card-bg: #fff;
   --border-color: #e0e0e0;

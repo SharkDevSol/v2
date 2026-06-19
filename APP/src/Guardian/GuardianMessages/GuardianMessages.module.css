@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 /* Header */
@@ -12,7 +12,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: white;
+  background: var(--bg-primary);
   border-bottom: 1px solid #e9ecef;
 }
 
@@ -30,7 +30,7 @@
 .header h1 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -62,7 +62,7 @@
 
 .conversationsList {
   width: 100%;
-  background: white;
+  background: var(--bg-primary);
   overflow-y: auto;
 }
 
@@ -103,20 +103,20 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: white;
+  background: var(--bg-primary);
   border-bottom: 1px solid #e9ecef;
 }
 
 .backButton {
   width: 40px;
   height: 40px;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border: none;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 1.25rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -147,7 +147,7 @@
 .headerInfo h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
 }
 
@@ -193,7 +193,7 @@
 }
 
 .modal {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   width: 100%;
   max-width: 500px;
@@ -214,20 +214,20 @@
 .modalHeader h2 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #333;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .closeBtn {
   width: 36px;
   height: 36px;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border: none;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 1.25rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -296,7 +296,7 @@
 }
 
 .contactItem:hover {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .contactItem:active {
@@ -327,7 +327,7 @@
 .contactInfo h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
 }
 
@@ -376,7 +376,7 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    background: white;
+    background: var(--bg-primary);
   }
 
   .chatHeader {

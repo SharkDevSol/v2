@@ -17,7 +17,7 @@
 }
 
 .modalContent {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   width: 100%;
   max-width: 1200px;
@@ -38,14 +38,14 @@
 .modalHeader h2 {
   margin: 0;
   font-size: 24px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .closeButton {
   background: none;
   border: none;
   font-size: 32px;
-  color: #666;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -68,7 +68,7 @@
 
 .noConflicts p {
   font-size: 18px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 20px;
 }
 
@@ -95,7 +95,7 @@
 .conflictsList h3 {
   margin: 0 0 16px 0;
   font-size: 18px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .conflictsItems {
@@ -133,13 +133,13 @@
 
 .conflictTable {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   font-size: 14px;
 }
 
 .conflictType {
   font-size: 12px;
-  color: #666;
+  color: var(--text-secondary);
   text-transform: capitalize;
 }
 
@@ -161,14 +161,14 @@
 .conflictHeader h3 {
   margin: 0 0 12px 0;
   font-size: 20px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .conflictMeta {
   display: flex;
   gap: 16px;
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .conflictMeta span {
@@ -197,7 +197,7 @@
 .versionColumn h4 {
   margin: 0;
   font-size: 16px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .selectButton {
@@ -245,7 +245,7 @@
 
 .fieldName {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -263,7 +263,7 @@
 .fieldValue {
   font-family: 'Courier New', monospace;
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary);
   word-break: break-word;
   white-space: pre-wrap;
 }
@@ -275,7 +275,7 @@
 .mergedData h4 {
   margin: 0 0 16px 0;
   font-size: 16px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .mergedFields {
@@ -293,7 +293,7 @@
 .mergedField label {
   font-weight: 600;
   font-size: 14px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .mergedField input,
@@ -338,7 +338,7 @@
 
 .skipButton {
   background-color: #f0f0f0;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .skipButton:hover {
