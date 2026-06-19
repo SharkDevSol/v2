@@ -196,12 +196,14 @@ router.post(getEndpointPath('AUTH.ADMIN_LOGIN').replace('/api/admin', ''), async
       );
 
       // Generate JWT token using centralized function
+      const branchCode = (req.headers['x-branch-code'] || '').toUpperCase();
       const token = generateToken(
         { 
           id: admin.id, 
           username: admin.username, 
           role: admin.role,
-          userType: 'admin'
+          userType: 'admin',
+          branchCode: branchCode
         },
         process.env.JWT_EXPIRES_IN || '24h'
       );
@@ -259,7 +261,8 @@ router.post(getEndpointPath('AUTH.ADMIN_LOGIN').replace('/api/admin', ''), async
         username: subAccount.username, 
         role: 'sub-account',
         userType: 'sub-account',
-        permissions: subAccount.permissions || []
+        permissions: subAccount.permissions || [],
+        branchCode: (req.headers['x-branch-code'] || '').toUpperCase()
       },
       process.env.JWT_EXPIRES_IN || '24h'
     );
