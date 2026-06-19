@@ -10,7 +10,8 @@
     "packages/mobile-staff",
     "packages/mobile-student",
     "packages/mobile-guardian",
-    "packages/mobile-super-admin"
+    "packages/mobile-super-admin",
+    "packages/desktop-super-admin"
   ],
   "scripts": {
     "install:all": "npm install",
@@ -28,7 +29,7 @@
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "format": "prettier --write \"**/*.{js,jsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,json,md,css}\"",
-    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules"
+    "clean": "npm run clean --workspaces --if-present && (if exist node_modules rimraf node_modules)"
   },
   "keywords": [
     "school-management",

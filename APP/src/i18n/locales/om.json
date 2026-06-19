@@ -1,0 +1,42 @@
+{
+  "app": {
+    "name": "Skoolific",
+    "tagline": "Sirna Bulchiinsa Mana Barumsaa"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "students": "Barattoota",
+    "staff": "Hoijettoota",
+    "attendance": "Argamuu",
+    "marks": "Maatii fi Sadarkaa",
+    "schedule": "Taqsii",
+    "finance": "Maallaqa",
+    "hr": "Hoijettoota fi Mindaa",
+    "reports": "Gabaasa",
+    "settings": "Sajoo",
+    "communication": "Walitti hidhamuu"
+  },
+  "auth": {
+    "login": "Seenuu",
+    "logout": "Ba'uu",
+    "username": "Maqaa fayyadamaa",
+    "password": "Jecha icciitii",
+    "branchCode": "Koodi Kutaa",
+    "rememberMe": "Na yaadadhu",
+    "fixErrors": "Dogoggora sirreessi"
+  },
+  "common": {
+    "loading": "Fe'iiraa...",
+    "save": "Kuusuu",
+    "cancel": "Haquu",
+    "delete": "Balleessuu",
+    "edit": "Gulaaluu",
+    "create": "Uumuu",
+    "search": "Barbaaduu",
+    "filter": "Calaluu",
+    "noData": "Deetaan hin jiru",
+    "error": "Dogoggora",
+    "success": "Milkaa'uu",
+    "confirm": "Mirkaneessuu"
+  }
+}

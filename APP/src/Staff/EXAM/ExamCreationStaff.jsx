@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, Calendar, BookOpen, Users, FileText } from 'lucide-react';
 import axios from 'axios';
-import AITestGenerator from '../../PAGE/Academic/AITestGenerator';
+// Gemini AI disabled — import AITestGenerator from '../../PAGE/Academic/AITestGenerator';
 import Card from '../../COMPONENTS/Card/Card';
 import Button from '../../COMPONENTS/Button/Button';
 import Input from '../../COMPONENTS/Input/Input';
@@ -195,7 +195,7 @@ const ExamCreationStaff = () => {
 
       {showAiGenerator && (
         <div className={styles.aiGeneratorWrap}>
-          <AITestGenerator />
+          {/* Gemini AI disabled */} <p>AI Test Generator: use <a href="/ai-test-generator">/ai-test-generator</a> (DeepSeek)</p>
         </div>
       )}
     </div>

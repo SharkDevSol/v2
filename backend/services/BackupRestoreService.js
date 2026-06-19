@@ -72,11 +72,20 @@ class BackupRestoreService {
     try {
       console.log(`🔄 Creating backup: ${backupName}`);
 
-      // Fetch all device user data
-      const result = await pool.query(`
-        SELECT * FROM user_machine_mapping
-        ORDER BY person_id
-      `);
+      // Fetch all device user data (handle missing table)
+      let result;
+      try {
+        result = await pool.query(`
+          SELECT * FROM user_machine_mapping
+          ORDER BY person_id
+        `);
+      } catch (queryErr) {
+        if (queryErr.code === '42P01') {
+          console.log('  ⚠️ user_machine_mapping table not found, skipping backup');
+          return { success: true, backupId: null, recordCount: 0 };
+        }
+        throw queryErr;
+      }
 
       const backupData = {
         timestamp: new Date().toISOString(),

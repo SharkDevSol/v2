@@ -29,6 +29,14 @@ packages/*/build/
 # Tauri build output
 packages/desktop/src-tauri/target/
 packages/desktop/src-tauri/Cargo.lock
+packages/desktop-super-admin/src-tauri/target/
+packages/desktop-super-admin/src-tauri/Cargo.lock
+
+# Flutter build output
+**/build/
+**/windows/flutter/ephemeral/
+**/.idea/
+*.iml
 
 # Capacitor build output
 packages/mobile-*/android/
@@ -37,6 +45,7 @@ packages/mobile-*/.capacitor/
 
 # Logs
 *.log
+backend/logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -88,3 +97,4 @@ coverage/
 *.tmp
 *.temp
 .cache/
+yes.txt

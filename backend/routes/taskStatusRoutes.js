@@ -32,7 +32,7 @@ async function initTaskCompletionsTable() {
 }
 
 // Initialize on module load
-initTaskCompletionsTable();
+initTaskCompletionsTable().catch(err => console.error('Init error:', err));
 
 // Mark a task as manually completed
 router.post('/complete/:taskId', async (req, res) => {

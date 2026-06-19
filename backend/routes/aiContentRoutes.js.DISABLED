@@ -1,0 +1,133 @@
+const express = require('express');
+const router = express.Router();
+const pool = require('../config/db');
+const ContentGenerationService = require('../services/ContentGenerationService');
+
+const contentService = new ContentGenerationService(pool);
+
+/**
+ * GET /api/ai-content
+ * List saved AI-generated content
+ */
+router.get('/', async (req, res) => {
+  try {
+    const { teacher_id, mode, class_id, subject, status } = req.query;
+    const filters = {};
+    if (teacher_id) filters.teacher_id = parseInt(teacher_id);
+    if (mode) filters.mode = mode;
+    if (class_id) filters.class_id = parseInt(class_id);
+    if (subject) filters.subject = subject;
+    if (status) filters.status = status;
+
+    const items = await contentService.list(filters);
+    res.json({ success: true, data: items });
+  } catch (error) {
+    console.error('Error listing content:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * GET /api/ai-content/:id
+ * Get a single content item by ID
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const item = await contentService.getById(parseInt(req.params.id));
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Content not found' });
+    }
+    res.json({ success: true, data: item });
+  } catch (error) {
+    console.error('Error getting content:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * POST /api/ai-content/generate
+ * Generate new AI content
+ * Body: { mode, config, teacherId }
+ */
+router.post('/generate', async (req, res) => {
+  try {
+    const { mode, config, teacherId } = req.body;
+
+    if (!mode) {
+      return res.status(400).json({ success: false, message: 'Content mode is required' });
+    }
+    if (!config) {
+      return res.status(400).json({ success: false, message: 'Content config is required' });
+    }
+    if (!teacherId) {
+      return res.status(400).json({ success: false, message: 'Teacher ID is required' });
+    }
+
+    const supportedModes = ['lesson_plan', 'lesson_note', 'homework', 'worksheet', 'exam', 'test', 'scramble_exam'];
+    if (!supportedModes.includes(mode)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid mode. Supported modes: ${supportedModes.join(', ')}`
+      });
+    }
+
+    const result = await contentService.generate(mode, config, teacherId);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error('Error generating content:', error.message);
+    if (error.message.includes('Invalid') || error.message.includes('missing')) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    if (error.message.includes('API rate limit') || error.message.includes('API key')) {
+      return res.status(429).json({ success: false, message: error.message });
+    }
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * POST /api/ai-content/save
+ * Save or update existing content (after editing)
+ */
+router.post('/save', async (req, res) => {
+  try {
+    const { id, output, status } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'Content ID is required' });
+    }
+
+    const updates = {};
+    if (output) updates.output = output;
+    if (status) updates.status = status;
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: 'No updates provided' });
+    }
+
+    const result = await contentService.update(id, updates);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error('Error saving content:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+/**
+ * DELETE /api/ai-content/:id
+ * Archive content (soft delete)
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await contentService.archive(parseInt(req.params.id));
+    if (!result) {
+      return res.status(404).json({ success: false, message: 'Content not found' });
+    }
+    res.json({ success: true, message: 'Content archived' });
+  } catch (error) {
+    console.error('Error archiving content:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+module.exports = router;

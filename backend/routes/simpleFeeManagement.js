@@ -31,7 +31,7 @@ const initializeFeeManagementTable = async () => {
 };
 
 // Initialize table on module load
-initializeFeeManagementTable();
+initializeFeeManagementTable().catch(err => console.error('Init error:', err));
 
 /**
  * GET /api/simple-fees/metadata

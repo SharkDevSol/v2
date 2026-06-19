@@ -15,9 +15,9 @@ import Toast from '../../components/Toast/Toast';
 const Login = () => {
   const { t } = useTranslation();
   const [credentials, setCredentials] = useState({
-    username: '',
-    password: '',
-    branchCode: ''
+    username: 'admin',
+    password: 'admin123',
+    branchCode: 'IQRA'
   });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});

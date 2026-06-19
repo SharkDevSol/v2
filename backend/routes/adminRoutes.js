@@ -136,7 +136,7 @@ const initializeAdminTable = async () => {
 };
 
 // Initialize table on module load
-initializeAdminTable();
+initializeAdminTable().catch(err => console.error('Init error:', err));
 
 // Verify token endpoint - check if token is still valid (no branch required)
 router.get(getEndpointPath('ADMIN.PROFILE').replace('/api/admin/profile', '/verify-token'), (req, res) => {

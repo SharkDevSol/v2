@@ -87,7 +87,7 @@ const initializeSubjectsSchema = async () => {
   }
 };
 
-initializeSubjectsSchema();
+initializeSubjectsSchema().catch(err => console.error('Subjects schema init:', err));
 
 // Helper function to get class-subject mappings
 const getClassSubjectMappings = async () => {

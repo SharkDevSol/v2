@@ -52,9 +52,12 @@ class SyncManager {
    * Sets up event listeners for connectivity changes
    */
   initialize() {
+    // Store bound references so removeEventListener works
+    this._boundHandleOnline = this.handleOnline.bind(this);
+    this._boundHandleOffline = this.handleOffline.bind(this);
     // Listen for online/offline events
-    window.addEventListener('online', this.handleOnline.bind(this));
-    window.addEventListener('offline', this.handleOffline.bind(this));
+    window.addEventListener('online', this._boundHandleOnline);
+    window.addEventListener('offline', this._boundHandleOffline);
     
     // Set initial status
     this.updateSyncStatus(this.isOnline ? 'synced' : 'offline');
@@ -540,8 +543,8 @@ class SyncManager {
    * Removes event listeners
    */
   destroy() {
-    window.removeEventListener('online', this.handleOnline.bind(this));
-    window.removeEventListener('offline', this.handleOffline.bind(this));
+    window.removeEventListener('online', this._boundHandleOnline);
+    window.removeEventListener('offline', this._boundHandleOffline);
     
     this.statusChangeListeners = [];
     this.syncCompleteListeners = [];

@@ -1,21 +1,18 @@
 #!/bin/bash
+# Deploy script — set SSH_HOST, SSH_USER, SSH_PASSWORD env vars first
+# Usage: SSH_HOST=your-server SSH_USER=root SSH_PASSWORD=your-pass ./deploy_cache_fix.sh
 
-# Deploy cache-busted index.html to iqrab3 VPS
-echo "🚀 Deploying cache-busted index.html to iqrab3..."
+HOST="${SSH_HOST:-76.13.48.245}"
+USER="${SSH_USER:-root}"
+PASS="${SSH_PASSWORD}"
 
-# Upload the updated index.html
-sshpass -p 'V@gSWi)Po712@TaWR3r9' scp APP/dist/index.html root@76.13.48.245:/var/www/skoolific/iqrab3/APP/dist/
+if [ -z "$PASS" ]; then
+  echo "❌ Set SSH_PASSWORD environment variable"
+  exit 1
+fi
 
-# Reload Nginx to clear server-side cache
+echo "🚀 Deploying to $HOST..."
+sshpass -p "$PASS" scp APP/dist/index.html ${USER}@${HOST}:/var/www/skoolific/iqrab3/APP/dist/
 echo "🔄 Reloading Nginx..."
-sshpass -p 'V@gSWi)Po712@TaWR3r9' ssh root@76.13.48.245 "systemctl reload nginx"
-
+sshpass -p "$PASS" ssh ${USER}@${HOST} "systemctl reload nginx"
 echo "✅ Deployment complete!"
-echo ""
-echo "📋 Next steps for the user:"
-echo "1. Clear browser cache completely (Ctrl+Shift+Delete)"
-echo "2. Close ALL browser tabs for iqrab3.skoolific.com"
-echo "3. Restart the browser completely"
-echo "4. Open iqrab3.skoolific.com in a fresh tab"
-echo "5. Check browser console - should see: 📊 Students with existing marks:"
-echo "6. Test: Fill marks, save, refresh - marks should stay locked"

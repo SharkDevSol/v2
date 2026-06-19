@@ -45,7 +45,7 @@ const initializeFeePaymentsTable = async () => {
 };
 
 // Initialize on module load
-initializeFeePaymentsTable();
+initializeFeePaymentsTable().catch(err => console.error('Init error:', err));
 
 // Generate receipt number
 const generateReceiptNumber = async () => {

@@ -24,21 +24,38 @@ const initializeBudgetsTable = async () => {
       );
     `);
     
+    // Add missing columns to existing table
+    const columnsToAdd = [
+      { name: 'department', type: 'VARCHAR(100) NOT NULL DEFAULT \'General\'' },
+      { name: 'fiscal_year', type: 'VARCHAR(10) NOT NULL DEFAULT \'2024\'' },
+      { name: 'spent_amount', type: 'DECIMAL(12,2) DEFAULT 0' },
+      { name: 'status', type: 'VARCHAR(50) DEFAULT \'DRAFT\'' },
+    ];
+    
+    for (const col of columnsToAdd) {
+      try {
+        await pool.query(`
+          ALTER TABLE budgets 
+          ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}
+        `);
+      } catch (err) {
+        // ignore
+      }
+    }
+    
     // Create indexes
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_budgets_department 
-      ON budgets(department);
-    `);
-    
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_budgets_fiscal_year 
-      ON budgets(fiscal_year);
-    `);
-    
-    await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_budgets_status 
-      ON budgets(status);
-    `);
+    const indexes = [
+      'idx_budgets_department ON budgets(department)',
+      'idx_budgets_fiscal_year ON budgets(fiscal_year)',
+      'idx_budgets_status ON budgets(status)',
+    ];
+    for (const idx of indexes) {
+      try {
+        await pool.query(`CREATE INDEX IF NOT EXISTS ${idx}`);
+      } catch (err) {
+        // ignore
+      }
+    }
     
     console.log('✅ Budgets table initialized');
   } catch (error) {
@@ -47,7 +64,7 @@ const initializeBudgetsTable = async () => {
 };
 
 // Initialize on module load
-initializeBudgetsTable();
+initializeBudgetsTable().catch(err => console.error('Init error:', err));
 
 // Generate budget number
 const generateBudgetNumber = async () => {

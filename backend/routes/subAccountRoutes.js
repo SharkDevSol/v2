@@ -46,7 +46,7 @@ const initializeSubAccountsTable = async () => {
 };
 
 // Initialize table on module load
-initializeSubAccountsTable();
+initializeSubAccountsTable().catch(err => console.error('Init error:', err));
 
 // Apply input sanitization to all routes
 router.use(sanitizeInputs);

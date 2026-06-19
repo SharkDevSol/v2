@@ -3,7 +3,11 @@
 
 -- UP
 
--- Create user devices table (for push notifications)
+-- Add columns to user_devices if they don't exist (table might already exist from 013_create_user_devices_table.sql)
+ALTER TABLE user_devices ADD COLUMN IF NOT EXISTS fcm_token TEXT;
+ALTER TABLE user_devices ADD COLUMN IF NOT EXISTS platform VARCHAR(20);
+
+-- Create user devices table (for push notifications) - only creates if not exists
 CREATE TABLE IF NOT EXISTS user_devices (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL, -- Can reference students, staff, or guardians

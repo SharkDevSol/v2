@@ -68,7 +68,7 @@ const initializeFaultsSchema = async () => {
     throw error;
   }
 };
-initializeFaultsSchema();
+initializeFaultsSchema().catch(err => console.error('Init error:', err));
 
 // Get all classes
 router.get('/classes', async (req, res) => {

@@ -6,6 +6,25 @@ const pool = require('../config/db');
  */
 class SyncCoordinator {
   /**
+   * Ensure the sync_locks table exists
+   */
+  async ensureTable() {
+    try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS sync_locks (
+          id SERIAL PRIMARY KEY,
+          lock_key VARCHAR(255) NOT NULL,
+          acquired_by VARCHAR(255),
+          expires_at TIMESTAMP NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+    } catch (e) {
+      // table already exists, ignore
+    }
+  }
+
+  /**
    * Acquire a distributed lock
    * @param {string} lockName - Name of the lock (e.g., 'aasRealtimeSync')
    * @param {number} timeoutSeconds - How long the lock is valid (default: 300 seconds)
@@ -141,4 +160,7 @@ class SyncCoordinator {
   }
 }
 
-module.exports = new SyncCoordinator();
+// Auto-create table on first load
+const instance = new SyncCoordinator();
+instance.ensureTable();
+module.exports = instance;

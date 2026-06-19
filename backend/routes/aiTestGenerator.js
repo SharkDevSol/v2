@@ -371,17 +371,572 @@ router.post('/save-test', async (req, res) => {
   }
 });
 
-// POST /api/ai/publish-test — Publish a saved test
+// POST /api/ai/publish-test — Publish a saved test to students
 router.post('/publish-test', async (req, res) => {
-  const { testId } = req.body;
+  const { testId, className, subjectName, termNumber, componentName } = req.body;
   if (!testId) return res.status(400).json({ error: 'testId required' });
-  res.json({ success: true, message: 'Test published' });
+  try {
+    await pool.query(`UPDATE ai_exams SET status='published', published_at=NOW() WHERE id=$1`, [testId]);
+    console.log(`📢 Test ${testId} published for ${className || 'all students'}`);
+    res.json({ success: true, message: 'Test published to students' });
+  } catch(e) {
+    res.status(500).json({ error: 'Failed to publish: ' + e.message });
+  }
+});
+
+// POST /api/ai/submit-exam — Student submits exam for auto-grading
+router.post('/submit-exam', async (req, res) => {
+  const { examId, studentId, studentName, className, answers } = req.body;
+  if (!examId || !answers) return res.status(400).json({ error: 'examId and answers required' });
+
+  try {
+    // Fetch the correct answers
+    const exam = await pool.query('SELECT output FROM ai_content WHERE id=$1', [examId]);
+    if (!exam.rows.length) return res.status(404).json({ error: 'Exam not found' });
+
+    const output = typeof exam.rows[0].output === 'string' ? JSON.parse(exam.rows[0].output) : exam.rows[0].output;
+    const questions = output?.exam?.questions || output?.test?.questions?.[0]?.questions || [];
+    if (!questions.length) return res.status(400).json({ error: 'No questions found in exam' });
+
+    // Auto-grade objective questions
+    let totalMarks = 0, obtainedMarks = 0;
+    const results = [];
+
+    for (const q of questions) {
+      const studentAnswer = answers[q.id?.toString()] || answers[q.id] || '';
+      const correct = q.correctAnswer || q.answer || '';
+      let isCorrect = false;
+
+      if (q.type === 'multiple_choice' || q.type === 'true_false') {
+        isCorrect = studentAnswer.toString().trim().toUpperCase() === correct.toString().trim().toUpperCase();
+      } else if (q.type === 'fill_blank') {
+        isCorrect = studentAnswer.toString().trim().toLowerCase() === correct.toString().trim().toLowerCase();
+      } else if (q.type === 'numeric') {
+        isCorrect = Math.abs(parseFloat(studentAnswer) - parseFloat(correct)) < 0.01;
+      }
+      // short_answer and essay are manual
+
+      const marks = q.marks || 1;
+      totalMarks += marks;
+      if (isCorrect) obtainedMarks += marks;
+
+      results.push({
+        questionId: q.id,
+        type: q.type,
+        studentAnswer,
+        correctAnswer: correct,
+        isCorrect,
+        marks: isCorrect ? marks : 0,
+        maxMarks: marks
+      });
+    }
+
+    // Save results
+    await pool.query(
+      `INSERT INTO exam_results (exam_id, student_id, student_name, class_name, answers, results, total_marks, obtained_marks, auto_graded, submitted_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,NOW())`,
+      [examId, studentId || 'guest', studentName || 'Unknown', className || '',
+       JSON.stringify(answers), JSON.stringify(results), totalMarks, obtainedMarks, true]
+    );
+
+    res.json({
+      success: true,
+      obtainedMarks, totalMarks,
+      percentage: totalMarks > 0 ? ((obtainedMarks / totalMarks) * 100).toFixed(1) : 0,
+      results,
+      message: `You scored ${obtainedMarks}/${totalMarks}`
+    });
+  } catch(e) {
+    console.error('Auto-grading error:', e);
+    res.status(500).json({ error: 'Grading failed: ' + e.message });
+  }
 });
 
 // POST /api/ai/clear-cache — Clear the response cache (for dev/testing)
 router.post('/clear-cache', (req, res) => {
   cache.clear();
   res.json({ success: true, message: 'Cache cleared' });
+});
+
+// ─── Lesson Plan Builder Functions ─────────────────────────────────────────────
+function buildLessonPlanPrompt({ topic, grade, subject, chapter, duration, language }) {
+  return `You are an expert Ethiopian educator creating a detailed, classroom-ready lesson plan.
+
+LESSON DETAILS:
+- Subject: ${subject}
+- Grade: ${grade}
+- Topic: ${topic}${chapter ? `\n- Chapter: ${chapter}` : ''}
+- Duration: ${duration || 40} minutes
+- Language: ${language || 'English'}
+
+Generate a professional lesson plan with the following structure. Return your response as a JSON object with EXACTLY this structure:
+{
+  "lessonPlan": {
+    "title": "${topic}",
+    "grade": "${grade}",
+    "subject": "${subject}",${chapter ? `\n    "chapter": "${chapter}",` : ''}
+    "duration": "${duration || 40} minutes",
+    "learningObjectives": ["objective 1 - measurable", "objective 2 - measurable", "objective 3 - measurable"],
+    "requiredMaterials": ["material 1", "material 2"],
+    "introduction": "engaging introduction paragraph (5 min)",
+    "mainActivities": [
+      { "step": 1, "duration": "10 min", "teacherActivity": "what teacher does", "studentActivity": "what students do" },
+      { "step": 2, "duration": "10 min", "teacherActivity": "what teacher does", "studentActivity": "what students do" },
+      { "step": 3, "duration": "10 min", "teacherActivity": "what teacher does", "studentActivity": "what students do" }
+    ],
+    "assessmentMethods": "how learning is assessed",
+    "discussionQuestions": ["question 1", "question 2"],
+    "summary": "wrap-up paragraph (5 min)",
+    "homework": "homework assignment",
+    "teacherNotes": "notes for the teacher"
+  }
+}
+
+CRITICAL RULES:
+1. Content must be appropriate for Grade ${grade} Ethiopian students following the national curriculum
+2. Use Ethiopian context (names, places, examples) where appropriate
+3. Learning objectives must be measurable and observable
+4. Time allocations must be realistic for a real classroom
+5. Activities must be practical and age-appropriate
+6. Return ONLY valid JSON — no markdown, no extra text
+7. Never make up facts — only include accurate educational content`;
+}
+
+function buildLessonNotePrompt({ topic, grade, subject, chapter, language }) {
+  return `You are an expert Ethiopian educator creating detailed teacher lesson notes.
+
+LESSON NOTE DETAILS:
+- Subject: ${subject}
+- Grade: ${grade}
+- Topic: ${topic}${chapter ? `\n- Chapter: ${chapter}` : ''}
+- Language: ${language || 'English'}
+
+Generate comprehensive teacher lesson notes. Return your response as a JSON object with EXACTLY this structure:
+{
+  "lessonNote": {
+    "topic": "${topic}",
+    "grade": "${grade}",
+    "subject": "${subject}",${chapter ? `\n    "chapter": "${chapter}",` : ''}
+    "objectives": ["objective 1", "objective 2", "objective 3"],
+    "keyConcepts": [
+      { "term": "concept name", "definition": "age-appropriate definition" }
+    ],
+    "mainExplanation": "detailed explanation of the topic in student-friendly language",
+    "examples": [
+      { "problem": "example question or scenario", "solution": "step-by-step solution" }
+    ],
+    "classroomActivities": [
+      { "activity": "activity name", "instructions": "step-by-step instructions", "duration": "time" }
+    ],
+    "importantNotes": ["common mistakes to avoid", "key points to emphasize"],
+    "summary": "concise summary of the lesson",
+    "reviewQuestions": [
+      { "question": "review question", "expectedAnswer": "correct answer" }
+    ]
+  }
+}
+
+CRITICAL RULES:
+1. Content must be appropriate for Grade ${grade} Ethiopian students
+2. Use Ethiopian context (names, places, examples) where appropriate
+3. Explanations must be clear, student-friendly, and educationally sound
+4. Key concepts must have accurate definitions
+5. Return ONLY valid JSON — no markdown, no extra text
+6. Never make up facts — only include accurate educational content`;
+}
+
+function callDeepSeek(prompt) {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error('AI API key not configured. Set DEEPSEEK_API_KEY in .env');
+  }
+  if (process.env.MOCK_AI === 'true') {
+    return getMockResponse(prompt);
+  }
+  return fetch('https://api.deepseek.com/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'deepseek-v4-pro',
+      messages: [
+        { role: "system", content: "You are Skoolific AI, an expert Ethiopian educator assistant. Generate accurate, curriculum-aligned educational materials. Never make up facts." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.3,
+      max_tokens: 8192,
+      stream: false,
+      thinking: { type: "enabled" },
+      reasoning_effort: "high"
+    })
+  });
+}
+
+// POST /api/ai/generate-lesson-plan — Generate a lesson plan using DeepSeek
+router.post('/generate-lesson-plan', async (req, res) => {
+  const { topic, grade, subject, chapter, duration, language } = req.body;
+  if (!topic || !grade || !subject) {
+    return res.status(400).json({ error: 'Missing required fields: topic, grade, subject' });
+  }
+
+  try {
+    const prompt = buildLessonPlanPrompt({ topic, grade, subject, chapter, duration, language });
+    const cacheKey = crypto.createHash('md5').update(prompt).digest('hex');
+    const cached = getFromCache(cacheKey);
+    if (cached) return res.json({ ...cached, fromCache: true });
+
+    const response = await callDeepSeek(prompt);
+    if (!response.ok) {
+      const err = await response.text();
+      console.error('DeepSeek error:', err);
+      return res.status(502).json({ error: 'AI service temporarily unavailable' });
+    }
+
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content || '';
+    const json = JSON.parse(text.replace(/```json/g, '').replace(/```/g, ''));
+
+    const result = { success: true, data: json };
+    setCache(cacheKey, result);
+    res.json(result);
+  } catch (error) {
+    console.error('Lesson plan generation error:', error);
+    res.status(500).json({ error: 'Failed to generate lesson plan: ' + error.message });
+  }
+});
+
+// POST /api/ai/generate-lesson-note — Generate a lesson note using DeepSeek
+router.post('/generate-lesson-note', async (req, res) => {
+  const { topic, grade, subject, chapter, language } = req.body;
+  if (!topic || !grade || !subject) {
+    return res.status(400).json({ error: 'Missing required fields: topic, grade, subject' });
+  }
+
+  try {
+    const prompt = buildLessonNotePrompt({ topic, grade, subject, chapter, language });
+    const cacheKey = crypto.createHash('md5').update(prompt).digest('hex');
+    const cached = getFromCache(cacheKey);
+    if (cached) return res.json({ ...cached, fromCache: true });
+
+    const response = await callDeepSeek(prompt);
+    if (!response.ok) {
+      const err = await response.text();
+      console.error('DeepSeek error:', err);
+      return res.status(502).json({ error: 'AI service temporarily unavailable' });
+    }
+
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content || '';
+    const json = JSON.parse(text.replace(/```json/g, '').replace(/```/g, ''));
+
+    const result = { success: true, data: json };
+    setCache(cacheKey, result);
+    res.json(result);
+  } catch (error) {
+    console.error('Lesson note generation error:', error);
+    res.status(500).json({ error: 'Failed to generate lesson note: ' + error.message });
+  }
+});
+
+// ─── Homework Prompt Builder ──────────────────────────────────────────────────
+function buildHomeworkPrompt({ topic, grade, subject, chapter, difficulty, language, questionTypes, count }) {
+  const types = questionTypes || ['multiple_choice', 'short_answer', 'true_false', 'fill_blank'];
+  return `You are an expert Ethiopian educator creating a homework assignment.
+
+HOMEWORK DETAILS:
+- Subject: ${subject}
+- Grade: ${grade}
+- Topic: ${topic}${chapter ? `\n- Chapter: ${chapter}` : ''}
+- Difficulty: ${difficulty || 'Medium'}
+- Language: ${language || 'English'}
+- Question Types: ${types.join(', ')}
+- Number of questions per type: ${count || 5}
+
+Generate a comprehensive homework assignment. Return JSON with EXACTLY this structure:
+{
+  "homework": {
+    "topic": "${topic}",
+    "grade": "${grade}",
+    "subject": "${subject}",
+    "instructions": "clear instructions for students",
+    "questions": [
+      {
+        "id": 1,
+        "type": "multiple_choice",
+        "question": "question text",
+        "options": ["A. option1", "B. option2", "C. option3", "D. option4"],
+        "correctAnswer": "A",
+        "explanation": "educational explanation"
+      }
+    ],
+    "totalQuestions": number,
+    "answerKey": "answer key for teacher reference"
+  }
+}
+
+CRITICAL RULES:
+1. Content appropriate for Grade ${grade} Ethiopian students
+2. Use Ethiopian context (names, places, Birr, etc.)
+3. ${types.includes('fill_blank') ? 'For fill_blank, use _____ (5 underscores)' : ''}
+4. MCQ options: one clearly correct, three incorrect but plausible
+5. Return ONLY valid JSON — no markdown, no extra text
+6. Never make up facts`;
+}
+
+// ─── Worksheet Prompt Builder ────────────────────────────────────────────────
+function buildWorksheetPrompt({ topic, grade, subject, chapter, language, activityTypes }) {
+  const activities = activityTypes || ['exercises', 'matching', 'fill_blanks', 'identification'];
+  return `You are an expert Ethiopian educator creating a classroom worksheet.
+
+WORKSHEET DETAILS:
+- Subject: ${subject}
+- Grade: ${grade}
+- Topic: ${topic}${chapter ? `\n- Chapter: ${chapter}` : ''}
+- Language: ${language || 'English'}
+- Activity Types: ${activities.join(', ')}
+
+Generate a printable worksheet. Return JSON with EXACTLY this structure:
+{
+  "worksheet": {
+    "topic": "${topic}",
+    "grade": "${grade}",
+    "subject": "${subject}",
+    "studentName": "____________________",
+    "date": "____________________",
+    "instructions": "general instructions",
+    "sections": [
+      {
+        "title": "section title",
+        "type": "exercises|matching|fill_blanks|identification",
+        "instructions": "section-specific instructions",
+        "questions": [
+          { "id": 1, "question": "question text", "answer": "correct answer" }
+        ]
+      }
+    ],
+    "bonusChallenge": "optional extra challenge"
+  }
+}
+
+CRITICAL RULES:
+1. Content appropriate for Grade ${grade} Ethiopian students
+2. Use Ethiopian context (names, places, examples)
+3. Progressive difficulty within each section (easier → harder)
+4. Return ONLY valid JSON — no markdown, no extra text
+5. Never make up facts`;
+}
+
+// ─── Scramble Exam Prompt Builder ────────────────────────────────────────────
+function buildScrambleExamPrompt({ topic, grade, subject, chapter, totalMarks, timeLimit, difficulty, language }) {
+  return `You are an expert Ethiopian educator creating a comprehensive exam with 3 shuffled versions.
+
+EXAM DETAILS:
+- Subject: ${subject}
+- Grade: ${grade}
+- Topic: ${topic}${chapter ? `\n- Chapter: ${chapter}` : ''}
+- Total Marks: ${totalMarks || 50}
+- Time Limit: ${timeLimit || 60} minutes
+- Difficulty: ${difficulty || 'Medium'}
+- Language: ${language || 'English'}
+
+Generate an exam with 3 versions (A, B, C) where questions and MCQ options are shuffled. Return JSON with EXACTLY this structure:
+{
+  "scrambleExam": {
+    "title": "${topic} Exam",
+    "grade": "${grade}",
+    "subject": "${subject}",
+    "totalMarks": ${totalMarks || 50},
+    "timeLimit": ${timeLimit || 60},
+    "instructions": "general exam instructions",
+    "versions": {
+      "A": { "label": "Version A", "sections": [ { "section": "A", "type": "multiple_choice", "questions": [ { "id": 1, "question": "text", "marks": number, "options": ["A. opt1","B. opt2","C. opt3","D. opt4"], "correctAnswer": "A", "explanation": "text" } ] } ] },
+      "B": { "label": "Version B", "sections": [ ... same questions in DIFFERENT order, options SHUFFLED ] },
+      "C": { "label": "Version C", "sections": [ ... same questions in DIFFERENT order, options SHUFFLED differently ] }
+    },
+    "answerKey": { "A": { "1": "A", "2": "False" }, "B": { "1": "D", "2": "True" }, "C": { "1": "B", "2": "True" } }
+  }
+}
+
+CRITICAL RULES:
+1. Content appropriate for Grade ${grade} Ethiopian students
+2. Use Ethiopian context
+3. All 3 versions must cover the SAME content at the SAME difficulty
+4. Version B: reorder questions randomly, shuffle MCQ options
+5. Version C: reorder differently from B, shuffle differently
+6. Update correctAnswer to match shuffled options
+7. Return ONLY valid JSON — no markdown, no extra text`;
+}
+
+// POST /api/ai/generate-homework — Generate homework using DeepSeek
+router.post('/generate-homework', async (req, res) => {
+  const { topic, grade, subject, chapter, difficulty, language, questionTypes, count } = req.body;
+  if (!topic || !grade || !subject) return res.status(400).json({ error: 'topic, grade, subject required' });
+  try {
+    const prompt = buildHomeworkPrompt({ topic, grade, subject, chapter, difficulty, language, questionTypes, count });
+    const cacheKey = crypto.createHash('md5').update(prompt).digest('hex');
+    const cached = getFromCache(cacheKey);
+    if (cached) return res.json({ ...cached, fromCache: true });
+
+    const response = await callDeepSeek(prompt);
+    if (!response.ok) return res.status(502).json({ error: 'AI service temporarily unavailable' });
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content || '';
+    const json = JSON.parse(text.replace(/```json/g, '').replace(/```/g, ''));
+    const result = { success: true, data: json };
+    setCache(cacheKey, result);
+    res.json(result);
+  } catch (error) {
+    console.error('Homework generation error:', error);
+    res.status(500).json({ error: 'Failed to generate homework: ' + error.message });
+  }
+});
+
+// POST /api/ai/generate-worksheet — Generate worksheet using DeepSeek
+router.post('/generate-worksheet', async (req, res) => {
+  const { topic, grade, subject, chapter, language, activityTypes } = req.body;
+  if (!topic || !grade || !subject) return res.status(400).json({ error: 'topic, grade, subject required' });
+  try {
+    const prompt = buildWorksheetPrompt({ topic, grade, subject, chapter, language, activityTypes });
+    const cacheKey = crypto.createHash('md5').update(prompt).digest('hex');
+    const cached = getFromCache(cacheKey);
+    if (cached) return res.json({ ...cached, fromCache: true });
+
+    const response = await callDeepSeek(prompt);
+    if (!response.ok) return res.status(502).json({ error: 'AI service temporarily unavailable' });
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content || '';
+    const json = JSON.parse(text.replace(/```json/g, '').replace(/```/g, ''));
+    const result = { success: true, data: json };
+    setCache(cacheKey, result);
+    res.json(result);
+  } catch (error) {
+    console.error('Worksheet generation error:', error);
+    res.status(500).json({ error: 'Failed to generate worksheet: ' + error.message });
+  }
+});
+
+// POST /api/ai/generate-scramble-exam — Generate scramble exam using DeepSeek
+router.post('/generate-scramble-exam', async (req, res) => {
+  const { topic, grade, subject, chapter, totalMarks, timeLimit, difficulty, language } = req.body;
+  if (!topic || !grade || !subject) return res.status(400).json({ error: 'topic, grade, subject required' });
+  try {
+    const prompt = buildScrambleExamPrompt({ topic, grade, subject, chapter, totalMarks, timeLimit, difficulty, language });
+    const cacheKey = crypto.createHash('md5').update(prompt).digest('hex');
+    const cached = getFromCache(cacheKey);
+    if (cached) return res.json({ ...cached, fromCache: true });
+
+    const response = await callDeepSeek(prompt);
+    if (!response.ok) return res.status(502).json({ error: 'AI service temporarily unavailable' });
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content || '';
+    const json = JSON.parse(text.replace(/```json/g, '').replace(/```/g, ''));
+    const result = { success: true, data: json };
+    setCache(cacheKey, result);
+    res.json(result);
+  } catch (error) {
+    console.error('Scramble exam generation error:', error);
+    res.status(500).json({ error: 'Failed to generate scramble exam: ' + error.message });
+  }
+});
+
+// ─── Mock Response Generator (for testing without API credits) ────────────────
+function getMockResponse(prompt) {
+  const p = prompt.toLowerCase();
+  let sample;
+  if (p.includes('lesson plan') || p.includes('lessonplan')) {
+    sample = JSON.stringify({
+      lessonPlan: {
+        title: "Sample Lesson Plan (Mock)",
+        grade: "Grade 10", subject: "Science",
+        duration: "40 minutes",
+        learningObjectives: ["Identify key concepts", "Apply knowledge to problems", "Demonstrate understanding through practice"],
+        requiredMaterials: ["Textbook", "Whiteboard", "Handout worksheets"],
+        introduction: "Begin by reviewing previous lesson. Ask students what they remember.",
+        mainActivities: [
+          { step: 1, duration: "15 min", teacherActivity: "Present new concepts using visual aids", studentActivity: "Take notes and ask questions" },
+          { step: 2, duration: "15 min", teacherActivity: "Guide students through practice exercises", studentActivity: "Complete exercises individually then discuss in pairs" },
+          { step: 3, duration: "5 min", teacherActivity: "Review answers and clarify misconceptions", studentActivity: "Correct their work and ask follow-up questions" }
+        ],
+        assessmentMethods: "Exit ticket with 3 quick questions to check understanding",
+        discussionQuestions: ["What did you find most interesting?", "How can you apply this outside the classroom?"],
+        summary: "Today we covered the main concepts. Remember the key points for homework.",
+        homework: "Complete worksheet pages 5-7. Due next class.",
+        teacherNotes: "Ensure all students participate. Check for understanding frequently."
+      }
+    });
+  } else if (p.includes('lesson note') || p.includes('lessonnote')) {
+    sample = JSON.stringify({
+      lessonNote: {
+        topic: "Sample Lesson Note (Mock)", grade: "Grade 10", subject: "Science",
+        objectives: ["Understand fundamental concepts", "Apply knowledge correctly"],
+        keyConcepts: [{ term: "Concept 1", definition: "The primary idea of the lesson" }, { term: "Concept 2", definition: "Supporting concept that builds on Concept 1" }],
+        mainExplanation: "Detailed explanation of the topic in student-friendly language. Begin with the basics, then move to more complex ideas.",
+        examples: [{ problem: "Sample problem 1", solution: "Step-by-step solution here" }, { problem: "Sample problem 2", solution: "Step-by-step solution here" }],
+        classroomActivities: [{ activity: "Group Discussion", instructions: "Split into groups of 4. Discuss the key concepts.", duration: "10 min" }],
+        importantNotes: ["Common mistake: confusing Concept 1 and Concept 2", "Key point: Always show your work"],
+        summary: "In this lesson we learned the main concepts and practiced applying them.",
+        reviewQuestions: [{ question: "Define Concept 1", expectedAnswer: "The primary idea of the lesson" }]
+      }
+    });
+  } else if (p.includes('homework')) {
+    sample = JSON.stringify({
+      homework: {
+        topic: "Sample Homework (Mock)", grade: "Grade 10", subject: "Science",
+        instructions: "Answer all questions. Show your work where applicable.",
+        questions: [
+          { id: 1, type: "multiple_choice", question: "What is the correct answer?", options: ["A. Option 1", "B. Option 2", "C. Option 3", "D. Option 4"], correctAnswer: "B", explanation: "Because Option 2 is the most accurate" },
+          { id: 2, type: "true_false", question: "This statement is true.", options: ["True", "False"], correctAnswer: "True", explanation: "The statement aligns with the lesson" },
+          { id: 3, type: "short_answer", question: "Explain in your own words why Concept 1 is important.", correctAnswer: "Because it forms the foundation", explanation: "Students should demonstrate understanding" }
+        ],
+        totalQuestions: 3,
+        answerKey: "1:B, 2:True, 3:See explanation"
+      }
+    });
+  } else if (p.includes('worksheet')) {
+    sample = JSON.stringify({
+      worksheet: {
+        topic: "Sample Worksheet (Mock)", grade: "Grade 10", subject: "Science",
+        studentName: "____________________", date: "____________________",
+        instructions: "Complete all sections. Read each instruction carefully.",
+        sections: [
+          { title: "Section A: Multiple Choice", type: "exercises", instructions: "Choose the best answer", questions: [{ id: 1, question: "Question 1?", answer: "Answer 1" }, { id: 2, question: "Question 2?", answer: "Answer 2" }] },
+          { title: "Section B: Matching", type: "matching", instructions: "Draw lines to match", questions: [{ id: 3, question: "Match item A", answer: "Matches with X" }] }
+        ],
+        bonusChallenge: "⭐ Challenge: Create your own example and explain it."
+      }
+    });
+  } else if (p.includes('scramble') || p.includes('3 versions')) {
+    sample = JSON.stringify({
+      scrambleExam: {
+        title: "Sample Scramble Exam (Mock)", grade: "Grade 10", subject: "Science", totalMarks: 30, timeLimit: 45,
+        instructions: "Read all questions carefully. Show your work.",
+        versions: {
+          A: { label: "Version A", sections: [{ section: "A", type: "multiple_choice", questions: [{ id: 1, question: "Q1 Version A?", marks: 2, options: ["A. Opt1","B. Opt2","C. Opt3","D. Opt4"], correctAnswer: "B", explanation: "Explanation" }] }] },
+          B: { label: "Version B", sections: [{ section: "A", type: "multiple_choice", questions: [{ id: 1, question: "Q1 Version B?", marks: 2, options: ["A. Opt3","B. Opt1","C. Opt2","D. Opt4"], correctAnswer: "C", explanation: "Explanation" }] }] },
+          C: { label: "Version C", sections: [{ section: "A", type: "multiple_choice", questions: [{ id: 1, question: "Q1 Version C?", marks: 2, options: ["A. Opt4","B. Opt3","C. Opt2","D. Opt1"], correctAnswer: "D", explanation: "Explanation" }] }] }
+        },
+        answerKey: { A: { "1": "B" }, B: { "1": "C" }, C: { "1": "D" } }
+      }
+    });
+  } else {
+    sample = JSON.stringify({
+      exam: { title: "Sample Test (Mock)", totalMarks: 20,
+        questions: [{ id: 1, type: "multiple_choice", question: "Sample question?", marks: 2, options: ["A. Opt1","B. Opt2","C. Opt3","D. Opt4"], correctAnswer: "B", explanation: "Explanation" }]
+      }
+    });
+  }
+  return { ok: true, json: () => Promise.resolve({ choices: [{ message: { content: sample } }] }) };
+}
+
+// GET /api/ai/list-classes — List all classes and subjects from DB
+router.get('/list-classes', async (req, res) => {
+  try {
+    const tables = await db.query("SELECT table_name FROM information_schema.tables WHERE table_schema='classes_schema'");
+    const classes = tables.rows.map(r => r.table_name);
+    res.json({ success: true, data: { classes, subjects: ['Mathematics', 'English', 'Biology', 'Chemistry', 'Physics', 'History', 'Geography', 'Civics', 'ICT', 'Amharic', 'Arabic', 'Oromo', 'Business', 'Economics', 'General Science'] } });
+  } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
 module.exports = router;

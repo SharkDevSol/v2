@@ -41,14 +41,16 @@ const createSchemaIfNotExists = async (client, schemaName) => {
     `, [schemaName]);
 
     if (schemaCheck.rows.length === 0) {
-      await client.query(`CREATE SCHEMA ${schemaName}`);
+      await client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaName}`);
       console.log(`Created schema: ${schemaName}`);
     } else {
       console.log(`Schema already exists: ${schemaName}`);
     }
   } catch (error) {
+    if (error.code === '23505' || error.message?.includes('already exists')) {
+      return;
+    }
     console.error(`Error creating schema ${schemaName}:`, error.message);
-    throw error;
   }
 };
 
@@ -167,8 +169,7 @@ const ensureScheduleSchemaColumns = async (client) => {
     }
     console.log('Schedule schema ensured');
   } catch (e) {
-    console.error('Schedule schema error:', e);
-    throw e;
+    console.error('Schedule schema error:', e.message);
   }
 };
 
@@ -181,8 +182,7 @@ const initializeScheduleSchema = async () => {
     console.log('Schedule schema initialized');
   } catch (e) {
     await client.query('ROLLBACK');
-    console.error('Schedule schema init failed:', e);
-    throw e;
+    console.error('Schedule schema init failed:', e.message);
   } finally {
     client.release();
   }
@@ -572,12 +572,12 @@ const addTeacherToScheduleSystem = async (
 // ---------------------------------------------------------------------
 // 6. Startup initialisations
 // ---------------------------------------------------------------------
-initializeStaffCounter();
-initializeStaffUsersTable();
-initializeScheduleSchema();
-initializeSchoolSchemaPoints();
-initializeTeachersPeriodTable();
-initializeFormMetadata();
+initializeStaffCounter().catch(err => console.error('Staff counter init:', err));
+initializeStaffUsersTable().catch(err => console.error('Staff users init:', err));
+initializeScheduleSchema().catch(err => console.error('Schedule schema init:', err));
+initializeSchoolSchemaPoints().catch(err => console.error('School schema init:', err));
+initializeTeachersPeriodTable().catch(err => console.error('Teachers period init:', err));
+initializeFormMetadata().catch(err => console.error('Form metadata init:', err));
 
 // ---------------------------------------------------------------------
 // 7. ROUTES

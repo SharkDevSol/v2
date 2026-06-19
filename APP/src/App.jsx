@@ -1,5 +1,5 @@
 // Updated App.jsx with Code Splitting and Lazy Loading
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import LoadingScreen from "./COMPONENTS/LoadingScreen";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -11,7 +11,7 @@ import "./styles/animations.css";
 import { Provider } from 'react-redux';
 import OfflineBanner from './COMPONENTS/OfflineBanner/OfflineBanner';
 import { store } from '../src/PAGE/store';
-import { useParams } from "react-router-dom";
+
 
 // Critical components - loaded immediately (needed for initial render)
 import InitialRedirect from "./COMPONENTS/InitialRedirect";  
@@ -55,6 +55,13 @@ const MarkListView = lazy(() => import("./PAGE/MarkListView/MarkListView"));
 const StudentAttendanceSystem = lazy(() => import("./PAGE/Academic/StudentAttendanceSystem"));
 const StudentAttendanceTimeSettings = lazy(() => import("./PAGE/Academic/StudentAttendanceTimeSettings"));
 const AITestGenerator = lazy(() => import("./PAGE/AITestGenerator/AITestGenerator"));
+const AILessonLanding = lazy(() => import("./PAGE/Academic/AILessonGenerator"));
+const LessonPlan = lazy(() => import("./PAGE/Academic/AILessonGenerator/LessonPlan"));
+const LessonNote = lazy(() => import("./PAGE/Academic/AILessonGenerator/LessonNote"));
+const Homework = lazy(() => import("./PAGE/Academic/AILessonGenerator/Homework"));
+const Worksheet = lazy(() => import("./PAGE/Academic/AILessonGenerator/Worksheet"));
+const ScrambleExam = lazy(() => import("./PAGE/Academic/AILessonGenerator/ScrambleExam"));
+const BookUpload = lazy(() => import("./PAGE/Academic/AILessonGenerator/BookUpload"));
 const MarkListSystem = lazy(() => import("./PAGE/CreateMarklist/CreateMarklist/CreateMarklist"));
 const MarkListManagement = lazy(() => import("./PAGE/CreateMarklist/MarkListManagement"));
 const SubjectMappingSetup = lazy(() => import("./PAGE/CreateMarklist/SubjectMappingSetup"));
@@ -271,13 +278,23 @@ function App() {
               <Route path="evaluation-book/daily/:className" element={<DailyEvaluationForm />} />
               <Route path="evaluation-book/guardian" element={<GuardianEvaluationInbox />} />
               <Route path="evaluation-book/guardian/feedback/:evaluationId" element={<GuardianFeedbackForm />} />
-              <Route path="evaluation-book/guardian/feedback/:evaluationId" element={<GuardianFeedbackForm />} />
               <Route path="kg/evaluation" element={<KGEvaluation />} />
               <Route path="kg/evaluation-book" element={<KGEvaluationBook />} />
               <Route path="kg/assignments" element={<KGAssignments />} />
               <Route path="mark-list-view" element={<MarkListView />} />
               <Route path="student-attendance-system" element={<StudentAttendanceSystem />} />
               <Route path="student-attendance-time-settings" element={<StudentAttendanceTimeSettings />} />
+              {/* Legacy redirects for removed AI routes */}
+              <Route path="ai-content" element={<Navigate to="/ai-lesson" replace />} />
+              <Route path="ai-content/:mode" element={<Navigate to="/ai-lesson" replace />} />
+              <Route path="ai-content/saved" element={<Navigate to="/ai-lesson" replace />} />
+              <Route path="ai-lesson" element={<AILessonLanding />} />
+              <Route path="lesson-plan" element={<LessonPlan />} />
+              <Route path="lesson-note" element={<LessonNote />} />
+              <Route path="homework" element={<Homework />} />
+              <Route path="worksheet" element={<Worksheet />} />
+              <Route path="scramble-exam" element={<ScrambleExam />} />
+              <Route path="book-upload" element={<BookUpload />} />
               <Route path="ai-test-generator" element={<AITestGenerator />} />
               <Route path="class-teacher-assignment" element={<ClassTeacherAssignment />} />
               <Route path="live-attendance" element={<LiveAttendanceMonitor />} />

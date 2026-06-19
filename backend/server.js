@@ -100,10 +100,15 @@ const studentActivitiesRoutes = require('./routes/studentActivitiesRoutes');
 const superAdminRoutes = require('./routes/superAdminRoutes');
 const aiTestGeneratorRoutes = require('./routes/aiTestGenerator');
 const yearRolloverRoutes = require('./routes/yearRolloverRoutes');
+// const aiContentRoutes = require('./routes/aiContentRoutes'); // Gemini AI removed
+
+// Database pool
+const pool = require('./config/db');
 
 // Service imports for device user persistence
 const syncCoordinator = require('./services/SyncCoordinator');
 const deviceUserMonitoringService = require('./services/DeviceUserMonitoringService');
+const deviceUserBufferService = require('./services/DeviceUserBufferService');
 const backupRestoreService = require('./services/BackupRestoreService');
 
 const app = express();
@@ -209,7 +214,7 @@ app.use(securityHeaders);
 // 3. CORS configuration - allows all *.skoolific.com subdomains + configured origins
 const allowedOrigins = process.env.NODE_ENV === 'production' 
   ? [process.env.FRONTEND_URL || 'https://v2.skoolific.com']
-  : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5052'];
+   : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5052'];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -373,7 +378,7 @@ app.use('/api/finance/invoices', financeInvoiceRoutes);
 app.use('/api/finance/payments', financePaymentRoutes);
 app.use('/api/finance/monthly-payments', financeMonthlyPaymentRoutes);
 app.use('/api/finance/monthly-payments-view', financeMonthlyPaymentViewRoutes);
-app.use('/api/year-rollover', require('./routes/yearRollover')); // Year rollover routes
+// Year rollover is mounted at line 396 with yearRolloverRoutes
 app.use('/api/finance/simple-invoices', financeSimpleInvoiceRoutes);
 app.use('/api/finance/progressive-invoices', financeProgressiveInvoiceRoutes);
 app.use('/api/finance', financeClassStudentRoutes);
@@ -387,8 +392,62 @@ app.use('/api/tasks', taskStatusRoutes);
 app.use('/api/device-users', deviceUserManagementRoutes); // Device user persistence management
 app.use('/api/v2/branches', branchRoutes); // Multi-branch architecture routes
 app.use('/api/super-admin', superAdminRoutes); // Super Admin aggregation routes
-app.use('/api/ai', aiTestGeneratorRoutes); // AI Test Generator
+app.use('/api/ai', aiTestGeneratorRoutes); // AI Test Generator (DeepSeek)
+app.use('/api/books', require('./routes/bookUploadRoutes')); // Book upload for AI context
 app.use('/api/year-rollover', yearRolloverRoutes); // Year Rollover
+// app.use('/api/ai-content', aiContentRoutes); // Gemini AI removed - using DeepSeek only
+
+// ===========================================
+// FRONTEND SPA - Serve built React app
+// ===========================================
+const frontendDistPath = path.join(__dirname, '..', 'APP', 'dist');
+
+// Serve manifest files with correct Content-Type for PWA
+app.get('/manifest.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(frontendDistPath, 'manifest.json'));
+});
+app.get('/manifest-staff.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(frontendDistPath, 'manifest-staff.json'));
+});
+app.get('/manifest-student.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(frontendDistPath, 'manifest-student.json'));
+});
+app.get('/manifest-guardian.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(frontendDistPath, 'manifest-guardian.json'));
+});
+
+// Serve static files — no cache for index.html, long cache for assets
+app.use(express.static(frontendDistPath, {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('index.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    } else if (filePath.includes('/assets/')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  }
+}));
+
+// SPA catch-all: serve index.html for page routes only
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/') || req.path.startsWith('/Uploads') || req.path.startsWith('/uploads')) {
+    return next();
+  }
+  // Skip if it looks like a file request (has extension) — let it 404
+  if (req.path.includes('.') && req.path.split('/').pop().includes('.')) {
+    return next();
+  }
+  if (req.method === 'GET') {
+    res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
+      if (err) next();
+    });
+  } else {
+    next();
+  }
+});
 
 // ===========================================
 // AI06 WEBSOCKET SERVICE
@@ -569,7 +628,7 @@ const attendanceSystemInitializer = require('./services/attendanceSystemInitiali
   }
 
   // Start server after setup complete
-  const PORT = process.env.PORT || 5050;
+  const PORT = process.env.PORT || 5052;
   const HOST = '0.0.0.0'; // Listen on all network interfaces for mobile access
   server.listen(PORT, HOST, () => {
     console.log(`Server running on ${HOST}:${PORT}`);
@@ -591,11 +650,34 @@ const attendanceSystemInitializer = require('./services/attendanceSystemInitiali
   console.log(`   - Server Port: 7788`);
   console.log(`   - Server Reg: YES`);
   });
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is in use. Kill it first: taskkill /F /PID <pid> or npx kill-port ${PORT}`);
+      process.exit(1);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
 })(); // Close the async function
 
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
+const gracefulShutdown = (signal) => {
+  console.log(`\n${signal} received, shutting down gracefully...`);
   server.close(() => {
+    console.log('HTTP server closed');
+    process.exit(0);
+  });
+  setTimeout(() => {
+    console.error('Forced exit after timeout');
+    process.exit(1);
+  }, 5000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGUSR2', () => {
+  console.log('SIGUSR2 received (nodemon restart), closing server...');
+  server.close(() => {
+    console.log('Server closed for restart');
     process.exit(0);
   });
 });

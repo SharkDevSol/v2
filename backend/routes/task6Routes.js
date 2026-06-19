@@ -28,7 +28,7 @@ const initializeTeachersPeriodTable = async () => {
 };
 
 // Initialize on module load
-initializeTeachersPeriodTable();
+initializeTeachersPeriodTable().catch(err => console.error('Init error:', err));
 
 // Merge teachers with classes and subjects
 router.post('/merge-teachers-classes', async (req, res) => {

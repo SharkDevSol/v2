@@ -1,8 +1,16 @@
 @echo off
-echo y | plink -pw "V@gSWi)Po712@TaWR3r9" root@76.13.48.245 "exit"
+REM ============================================================
+REM WARNING: This script contains deployment credentials.
+REM Set these environment variables before running:
+REM   set SSH_HOST=your-server-ip
+REM   set SSH_USER=root
+REM   set SSH_PASSWORD=your-password
+REM   set DEPLOY_PATH=/var/www/skoolific/iqrab3/APP/dist/index.html
+REM ============================================================
+echo y | plink -pw "%SSH_PASSWORD%" %SSH_USER%@%SSH_HOST% "exit"
 timeout /t 2 /nobreak >nul
-pscp -pw "V@gSWi)Po712@TaWR3r9" APP\dist\index.html root@76.13.48.245:/var/www/skoolific/iqrab3/APP/dist/index.html
-plink -pw "V@gSWi)Po712@TaWR3r9" root@76.13.48.245 "systemctl reload nginx"
+pscp -pw "%SSH_PASSWORD%" APP\dist\index.html %SSH_USER%@%SSH_HOST%:%DEPLOY_PATH%
+plink -pw "%SSH_PASSWORD%" %SSH_USER%@%SSH_HOST% "systemctl reload nginx"
 echo.
 echo ============================================================
 echo DEPLOYMENT COMPLETE!

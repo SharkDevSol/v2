@@ -17,7 +17,7 @@
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
-import API_CONFIG from '../config/api.config';
+import { getBaseURL } from '../config/api.config';
 import axios from 'axios';
 import { configureNotificationChannels, getChannelForNotificationType } from './NotificationChannels';
 
@@ -145,7 +145,7 @@ class PushNotificationManager {
       const deviceId = await Device.getId();
 
       const response = await axios.post(
-        `${API_CONFIG.baseURL}/api/v2/devices/register`,
+        `${getBaseURL()}/api/v2/devices/register`,
         {
           fcmToken: token,
           platform: this.platform,
@@ -368,7 +368,7 @@ class PushNotificationManager {
       }
 
       await axios.post(
-        `${API_CONFIG.baseURL}/api/v2/devices/unregister`,
+        `${getBaseURL()}/api/v2/devices/unregister`,
         {
           fcmToken: this.currentToken
         },

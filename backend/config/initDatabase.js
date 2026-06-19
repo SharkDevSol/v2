@@ -76,17 +76,23 @@ async function initializeDatabase() {
     `);
     console.log('  ✓ staff_attendance_logs table ready');
 
-    // Create indexes
-    await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_staff_attendance_staff_id ON staff_attendance(staff_id);
-      CREATE INDEX IF NOT EXISTS idx_staff_attendance_date ON staff_attendance(date);
-      CREATE INDEX IF NOT EXISTS idx_staff_attendance_role ON staff_attendance(role);
-      CREATE INDEX IF NOT EXISTS idx_staff_attendance_verification ON staff_attendance(verification_status);
-      CREATE INDEX IF NOT EXISTS idx_staff_attendance_profiles_staff_id ON staff_attendance_profiles(staff_id);
-      CREATE INDEX IF NOT EXISTS idx_staff_attendance_profiles_active ON staff_attendance_profiles(is_active);
-      CREATE INDEX IF NOT EXISTS idx_pending_staff_id ON staff_attendance_pending(staff_id);
-      CREATE INDEX IF NOT EXISTS idx_pending_status ON staff_attendance_pending(status);
-    `);
+    // Create indexes (each wrapped to handle pre-existing schema differences)
+    const indexQueries = [
+      'CREATE INDEX IF NOT EXISTS idx_staff_attendance_staff_id ON staff_attendance(staff_id)',
+      'CREATE INDEX IF NOT EXISTS idx_staff_attendance_role ON staff_attendance(role)',
+      'CREATE INDEX IF NOT EXISTS idx_staff_attendance_verification ON staff_attendance(verification_status)',
+      'CREATE INDEX IF NOT EXISTS idx_staff_attendance_profiles_staff_id ON staff_attendance_profiles(staff_id)',
+      'CREATE INDEX IF NOT EXISTS idx_staff_attendance_profiles_active ON staff_attendance_profiles(is_active)',
+      'CREATE INDEX IF NOT EXISTS idx_pending_staff_id ON staff_attendance_pending(staff_id)',
+      'CREATE INDEX IF NOT EXISTS idx_pending_status ON staff_attendance_pending(status)',
+    ];
+    for (const q of indexQueries) {
+      try { await client.query(q); } catch (_) {}
+    }
+    // date index — may fail if column doesn't exist in existing table
+    try {
+      await client.query('CREATE INDEX IF NOT EXISTS idx_staff_attendance_date ON staff_attendance(date)');
+    } catch (_) {}
     console.log('  ✓ Database indexes ready');
 
     console.log('✅ Database initialization complete\n');

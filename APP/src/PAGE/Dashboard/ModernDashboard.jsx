@@ -507,14 +507,7 @@ const ModernDashboard = () => {
           color="#EC4899"
           onClick={() => navigate('/schedule')}
         />
-        <StatCard
-          icon={AlertTriangle}
-          title="Student Faults"
-          value={stats.faults.total}
-          subtitle={`${stats.faults.thisWeek} This Week • ${stats.faults.critical} Critical`}
-          color="#EF4444"
-          onClick={() => navigate('/student-faults')}
-        />
+
         <StatCard
           icon={CheckCircle}
           title="Evaluations"

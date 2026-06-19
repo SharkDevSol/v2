@@ -43,7 +43,7 @@ const initializeClassTeachersTable = async () => {
   }
 };
 
-initializeClassTeachersTable();
+initializeClassTeachersTable().catch(err => console.error('Init error:', err));
 
 // Get all teachers (for dropdown selection)
 router.get('/teachers', async (req, res) => {

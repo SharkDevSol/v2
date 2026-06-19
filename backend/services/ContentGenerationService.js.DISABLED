@@ -1,0 +1,378 @@
+const ContentPromptBuilder = require('./ContentPromptBuilder');
+const GeminiService = require('./GeminiService');
+
+class ContentGenerationService {
+  constructor(pool) {
+    this.pool = pool;
+    this.promptBuilder = new ContentPromptBuilder();
+    this.geminiService = new GeminiService();
+  }
+
+  /**
+   * Generate content for a given mode
+   * @param {string} mode - Content mode (lesson_plan, lesson_note, homework, worksheet, exam, test, scramble_exam)
+   * @param {Object} config - Configuration for content generation
+   * @param {number} teacherId - Teacher ID
+   * @returns {Promise<Object>} Generated content
+   */
+  async generate(mode, config, teacherId) {
+    let prompt;
+    
+    switch (mode) {
+      case 'lesson_plan':
+        prompt = this.promptBuilder.buildLessonPlanPrompt(config);
+        break;
+      case 'lesson_note':
+        prompt = this.promptBuilder.buildLessonNotePrompt(config);
+        break;
+      case 'homework':
+        prompt = this.promptBuilder.buildHomeworkPrompt(config);
+        break;
+      case 'worksheet':
+        prompt = this.promptBuilder.buildWorksheetPrompt(config);
+        break;
+      case 'test':
+        prompt = this.promptBuilder.buildTestPrompt(config);
+        break;
+      case 'scramble_exam':
+        prompt = this.promptBuilder.buildScrambleExamPrompt(config);
+        break;
+      case 'exam':
+        // Reuse the existing exam prompt builder
+        prompt = this.promptBuilder.buildExamPrompt({
+          grade: config.grade,
+          subject: config.subject,
+          unit: config.chapter || config.topic,
+          language: config.language || 'English',
+          questionTypes: config.questionTypes || [{ type: 'multiple_choice', count: 5, marksEach: 2 }],
+          difficulty: config.difficulty || 'Medium',
+          totalMarks: config.totalMarks || 50,
+          componentType: config.componentType || 'Unit Test'
+        });
+        break;
+      default:
+        throw new Error(`Unsupported content mode: ${mode}`);
+    }
+
+    const parsed = await this.geminiService.generateContent(prompt, config);
+
+    if (mode === 'scramble_exam') {
+      this.postProcessScramble(parsed);
+    }
+
+    this.validateContentStructure(mode, parsed);
+
+    const saved = await this.save({
+      mode,
+      teacher_id: teacherId,
+      school: config.school,
+      grade: config.grade,
+      class_id: config.classId,
+      subject: config.subject,
+      chapter: config.chapter,
+      language: config.language || 'English',
+      difficulty: config.difficulty,
+      config,
+      output: parsed
+    });
+
+    return saved;
+  }
+
+  /**
+   * Save generated content to database
+   */
+  async save(data) {
+    const query = `
+      INSERT INTO ai_content (mode, teacher_id, school, grade, class_id, subject, chapter, language, difficulty, config, output, status)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'draft')
+      RETURNING *
+    `;
+    const values = [
+      data.mode,
+      data.teacher_id,
+      data.school || null,
+      data.grade || null,
+      data.class_id || null,
+      data.subject || null,
+      data.chapter || null,
+      data.language || 'English',
+      data.difficulty || null,
+      JSON.stringify(data.config),
+      JSON.stringify(data.output)
+    ];
+
+    const result = await this.pool.query(query, values);
+    return result.rows[0];
+  }
+
+  /**
+   * Update existing content (e.g., after editing)
+   */
+  async update(id, updates) {
+    const fields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (updates.output) {
+      fields.push(`output = $${paramIndex++}`);
+      values.push(JSON.stringify(updates.output));
+    }
+    if (updates.status) {
+      fields.push(`status = $${paramIndex++}`);
+      values.push(updates.status);
+    }
+    if (updates.config) {
+      fields.push(`config = $${paramIndex++}`);
+      values.push(JSON.stringify(updates.config));
+    }
+
+    fields.push(`version = version + 1`);
+    values.push(id);
+
+    const query = `UPDATE ai_content SET ${fields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+    const result = await this.pool.query(query, values);
+    return result.rows[0];
+  }
+
+  /**
+   * Get content by ID
+   */
+  async getById(id) {
+    const query = 'SELECT * FROM ai_content WHERE id = $1';
+    const result = await this.pool.query(query, [id]);
+    return result.rows[0] || null;
+  }
+
+  /**
+   * List content with filters
+   */
+  async list(filters = {}) {
+    let query = 'SELECT * FROM ai_content WHERE 1=1';
+    const params = [];
+    let paramIndex = 1;
+
+    if (filters.teacher_id) {
+      query += ` AND teacher_id = $${paramIndex++}`;
+      params.push(filters.teacher_id);
+    }
+    if (filters.mode) {
+      query += ` AND mode = $${paramIndex++}`;
+      params.push(filters.mode);
+    }
+    if (filters.class_id) {
+      query += ` AND class_id = $${paramIndex++}`;
+      params.push(filters.class_id);
+    }
+    if (filters.subject) {
+      query += ` AND subject = $${paramIndex++}`;
+      params.push(filters.subject);
+    }
+    if (filters.status) {
+      query += ` AND status = $${paramIndex++}`;
+      params.push(filters.status);
+    }
+
+    query += ' ORDER BY created_at DESC';
+
+    const result = await this.pool.query(query, params);
+    return result.rows;
+  }
+
+  /**
+   * Delete content (soft delete - archive)
+   */
+  async archive(id) {
+    const query = "UPDATE ai_content SET status = 'archived' WHERE id = $1 RETURNING *";
+    const result = await this.pool.query(query, [id]);
+    return result.rows[0] || null;
+  }
+
+  /**
+   * Fisher-Yates shuffle algorithm
+   */
+  shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  /**
+   * Post-process scramble exam: ensure proper Fisher-Yates shuffle across versions
+   */
+  postProcessScramble(data) {
+    const se = data.scrambleExam;
+    if (!se || !se.versions) return;
+
+    // Collect all questions from version A (the base version)
+    const baseSections = se.versions.A?.sections || [];
+    const allQuestions = [];
+    baseSections.forEach(section => {
+      (section.questions || []).forEach(q => {
+        allQuestions.push({ ...q, _sectionType: section.type });
+      });
+    });
+
+    if (allQuestions.length === 0) return;
+
+    // Generate shuffled versions for B and C
+    const versionKeys = ['B', 'C'];
+    versionKeys.forEach(vKey => {
+      // Deep clone questions
+      const shuffled = allQuestions.map(q => ({
+        ...q,
+        options: q.options ? [...q.options] : undefined
+      }));
+
+      // Shuffle question order
+      this.shuffleArray(shuffled);
+
+      // Shuffle MCQ option order within each question
+      shuffled.forEach(q => {
+        if (q.options && q.options.length > 0 && q.correctAnswer) {
+          const correctValue = q.correctAnswer;
+          const letters = q.options.map(o => o.charAt(0));
+          const correctLetter = correctValue.charAt(0);
+
+          // Extract option texts (remove "A. ", "B. ", etc.)
+          const optionTexts = q.options.map(o => o.replace(/^[A-D]\.\s*/, '').trim());
+
+          // Shuffle options
+          const indices = optionTexts.map((_, i) => i);
+          this.shuffleArray(indices);
+
+          // Rebuild options with new letters
+          const newLetters = ['A', 'B', 'C', 'D'];
+          q.options = indices.map((oldIdx, newIdx) =>
+            `${newLetters[newIdx]}. ${optionTexts[oldIdx]}`
+          );
+
+          // Find which new letter corresponds to the correct answer
+          const correctIdx = letters.indexOf(correctLetter);
+          const newCorrectIdx = indices.indexOf(correctIdx);
+          q.correctAnswer = newLetters[newCorrectIdx];
+        }
+      });
+
+      // Group by section type (preserving section structure)
+      const sections = [];
+      const groupedByType = {};
+      shuffled.forEach(q => {
+        const type = q._sectionType || 'mixed';
+        if (!groupedByType[type]) {
+          groupedByType[type] = { type, questions: [] };
+        }
+        groupedByType[type].questions.push(q);
+      });
+
+      let sectionLetter = 'A';
+      let prevTotal = se.versions[vKey]?.sections || [];
+      for (const [type, group] of Object.entries(groupedByType)) {
+        const prevSection = prevTotal.find(s => s.type === type) || {};
+        sections.push({
+          section: sectionLetter,
+          type,
+          instructions: prevSection.instructions || '',
+          totalMarks: group.questions.reduce((sum, q) => sum + (q.marks || 0), 0),
+          questions: group.questions.map((q, idx) => ({
+            id: idx + 1,
+            question: q.question,
+            marks: q.marks,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            explanation: q.explanation
+          }))
+        });
+        sectionLetter = String.fromCharCode(sectionLetter.charCodeAt(0) + 1);
+      }
+
+      se.versions[vKey].sections = sections;
+    });
+
+    // Generate answer keys for all versions
+    se.answerKey = {};
+    for (const [v, version] of Object.entries(se.versions || {})) {
+      se.answerKey[v] = {};
+      (version.sections || []).forEach(section => {
+        (section.questions || []).forEach(q => {
+          se.answerKey[v][q.id] = q.correctAnswer;
+        });
+      });
+    }
+  }
+
+  /**
+   * Validate generated content structure per mode
+   */
+  validateContentStructure(mode, data) {
+    if (!data) {
+      throw new Error('Generated content is empty');
+    }
+
+    const topKey = {
+      lesson_plan: 'lessonPlan',
+      lesson_note: 'lessonNote',
+      homework: 'homework',
+      worksheet: 'worksheet',
+      exam: 'exam',
+      test: 'test',
+      scramble_exam: 'scrambleExam'
+    }[mode];
+
+    if (!topKey) {
+      throw new Error(`Cannot validate unknown mode: ${mode}`);
+    }
+
+    const content = data[topKey];
+    if (!content) {
+      throw new Error(`Generated content missing top-level key "${topKey}"`);
+    }
+
+    this.validateContentByMode(mode, content);
+    return true;
+  }
+
+  validateContentByMode(mode, content) {
+    switch (mode) {
+      case 'lesson_plan':
+        if (!content.learningObjectives || !content.mainActivities || !content.summary) {
+          throw new Error('Lesson plan missing required sections (objectives, activities, or summary)');
+        }
+        break;
+      case 'lesson_note':
+        if (!content.detailedExplanation || !content.keyConcepts || !content.summary) {
+          throw new Error('Lesson note missing required sections (explanation, concepts, or summary)');
+        }
+        break;
+      case 'homework':
+        if (!content.questions || content.questions.length === 0) {
+          throw new Error('Homework must contain at least one question');
+        }
+        break;
+      case 'worksheet':
+        if (!content.sections || content.sections.length === 0) {
+          throw new Error('Worksheet must contain at least one section');
+        }
+        break;
+      case 'exam':
+        if (!content.questions || content.questions.length === 0) {
+          throw new Error('Exam must contain at least one question');
+        }
+        break;
+      case 'test':
+        if (!content.sections || content.sections.length === 0) {
+          throw new Error('Test must contain at least one section');
+        }
+        break;
+      case 'scramble_exam':
+        if (!content.versions || !content.versions.A || !content.versions.B || !content.versions.C) {
+          throw new Error('Scramble exam must contain 3 versions (A, B, C)');
+        }
+        break;
+    }
+  }
+}
+
+module.exports = ContentGenerationService;

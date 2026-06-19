@@ -36,6 +36,7 @@ const initializeExpensesTable = async () => {
     
     // Add new columns if they don't exist (for existing tables)
     const columnsToAdd = [
+      { name: 'status', type: 'VARCHAR(50) DEFAULT \'DRAFT\'' },
       { name: 'approved_by', type: 'INTEGER' },
       { name: 'approved_at', type: 'TIMESTAMP' },
       { name: 'rejected_by', type: 'INTEGER' },
@@ -75,7 +76,7 @@ const initializeExpensesTable = async () => {
 };
 
 // Initialize on module load
-initializeExpensesTable();
+initializeExpensesTable().catch(err => console.error('Init error:', err));
 
 // Generate expense number
 const generateExpenseNumber = async () => {

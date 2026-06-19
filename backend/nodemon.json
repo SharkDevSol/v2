@@ -4,7 +4,9 @@
     "routes/**/*.js",
     "services/**/*.js",
     "config/**/*.js",
-    "middleware/**/*.js"
+    "middleware/**/*.js",
+    "database/**/*.js",
+    "migrations/**/*.js"
   ],
   "ignore": [
     "node_modules/**",
@@ -12,16 +14,12 @@
     "backups/**",
     "logs/**",
     "*.log",
-    "*.json",
-    "*.md",
-    "*.txt",
     "test/**",
     "scripts/**",
-    ".git/**",
-    "prisma/**"
+    ".git/**"
   ],
-  "ext": "js",
-  "delay": 2000,
+  "ext": "js,json,sql",
+  "delay": 3000,
   "verbose": false,
   "env": {
     "NODE_ENV": "development"

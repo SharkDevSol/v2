@@ -1,0 +1,42 @@
+{
+  "app": {
+    "name": "Skoolific",
+    "tagline": "Nidaamka Maamulka Dugsiga"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "students": "Ardayda",
+    "staff": "Shaqaalaha",
+    "attendance": "Xaadirida",
+    "marks": "Buuhooyinka",
+    "schedule": "Jadwalka",
+    "finance": "Maaliyadda",
+    "hr": "Shaqaalaha iyo Mushahaarada",
+    "reports": "Warbixinada",
+    "settings": "Dejinta",
+    "communication": "Isgaarsiinta"
+  },
+  "auth": {
+    "login": "Gal",
+    "logout": "Bax",
+    "username": "Magaca isticmaalaha",
+    "password": "Furaha qarsoodiga",
+    "branchCode": "Koodhka laanta",
+    "rememberMe": "Ixusuusnoqo",
+    "fixErrors": "Fadlan sax qaladka"
+  },
+  "common": {
+    "loading": "Soodajinaya...",
+    "save": "Kaydi",
+    "cancel": "Jooji",
+    "delete": "Tirtir",
+    "edit": "Tafatir",
+    "create": "Abuur",
+    "search": "Raadi",
+    "filter": "Shaandhee",
+    "noData": "Macluumaad ma jiro",
+    "error": "Qalad",
+    "success": "Guul",
+    "confirm": "Xaqiiji"
+  }
+}
