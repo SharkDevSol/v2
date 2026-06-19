@@ -81,7 +81,7 @@ const ClassRequirementsForm = lazy(() => import('./PAGE/Schedule/ClassRequiremen
 const ClassShiftForm = lazy(() => import('./PAGE/Schedule/ClassShiftForm'));
 
 // Accounts & Tasks
-const CreateAccounts = lazy(() => import("./PAGE/CreateAccounts/CreateAccounts"));
+const CreateAccounts = lazy(() => import("./PAGE/CreateMarklist/CreateAccounts/CreateAccounts"));
 const AdminSubAccounts = lazy(() => import("./PAGE/AdminSubAccounts/AdminSubAccounts"));
 const TaskPage = lazy(() => import("./PAGE/TaskPage"));
 const TaskDetail = lazy(() => import("./PAGE/TaskDetail"));

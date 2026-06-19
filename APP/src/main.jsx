@@ -14,6 +14,8 @@ console.log('🌐 Axios configured with baseURL:', axios.defaults.baseURL);
 
 // Register service worker for offline support
 if ('serviceWorker' in navigator) {
+  // Clear all old caches first
+  caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
