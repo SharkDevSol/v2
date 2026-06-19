@@ -1,19 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../config/db");
+const { authenticateWithBranch } = require('../middleware/branchAuth');
 const { getEndpointPath, API_ENDPOINTS } = require('../config/api.config');
 
 // Get all unique guardians aggregated from all class tables
-router.get("/guardians", async (req, res) => {
+router.get("/guardians", authenticateWithBranch, async (req, res) => {
   try {
-    // Get all class tables from classes_schema (same pattern as studentRoutes)
-    const tablesResult = await db.query(
+    const pool = req.branchPool;
+    const dbName = await pool.query('SELECT current_database() as db');
+    console.log('Guardian route DB:', dbName.rows[0].db);
+    
+    const tablesResult = await pool.query(
       'SELECT table_name FROM information_schema.tables WHERE table_schema = $1', 
       ['classes_schema']
     );
     
     const classes = tablesResult.rows.map(row => row.table_name);
     console.log('Found classes:', classes);
+    console.log('Class count:', classes.length);
     
     if (classes.length === 0) {
       return res.json([]);
@@ -21,11 +25,13 @@ router.get("/guardians", async (req, res) => {
 
     // Aggregate guardians from all class tables
     const guardiansMap = new Map();
+    let totalSkipped = 0;
+    let totalProcessed = 0;
     
     for (const className of classes) {
       try {
         // First check if the table has guardian columns
-        const columnsCheck = await db.query(`
+        const columnsCheck = await pool.query(`
           SELECT column_name 
           FROM information_schema.columns 
           WHERE table_schema = 'classes_schema' 
@@ -37,17 +43,21 @@ router.get("/guardians", async (req, res) => {
         const hasGuardianColumns = columnNames.filter(c => c.startsWith('guardian')).length >= 3;
         const hasIsActive = columnNames.includes('is_active');
         
+        console.log(`Class ${className}: columns=${columnNames.length} guardianCols=${columnNames.filter(c=>c.startsWith('guardian')).length} hasGuardian=${hasGuardianColumns} hasActive=${hasIsActive}`);
+        
         if (!hasGuardianColumns) {
           console.log(`Skipping class ${className}: Missing guardian columns`);
+          totalSkipped++;
           continue;
         }
+        totalProcessed++;
         
         // Build query with conditional is_active filter
         const whereClause = hasIsActive 
           ? `WHERE guardian_name IS NOT NULL AND guardian_name != '' AND (is_active = TRUE OR is_active IS NULL)`
           : `WHERE guardian_name IS NOT NULL AND guardian_name != ''`;
         
-        const result = await db.query(`
+        const result = await pool.query(`
           SELECT 
             guardian_name,
             guardian_phone,
@@ -55,9 +65,6 @@ router.get("/guardians", async (req, res) => {
             guardian_username,
             guardian_password,
             student_name,
-            school_id,
-            class_id,
-            image_student,
             age,
             gender
           FROM classes_schema."${className}"
@@ -65,6 +72,8 @@ router.get("/guardians", async (req, res) => {
         `);
         
         console.log(`Class ${className}: Found ${result.rows.length} students with guardians`);
+        
+        console.log(`Class ${className}: Query returned ${result.rows.length} rows`);
         
         for (const row of result.rows) {
           // Use guardian_phone as unique key (or guardian_name if no phone)
@@ -109,6 +118,8 @@ router.get("/guardians", async (req, res) => {
       }
     }
     
+    console.log(`Total processed=${totalProcessed} skipped=${totalSkipped} guardians=${guardiansMap.size}`);
+    
     const guardians = Array.from(guardiansMap.values());
     guardians.sort((a, b) => (a.guardian_name || '').localeCompare(b.guardian_name || ''));
     
@@ -123,12 +134,13 @@ router.get("/guardians", async (req, res) => {
 
 
 // Get students for a specific guardian
-router.get("/guardian/:guardianId/students", async (req, res) => {
+router.get("/guardian/:guardianId/students", authenticateWithBranch, async (req, res) => {
   const { guardianId } = req.params;
+  const pool = req.branchPool;
   
   try {
     // Get all class tables (same pattern as studentRoutes)
-    const tablesResult = await db.query(
+    const tablesResult = await pool.query(
       'SELECT table_name FROM information_schema.tables WHERE table_schema = $1', 
       ['classes_schema']
     );
@@ -139,7 +151,7 @@ router.get("/guardian/:guardianId/students", async (req, res) => {
     for (const className of classes) {
       try {
         // Check if table has is_active column
-        const columnsCheck = await db.query(`
+        const columnsCheck = await pool.query(`
           SELECT column_name 
           FROM information_schema.columns 
           WHERE table_schema = 'classes_schema' 
@@ -154,14 +166,11 @@ router.get("/guardian/:guardianId/students", async (req, res) => {
           ? `WHERE (guardian_phone = $1 OR guardian_name = $1) AND (is_active = TRUE OR is_active IS NULL)`
           : `WHERE (guardian_phone = $1 OR guardian_name = $1)`;
         
-        const result = await db.query(`
+        const result = await pool.query(`
           SELECT 
             student_name,
-            school_id,
-            class_id,
             age,
             gender,
-            image_student,
             username,
             class
           FROM classes_schema."${className}"
