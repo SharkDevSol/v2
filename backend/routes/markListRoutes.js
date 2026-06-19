@@ -1,7 +1,11 @@
 const express = require('express');
 const pool = require('../config/db');
+const { authenticateWithBranch } = require('../middleware/branchAuth');
 const { getEndpointPath, API_ENDPOINTS } = require('../config/api.config');
 const router = express.Router();
+
+// All mark list routes require branch authentication
+router.use(authenticateWithBranch);
 
 // Helper function to check if is_active column exists and build WHERE clause
 const getActiveStudentsWhereClause = async (client, className) => {
