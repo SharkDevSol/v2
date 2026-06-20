@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const { Pool } = require('pg');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs').promises;
@@ -12,13 +11,9 @@ const { authenticateWithBranch, validateBranchCode } = require('../middleware/br
 const { sanitizeInputs } = require('../middleware/inputValidation');
 const { multerFileFilter } = require('../middleware/fileValidation');
 
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'school_management',
-  password: process.env.DB_PASSWORD || '12345678',
-  port: process.env.DB_PORT || 5432,
-});
+function getPool(req) {
+  return req.branchPool;
+}
 
 // Apply input sanitization to all routes
 router.use(sanitizeInputs);
@@ -59,7 +54,7 @@ const upload = multer({
 const initializeFaultsSchema = async () => {
   try {
     console.log('Initializing faults schema: class_students_fault');
-    await pool.query(`
+    await getPool(req).query(`
       CREATE SCHEMA IF NOT EXISTS class_students_fault
     `);
     console.log('Schema class_students_fault created or already exists');
@@ -73,14 +68,24 @@ initializeFaultsSchema().catch(err => console.error('Init error:', err));
 // Get all classes
 router.get('/classes', async (req, res) => {
   try {
-    console.log('Fetching all class names from public schema');
-    const result = await pool.query(`
+    console.log('Fetching all class names');
+    // Try classes_schema first (multi-branch), fall back to public
+    let result = await getPool(req).query(`
       SELECT table_name
       FROM information_schema.tables
-      WHERE table_schema = 'public'
-      AND table_name NOT IN ('users', 'school_student_count')
+      WHERE table_schema = 'classes_schema'
+      AND table_name NOT LIKE 'pg_%'
       ORDER BY table_name
     `);
+    if (result.rows.length === 0) {
+      result = await getPool(req).query(`
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_name NOT IN ('users', 'school_student_count')
+        ORDER BY table_name
+      `);
+    }
     const classes = result.rows.map(row => row.table_name);
     console.log('Fetched classes:', classes);
     res.json(classes);
@@ -98,13 +103,13 @@ router.get('/students/:className', async (req, res) => {
   }
   try {
     // Check if is_active column exists
-    const colCheck = await pool.query(`
+    const colCheck = await getPool(req).query(`
       SELECT column_name FROM information_schema.columns
       WHERE table_schema = 'classes_schema' AND table_name = $1 AND column_name = 'is_active'
     `, [className]);
     const hasIsActive = colCheck.rows.length > 0;
 
-    const result = await pool.query(`
+    const result = await getPool(req).query(`
       SELECT school_id, class_id, student_name
       FROM classes_schema."${className}"
       ${hasIsActive ? "WHERE is_active = TRUE OR is_active IS NULL" : ""}
@@ -126,7 +131,7 @@ router.get('/faults/:className', async (req, res) => {
   }
   try {
     console.log(`Fetching faults for class: ${className}`);
-    const tableExists = await pool.query(`
+    const tableExists = await getPool(req).query(`
       SELECT 1
       FROM information_schema.tables
       WHERE table_schema = 'class_students_fault'
@@ -138,7 +143,7 @@ router.get('/faults/:className', async (req, res) => {
       return res.json([]);
     }
 
-    const result = await pool.query(`
+    const result = await getPool(req).query(`
       SELECT id, school_id, class_id, student_name, date, type, level, description, reported_by, action_taken, attachment
       FROM class_students_fault."${className}"
       ORDER BY date DESC
@@ -166,7 +171,7 @@ router.post('/add-fault', upload, async (req, res) => {
     return res.status(400).json({ error: 'Invalid class name' });
   }
 
-  const client = await pool.connect();
+  const client = await getPool(req).connect();
   try {
     await client.query('BEGIN');
     console.log(`Adding fault for ${student_name} in class ${className}`);
@@ -257,7 +262,7 @@ router.put('/edit-fault/:className/:faultId', upload, async (req, res) => {
     return res.status(400).json({ error: 'All fields except attachment and action_taken are required' });
   }
 
-  const client = await pool.connect();
+  const client = await getPool(req).connect();
   try {
     await client.query('BEGIN');
     console.log(`Editing fault ID ${faultId} in class ${className}`);
@@ -317,7 +322,7 @@ router.delete('/delete-fault/:className/:faultId', async (req, res) => {
     return res.status(400).json({ error: 'Invalid class name' });
   }
 
-  const client = await pool.connect();
+  const client = await getPool(req).connect();
   try {
     await client.query('BEGIN');
     console.log(`Deleting fault ID ${faultId} in class ${className}`);
@@ -363,7 +368,7 @@ router.delete('/delete-fault/:className/:faultId', async (req, res) => {
 router.get('/reports', async (req, res) => {
   try {
     console.log('Fetching reports data');
-    const client = await pool.connect();
+    const client = await getPool(req).connect();
     try {
       // Get all fault tables
       const tablesResult = await client.query(`
