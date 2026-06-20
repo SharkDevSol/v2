@@ -518,12 +518,32 @@ router.get('/generate-weeks', async (req, res) => {
 
     console.log(`Generated ${weeks.length} school weeks for year ${yearNum}`);
 
+    // Find current week
+    const cDate = getCurrentEthiopianDate();
+    let currentWeekId = null;
+    for (const w of weeks) {
+      const match = w.days.some(d => d.year === cDate.year && d.month === cDate.month && d.day === cDate.day);
+      if (match) { currentWeekId = w.id; break; }
+    }
+    // If exact match not found, find the week that contains the current date range
+    if (!currentWeekId) {
+      const dayNum = (cDate.month - 1) * 30 + cDate.day;
+      for (const w of weeks) {
+        const firstDayNum = (w.days[0].month - 1) * 30 + w.days[0].day;
+        const lastDayNum = (w.days[w.days.length - 1].month - 1) * 30 + w.days[w.days.length - 1].day;
+        if (dayNum >= firstDayNum && dayNum <= lastDayNum + 2) {
+          currentWeekId = w.id; break;
+        }
+      }
+    }
+
     res.json({
       success: true,
       data: {
         year: yearNum,
         weeks,
-        totalWeeks: weeks.length
+        totalWeeks: weeks.length,
+        currentWeekId
       }
     });
 

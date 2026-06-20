@@ -283,53 +283,13 @@ const StudentAttendanceSystem = ({ preSelectedClass = null }) => {
 
       if (response.data.success) {
         const weeks = response.data.data.weeks;
+        const currentWeekId = response.data.data.currentWeekId;
         
-        // Mark current week
-        const weeksWithCurrent = weeks.map(week => {
-          let isCurrentWeek = false;
-          
-          if (currentEthiopianDate) {
-            const firstDay = week.days[0];
-            const lastDay = week.days[week.days.length - 1];
-            
-            // Check if today is exactly one of the school days
-            const exactMatch = week.days.some(
-              d => d.year === currentEthiopianDate.year && 
-                   d.month === currentEthiopianDate.month && 
-                   d.day === currentEthiopianDate.day
-            );
-            
-            // Check if today falls within the week range
-            const withinRange = 
-              currentEthiopianDate.year === firstDay.year &&
-              currentEthiopianDate.month === firstDay.month &&
-              currentEthiopianDate.day >= firstDay.day &&
-              currentEthiopianDate.day <= lastDay.day;
-            
-            // Check if week spans months
-            const spansMonths = firstDay.month !== lastDay.month;
-            if (spansMonths) {
-              const inFirstMonth = 
-                currentEthiopianDate.year === firstDay.year &&
-                currentEthiopianDate.month === firstDay.month &&
-                currentEthiopianDate.day >= firstDay.day;
-              
-              const inLastMonth = 
-                currentEthiopianDate.year === lastDay.year &&
-                currentEthiopianDate.month === lastDay.month &&
-                currentEthiopianDate.day <= lastDay.day;
-              
-              isCurrentWeek = exactMatch || inFirstMonth || inLastMonth;
-            } else {
-              isCurrentWeek = exactMatch || withinRange;
-            }
-          }
-          
-          return {
-            ...week,
-            isCurrent: isCurrentWeek
-          };
-        });
+        // Mark current week (prefer backend's currentWeekId)
+        const weeksWithCurrent = weeks.map(week => ({
+          ...week,
+          isCurrent: currentWeekId ? week.id === currentWeekId : false
+        }));
         
         setSchoolWeeks(weeksWithCurrent);
         
