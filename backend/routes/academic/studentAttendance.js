@@ -720,9 +720,10 @@ router.put('/update', async (req, res) => {
     );
 
     // Auto-calculate correct status based on check-in time and shift
+    // Only auto-correct PRESENT→LATE, never override user's explicit LATE/ABSENT choice
     let calculatedStatus = status;
     
-    if ((status === 'PRESENT' || status === 'LATE') && checkInTime && settingsResult.rows.length > 0) {
+    if (status === 'PRESENT' && checkInTime && settingsResult.rows.length > 0) {
       const lateThreshold = shiftNumber === 2 
         ? settingsResult.rows[0].shift2_late_threshold 
         : settingsResult.rows[0].shift1_late_threshold;
