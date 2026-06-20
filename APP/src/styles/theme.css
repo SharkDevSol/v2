@@ -12,6 +12,13 @@
   --color-border: #e5e7eb;
   --color-text: #111827;
   
+  /* Card & Input backgrounds */
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --header-bg: #ffffff;
+  --hover-bg: #f3f4f6;
+  
   /* Text Colors */
   --text-primary: #111827;
   --text-secondary: #6b7280;
@@ -146,6 +153,13 @@
   --border-primary: #374151;
   --border-secondary: #4b5563;
   --border-focus: #a78bfa;
+  
+  /* Card & Input backgrounds */
+  --card-bg: #1f2937;
+  --input-bg: #374151;
+  --sidebar-bg: #1f2937;
+  --header-bg: #111827;
+  --hover-bg: #374151;
   
   /* Brand Colors (slightly adjusted for dark mode) */
   --color-primary: #a78bfa;
