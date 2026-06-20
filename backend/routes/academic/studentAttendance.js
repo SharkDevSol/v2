@@ -601,6 +601,12 @@ router.get('/settings', async (req, res) => {
     if (!settings.auto_absent_enabled) settings.auto_absent_enabled = true;
     if (!settings.school_days || !Array.isArray(settings.school_days)) settings.school_days = [1,2,3,4,5];
 
+    // Convert numeric school_days to day names if needed
+    if (settings.school_days.length > 0 && typeof settings.school_days[0] === 'number') {
+      const dayNames = ['','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      settings.school_days = settings.school_days.map(d => dayNames[d] || d);
+    }
+
     res.json({ success: true, data: settings });
   } catch (error) {
     console.error('Error fetching settings:', error);
