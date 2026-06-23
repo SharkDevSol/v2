@@ -25,7 +25,7 @@ const AITestGenerator = () => {
   const [mappings, setMappings] = useState([]);
   const [formData, setFormData] = useState({
     subjectName: '', className: '', termNumber: 1, componentName: '',
-    totalMarks: 10, difficulty: 'medium', language: 'English',
+    totalMarks: 0, difficulty: ['medium'], language: 'English',
     topic: '', teacherNotes: '', timeLimit: 0,
     questionTypes: [{ type: 'mcq', count: 5, marksPerQuestion: 2 }],
     bonusQuestions: null,
@@ -34,6 +34,8 @@ const AITestGenerator = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [editingQuestion, setEditingQuestion] = useState(null);
+  const [componentMarkValue, setComponentMarkValue] = useState(null);
+  const [markComponentsMap, setMarkComponentsMap] = useState({});
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/mark-list/subjects`, { headers: branchHeaders() })
@@ -45,6 +47,30 @@ const AITestGenerator = () => {
         if (d && d.school_days) setClasses(d.school_days.map((_, i) => `Class${i + 1}`));
       }).catch(() => {});
   }, []);
+
+  // Fetch mark components when subject+class+term selected
+  useEffect(() => {
+    if (!formData.subjectName || !formData.className || !formData.termNumber) return;
+    fetch(`${API_BASE_URL}/mark-list/mark-list/${formData.subjectName}/${formData.className}/${formData.termNumber}`, { headers: branchHeaders() })
+      .then(r => r.json()).then(data => {
+        const config = data.config || data;
+        const comps = config.mark_components || [];
+        const map = {};
+        comps.forEach(c => { map[c.name] = c.percentage; });
+        setMarkComponentsMap(map);
+      }).catch(() => setMarkComponentsMap({}));
+  }, [formData.subjectName, formData.className, formData.termNumber]);
+
+  // Auto-set total marks when component selected
+  useEffect(() => {
+    if (formData.componentName && markComponentsMap[formData.componentName]) {
+      const marks = markComponentsMap[formData.componentName];
+      setFormData(prev => ({ ...prev, totalMarks: marks }));
+      setComponentMarkValue(marks);
+    } else {
+      setComponentMarkValue(null);
+    }
+  }, [formData.componentName, markComponentsMap]);
 
   const updateForm = (key, value) => setFormData(prev => ({ ...prev, [key]: value }));
 
@@ -75,7 +101,7 @@ const AITestGenerator = () => {
       const res = await fetch(`${API_BASE_URL}/ai/generate-test`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...branchHeaders() },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, difficulty: Array.isArray(formData.difficulty) ? formData.difficulty.join(',') : formData.difficulty }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -182,7 +208,7 @@ const AITestGenerator = () => {
               </select>
             </div>
             <div>
-              <label>Component Name *</label>
+              <label>Component *</label>
               <select value={formData.componentName} onChange={e => updateForm('componentName', e.target.value)} style={inputStyle}>
                 <option value="">Select</option>
                 {['test_1', 'test_2', 'mid', 'final', 'practical_1', 'practical_2', 'book'].map(c => (
@@ -191,15 +217,33 @@ const AITestGenerator = () => {
               </select>
             </div>
             <div>
-              <label>Total Marks *</label>
-              <input type="number" value={formData.totalMarks} onChange={e => updateForm('totalMarks', parseInt(e.target.value) || 0)}
-                min="1" max="100" style={inputStyle} />
+              <label>Total Marks</label>
+              <input type="number" value={formData.totalMarks}
+                onChange={e => setFormData(prev => ({ ...prev, totalMarks: parseInt(e.target.value) || 0 }))}
+                min="1" max="100" style={{ ...inputStyle, background: componentMarkValue ? '#e5e7eb' : 'white' }}
+                readOnly={!!componentMarkValue}
+                title={componentMarkValue ? `Set from mark list (${formData.componentName})` : ''} />
+              {componentMarkValue && <small style={{ color: '#6b7280' }}>Set from mark list</small>}
             </div>
             <div>
-              <label>Difficulty</label>
-              <select value={formData.difficulty} onChange={e => updateForm('difficulty', e.target.value)} style={inputStyle}>
-                {DIFFICULTIES.map(d => <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>)}
-              </select>
+              <label>Difficulty (select one or more)</label>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '4px' }}>
+                {DIFFICULTIES.map(d => (
+                  <label key={d} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', borderRadius: '6px', border: formData.difficulty.includes(d) ? '2px solid #2563eb' : '1px solid #d1d5db', background: formData.difficulty.includes(d) ? '#eff6ff' : 'white', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={formData.difficulty.includes(d)}
+                      onChange={() => {
+                        setFormData(prev => ({
+                          ...prev,
+                          difficulty: prev.difficulty.includes(d)
+                            ? prev.difficulty.filter(x => x !== d)
+                            : [...prev.difficulty, d]
+                        }));
+                      }}
+                      style={{ margin: 0 }} />
+                    {d.charAt(0).toUpperCase() + d.slice(1)}
+                  </label>
+                ))}
+              </div>
             </div>
             <div>
               <label>Language</label>
@@ -267,7 +311,7 @@ const AITestGenerator = () => {
             <div><strong>Class:</strong> {formData.className}</div>
             <div><strong>Term:</strong> {formData.termNumber}</div>
             <div><strong>Component:</strong> {formData.componentName}</div>
-            <div><strong>Difficulty:</strong> {formData.difficulty}</div>
+            <div><strong>Difficulty:</strong> {Array.isArray(formData.difficulty) ? formData.difficulty.join(', ') : formData.difficulty}</div>
             <div><strong>Language:</strong> {formData.language}</div>
             <div><strong>Total Marks:</strong> {formData.totalMarks}</div>
             <div><strong>Time Limit:</strong> {formData.timeLimit > 0 ? `${formData.timeLimit} min` : 'No limit'}</div>
