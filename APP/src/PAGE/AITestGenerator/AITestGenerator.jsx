@@ -36,6 +36,9 @@ const AITestGenerator = () => {
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [componentMarkValue, setComponentMarkValue] = useState(null);
   const [markComponentsMap, setMarkComponentsMap] = useState({});
+  const [showSaved, setShowSaved] = useState(false);
+  const [savedTests, setSavedTests] = useState([]);
+  const [loadingTests, setLoadingTests] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/mark-list/subjects`, { headers: branchHeaders() })
@@ -153,6 +156,24 @@ const AITestGenerator = () => {
     }
   };
 
+  const fetchSavedTests = async () => {
+    setLoadingTests(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/ai/list-tests`, { headers: branchHeaders() });
+      const data = await res.json();
+      if (data.success) setSavedTests(data.data || []);
+    } catch (e) {
+      console.error('Error fetching saved tests:', e);
+    } finally {
+      setLoadingTests(false);
+    }
+  };
+
+  const toggleSaved = () => {
+    if (!showSaved) fetchSavedTests();
+    setShowSaved(!showSaved);
+  };
+
   const getAvailableClasses = () => {
     if (!formData.subjectName) return [];
     const classNames = mappings
@@ -163,10 +184,17 @@ const AITestGenerator = () => {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1>AI Test Generator</h1>
-      <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-        Generate exams using AI. Configure the settings and click Generate.
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1>AI Test Generator</h1>
+          <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+            Generate exams using AI. Configure the settings and click Generate.
+          </p>
+        </div>
+        <button onClick={toggleSaved} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #d1d5db', background: showSaved ? '#2563eb' : 'white', color: showSaved ? 'white' : '#333', cursor: 'pointer', fontWeight: 600 }}>
+          {showSaved ? '← Back to Generator' : '📋 Saved Tests'}
+        </button>
+      </div>
 
       {message && (
         <div style={{ padding: '12px', borderRadius: '8px', marginBottom: '1rem',
@@ -176,8 +204,43 @@ const AITestGenerator = () => {
         </div>
       )}
 
+      {/* Saved Tests View */}
+      {showSaved && (
+        <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '1.5rem' }}>
+          <h2>Saved Tests</h2>
+          {loadingTests ? (
+            <p>Loading saved tests...</p>
+          ) : savedTests.length === 0 ? (
+            <p style={{ color: '#6b7280' }}>No saved tests yet. Generate and save a test to see it here.</p>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+                  <th style={{ padding: '10px 12px', textAlign: 'left' }}>Subject</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left' }}>Class</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left' }}>Term</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left' }}>Component</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'center' }}>Questions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {savedTests.map((test, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                    <td style={{ padding: '10px 12px', fontWeight: 500 }}>{test.subject}</td>
+                    <td style={{ padding: '10px 12px' }}>{test.className}</td>
+                    <td style={{ padding: '10px 12px' }}>Term {test.termNumber}</td>
+                    <td style={{ padding: '10px 12px' }}>{test.componentName}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>{test.questionCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
       {/* Step 1: Configuration */}
-      {step === 1 && (
+      {!showSaved && step === 1 && (
         <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '1.5rem' }}>
           <h2>Step 1: Test Configuration</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
@@ -303,7 +366,7 @@ const AITestGenerator = () => {
       )}
 
       {/* Step 2: Preview & Generate */}
-      {step === 2 && (
+      {!showSaved && step === 2 && (
         <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '1.5rem' }}>
           <h2>Step 2: Review Settings & Generate</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem', background: 'white', padding: '1rem', borderRadius: '8px' }}>
@@ -336,7 +399,7 @@ const AITestGenerator = () => {
       )}
 
       {/* Step 3: Review Generated Questions */}
-      {step === 3 && (
+      {!showSaved && step === 3 && (
         <div>
           <h2>Step 3: Review & Edit Questions</h2>
           <p style={{ color: '#6b7280' }}>Generated {generatedQuestions.length} questions. Review, edit, or delete questions below.</p>

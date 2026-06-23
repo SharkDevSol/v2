@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const db = require('../config/db');
+const { authenticateWithBranch } = require('../middleware/branchAuth');
 
 // ─── In-Memory Cache ──────────────────────────────────────────────────────────
 const cache = new Map();
@@ -449,6 +450,33 @@ router.post('/submit-exam', async (req, res) => {
   } catch(e) {
     console.error('Auto-grading error:', e);
     res.status(500).json({ error: 'Grading failed: ' + e.message });
+  }
+});
+
+// GET /api/ai/list-tests — List all saved tests
+router.get('/list-tests', async (req, res) => {
+  try {
+    const schemas = await db.query("SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE 'test_%' ORDER BY schema_name");
+    const tests = [];
+    for (const s of schemas.rows) {
+      const tables = await db.query(`SELECT table_name FROM information_schema.tables WHERE table_schema='${s.schema_name}'`);
+      for (const t of tables.rows) {
+        const count = await db.query(`SELECT COUNT(*) as c FROM "${s.schema_name}"."${t.table_name}"`);
+        const subject = s.schema_name.replace('test_', '').replace('_schema', '').replace(/_/g, ' ');
+        tests.push({
+          id: `${s.schema_name}.${t.table_name}`,
+          subject: subject.charAt(0).toUpperCase() + subject.slice(1),
+          className: t.table_name.split('_term')[0],
+          termNumber: t.table_name.match(/term(\d+)/)?.[1] || '1',
+          componentName: t.table_name.split('_').pop(),
+          questionCount: parseInt(count.rows[0].c)
+        });
+      }
+    }
+    res.json({ success: true, data: tests });
+  } catch (error) {
+    console.error('Error listing tests:', error);
+    res.status(500).json({ error: 'Failed to list tests' });
   }
 });
 
