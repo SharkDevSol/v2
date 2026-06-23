@@ -77,6 +77,13 @@ export const ADMIN_PERMISSIONS = {
       { key: 'class_teacher_assignment', label: 'Class Teachers', path: '/class-teacher-assignment' },
     ],
   },
+  ai_test: {
+    label: 'AI Test Generator',
+    permissions: [
+      { key: 'ai_test_generator', label: 'Generate Tests', path: '/ai-test-generator' },
+      { key: 'saved_tests', label: 'Saved Tests', path: '/ai-tests' },
+    ],
+  },
   evaluation: {
     label: 'Evaluation',
     permissions: [
