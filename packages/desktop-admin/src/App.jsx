@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Login, Home } from '@skoolific/app-shared';
 import { getTauri } from './tauri';
 import './App.css';
-
-// Shared pages from @skoolific/app-shared
-import Login from '@skoolific/app-shared/src/pages/Login/Login';
-import ModernDashboard from '@skoolific/app-shared/src/pages/Dashboard/ModernDashboard';
-import Home from '@skoolific/app-shared/src/pages/Home';
 
 const API_BASE = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5052';
 

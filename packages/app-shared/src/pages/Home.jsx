@@ -162,48 +162,7 @@ const Home = () => {
         },
       ],
     },
-    {
-      section: 'Finance Management',
-      sectionKey: 'finance',
-      icon: <FiDollarSign />,
-      items: [
-        {
-          path: "/finance",
-          icon: <FiPieChart />,
-          label: 'Finance Dashboard',
-        },
-        {
-          path: "/finance/fee-management",
-          icon: <FiDollarSign />,
-          label: 'Fee Management',
-        },
-        {
-          path: "/finance/fee-types",
-          icon: <FiDollarSign />,
-          label: 'Fee Types',
-        },
-        {
-          path: "/finance/monthly-payments",
-          icon: <FiCalendar />,
-          label: 'Monthly Payments',
-        },
-        {
-          path: "/finance/monthly-payment-settings",
-          icon: <FiSettings />,
-          label: 'Payment Settings',
-        },
-        {
-          path: "/finance/reports",
-          icon: <FiFileText />,
-          label: 'Financial Reports',
-        },
-        {
-          path: "/finance/inventory-integration",
-          icon: <FiPackage />,
-          label: '🔗 Inventory Integration',
-        },
-      ],
-    },
+    // Finance Management section removed (not included in shared package)
     {
       section: 'Inventory & Stock',
       sectionKey: 'inventory',
@@ -712,3 +671,4 @@ const Home = () => {
 };
 
 export default Home;
+

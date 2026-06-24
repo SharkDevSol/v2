@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from '../Finance/FinanceReports.module.css';
+import styles from './FinanceReports.module.css';
 
 const HRReports = () => {
   const [selectedReport, setSelectedReport] = useState('staff-summary');
