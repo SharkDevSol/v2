@@ -5,7 +5,20 @@ import axios from 'axios';
 import AddStudentS from './CreateRegisterStudent';
 
 // Mock axios
-vi.mock('axios');
+vi.mock('axios', () => ({
+  default: {
+    create: vi.fn().mockReturnThis(),
+    interceptors: {
+      request: { use: vi.fn(), eject: vi.fn() },
+      response: { use: vi.fn(), eject: vi.fn() }
+    },
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    patch: vi.fn()
+  }
+}));
 
 // Mock react-i18next
 vi.mock('react-i18next', () => ({

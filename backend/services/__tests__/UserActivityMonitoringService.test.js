@@ -4,11 +4,21 @@
  * Phase 10.8.7: Monitor user activity
  */
 
+// Mock the dependencies BEFORE requiring the service
+jest.mock('../../config/db', () => ({
+  query: jest.fn()
+}));
+
+jest.mock('../../utils/logger', () => ({
+  logger: {
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn()
+  }
+}));
+
 const userActivityMonitoring = require('../UserActivityMonitoringService');
 const pool = require('../../config/db');
-
-// Mock the database pool
-jest.mock('../../config/db');
 
 describe('UserActivityMonitoringService', () => {
   beforeEach(() => {
