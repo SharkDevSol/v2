@@ -372,6 +372,37 @@ router.post('/save-test', async (req, res) => {
   }
 });
 
+// GET /api/ai/get-test — Fetch questions for a saved test
+router.get('/get-test', async (req, res) => {
+  try {
+    const { subject, className, termNumber, componentName } = req.query;
+    if (!subject || !className || !termNumber || !componentName) {
+      return res.status(400).json({ error: 'Missing required query params: subject, className, termNumber, componentName' });
+    }
+    const schemaName = `test_${subject.toLowerCase().replace(/[\s\-\.]+/g, '_')}_schema`;
+    const tableName = `${className.toLowerCase()}_term${termNumber}_${componentName.toLowerCase().replace(/[\s\-\.]+/g, '_')}`;
+
+    // Check if table exists
+    const exists = await db.query(`SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='${schemaName}' AND table_name='${tableName}')`);
+    if (!exists.rows[0].exists) {
+      return res.status(404).json({ error: 'Test not found' });
+    }
+
+    const result = await db.query(`SELECT id, question_data, question_type, marks, time_limit, language FROM "${schemaName}"."${tableName}" ORDER BY id`);
+    const questions = result.rows.map(r => ({
+      id: r.id,
+      ...r.question_data,
+      type: r.question_type,
+      marks: r.marks,
+    }));
+
+    res.json({ success: true, data: { subject, className, termNumber, componentName, questions, totalMarks: questions.reduce((s, q) => s + q.marks, 0) } });
+  } catch (error) {
+    console.error('Error fetching test:', error);
+    res.status(500).json({ error: 'Failed to fetch test', details: error.message });
+  }
+});
+
 // POST /api/ai/publish-test — Publish a saved test to students
 router.post('/publish-test', async (req, res) => {
   const { testId, className, subjectName, termNumber, componentName } = req.body;

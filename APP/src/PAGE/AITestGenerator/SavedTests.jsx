@@ -70,8 +70,9 @@ const SavedTests = () => {
                     <span style={{ background: '#dbeafe', borderRadius: '12px', padding: '2px 10px', fontSize: '0.85rem', fontWeight: 600 }}>{test.questionCount}</span>
                   </td>
                   <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                    <button onClick={() => navigate('/ai-test-generator')} style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer', fontSize: '0.85rem' }}>
-                      View
+                    <button onClick={() => navigate(`/ai-test-player?subject=${encodeURIComponent(test.subject)}&class=${encodeURIComponent(test.className)}&term=${test.termNumber}&component=${encodeURIComponent(test.componentName)}`)}
+                      style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', background: '#2563eb', color: 'white', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>
+                      Take Test
                     </button>
                   </td>
                 </tr>

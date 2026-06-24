@@ -56,6 +56,7 @@ const StudentAttendanceSystem = lazy(() => import("./PAGE/Academic/StudentAttend
 const StudentAttendanceTimeSettings = lazy(() => import("./PAGE/Academic/StudentAttendanceTimeSettings"));
 const AITestGenerator = lazy(() => import("./PAGE/AITestGenerator/AITestGenerator"));
 const SavedTests = lazy(() => import("./PAGE/AITestGenerator/SavedTests"));
+const TestPlayer = lazy(() => import("./PAGE/AITestGenerator/TestPlayer"));
 const AILessonLanding = lazy(() => import("./PAGE/Academic/AILessonGenerator"));
 const LessonPlan = lazy(() => import("./PAGE/Academic/AILessonGenerator/LessonPlan"));
 const LessonNote = lazy(() => import("./PAGE/Academic/AILessonGenerator/LessonNote"));
@@ -298,6 +299,7 @@ function App() {
               <Route path="book-upload" element={<BookUpload />} />
               <Route path="ai-test-generator" element={<AITestGenerator />} />
               <Route path="ai-tests" element={<SavedTests />} />
+              <Route path="ai-test-player" element={<TestPlayer />} />
               <Route path="class-teacher-assignment" element={<ClassTeacherAssignment />} />
               <Route path="live-attendance" element={<LiveAttendanceMonitor />} />
               <Route path="communication" element={<AdminChat />} />
