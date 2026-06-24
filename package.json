@@ -6,7 +6,6 @@
   "workspaces": [
     "packages/backend",
     "packages/frontend",
-    "packages/desktop",
     "packages/mobile-staff",
     "packages/mobile-student",
     "packages/mobile-guardian",
@@ -21,7 +20,6 @@
     "dev:frontend": "npm run dev --workspace=packages/frontend",
     "start:backend": "npm run start --workspace=packages/backend",
     "build:frontend": "npm run build --workspace=packages/frontend",
-    "build:desktop": "npm run build --workspace=packages/desktop",
     "build:mobile-staff": "npm run build --workspace=packages/mobile-staff",
     "build:mobile-student": "npm run build --workspace=packages/mobile-student",
     "build:mobile-guardian": "npm run build --workspace=packages/mobile-guardian",
