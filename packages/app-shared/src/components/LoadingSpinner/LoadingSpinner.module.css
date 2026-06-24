@@ -1,0 +1,124 @@
+/* LoadingSpinner Component Styles */
+
+.spinnerWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.spinner {
+  border-radius: 50%;
+  border-style: solid;
+  border-color: var(--border-primary, #e5e7eb);
+  border-top-color: var(--color-primary, #3b82f6);
+  animation: spin 0.8s linear infinite;
+}
+
+/* Sizes */
+.sm {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.md {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.lg {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+/* Animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading message */
+.message {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary, #6b7280);
+  text-align: center;
+}
+
+/* Screen reader only */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Full screen overlay */
+.fullScreenOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fullScreenOverlay .spinnerWrapper {
+  background-color: var(--bg-elevated, #ffffff);
+  padding: 32px;
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: var(--shadow-2xl, 0 25px 50px -12px rgba(0, 0, 0, 0.25));
+}
+
+.fullScreenOverlay .message {
+  color: var(--text-primary, #111827);
+}
+
+/* RTL Support */
+[dir="rtl"] .spinnerWrapper {
+  direction: rtl;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .spinner {
+    border-color: var(--border-primary, #374151);
+    border-top-color: var(--color-primary, #60a5fa);
+  }
+  
+  .message {
+    color: var(--text-secondary, #9ca3af);
+  }
+  
+  .fullScreenOverlay .spinnerWrapper {
+    background-color: var(--bg-elevated, #1f2937);
+  }
+  
+  .fullScreenOverlay .message {
+    color: var(--text-primary, #f9fafb);
+  }
+}

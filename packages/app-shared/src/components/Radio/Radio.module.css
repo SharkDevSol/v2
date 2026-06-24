@@ -1,0 +1,209 @@
+/* Radio Component Styles */
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radioWrapper {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.radioWrapper.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.radioInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radioCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-primary);
+  border-radius: 50%;
+  background-color: var(--bg-primary);
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+  margin-top: 2px; /* Align with first line of text */
+}
+
+/* Sizes */
+.sm .radioCircle {
+  width: 16px;
+  height: 16px;
+}
+
+.md .radioCircle {
+  width: 20px;
+  height: 20px;
+}
+
+.lg .radioCircle {
+  width: 24px;
+  height: 24px;
+}
+
+/* Dot */
+.radioDot {
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  transition: all var(--transition-base);
+}
+
+.sm .radioDot {
+  width: 8px;
+  height: 8px;
+}
+
+.md .radioDot {
+  width: 10px;
+  height: 10px;
+}
+
+.lg .radioDot {
+  width: 12px;
+  height: 12px;
+}
+
+/* States */
+.radioCircle.checked {
+  border-color: var(--color-primary);
+}
+
+.radioCircle.error {
+  border-color: var(--color-error);
+}
+
+.radioCircle.checked.error {
+  border-color: var(--color-error);
+}
+
+.radioCircle.checked.error .radioDot {
+  background-color: var(--color-error);
+}
+
+/* Hover */
+.radioWrapper:not(.disabled):hover .radioCircle {
+  border-color: var(--color-primary);
+}
+
+/* Focus */
+.radioInput:focus-visible + .radioCircle {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Label wrapper */
+.labelWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Label */
+.label {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: var(--line-height-normal);
+  font-weight: 500;
+}
+
+.sm .label {
+  font-size: 12px;
+}
+
+.lg .label {
+  font-size: 16px;
+}
+
+/* Required indicator */
+.required {
+  color: var(--color-error);
+  margin-left: 4px;
+}
+
+/* Description */
+.description {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.sm .description {
+  font-size: 11px;
+}
+
+.lg .description {
+  font-size: 14px;
+}
+
+/* Helper text */
+.helperText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-left: 28px;
+  line-height: var(--line-height-normal);
+}
+
+.sm .helperText {
+  margin-left: 24px;
+}
+
+.lg .helperText {
+  margin-left: 32px;
+}
+
+.errorText {
+  color: var(--color-error);
+}
+
+/* Dark mode adjustments */
+.dark .radioCircle {
+  background-color: var(--bg-secondary);
+}
+
+/* RTL Support */
+[dir="rtl"] .radioWrapper {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .helperText {
+  margin-left: 0;
+  margin-right: 28px;
+}
+
+[dir="rtl"] .sm .helperText {
+  margin-right: 24px;
+}
+
+[dir="rtl"] .lg .helperText {
+  margin-right: 32px;
+}
+
+[dir="rtl"] .required {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+/* Touch target size for accessibility (minimum 44x44px) */
+@media (pointer: coarse) {
+  .radioWrapper {
+    min-height: 44px;
+    align-items: center;
+  }
+  
+  .radioCircle {
+    margin-top: 0;
+  }
+}

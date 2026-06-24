@@ -1,0 +1,406 @@
+/* StatCard Component Styles */
+
+.statCard {
+  background-color: var(--bg-elevated, var(--card-bg));
+  border: 1px solid var(--border-primary, var(--border-color));
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  transition: all var(--transition-base, 0.2s ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.statCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background-color: var(--color-primary, var(--primary-color));
+  opacity: 0;
+  transition: opacity var(--transition-base, 0.2s ease);
+}
+
+/* RTL Support */
+[dir='rtl'] .statCard::before {
+  left: auto;
+  right: 0;
+}
+
+.statCard:hover::before {
+  opacity: 1;
+}
+
+/* Size Variants */
+.small {
+  padding: 16px;
+}
+
+.small .iconWrapper {
+  width: 36px;
+  height: 36px;
+}
+
+.small .title {
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.small .value {
+  font-size: var(--font-size-2xl, 1.5rem);
+}
+
+.small .header {
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.medium {
+  padding: 24px;
+}
+
+.large {
+  padding: 32px;
+}
+
+.large .iconWrapper {
+  width: 56px;
+  height: 56px;
+}
+
+.large .title {
+  font-size: var(--font-size-base, 1rem);
+}
+
+.large .value {
+  font-size: var(--font-size-5xl, 3rem);
+}
+
+.large .header {
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* Clickable state */
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  box-shadow: var(--shadow-md, var(--card-shadow-hover));
+  transform: translateY(-2px);
+  border-color: var(--color-primary, var(--primary-color));
+}
+
+.clickable:active {
+  transform: translateY(0);
+}
+
+.clickable:focus-visible {
+  outline: 2px solid var(--border-focus, var(--focus-color));
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.loading {
+  pointer-events: none;
+}
+
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary, var(--bg-tertiary)) 0%,
+    var(--bg-tertiary, var(--bg-secondary)) 50%,
+    var(--bg-secondary, var(--bg-tertiary)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm, 6px);
+  height: 20px;
+}
+
+/* RTL Support for skeleton */
+[dir='rtl'] .skeleton {
+  background: linear-gradient(
+    -90deg,
+    var(--bg-secondary, var(--bg-tertiary)) 0%,
+    var(--bg-tertiary, var(--bg-secondary)) 50%,
+    var(--bg-secondary, var(--bg-tertiary)) 100%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton:nth-child(1) {
+  width: 60%;
+  height: 16px;
+}
+
+.skeleton:nth-child(2) {
+  width: 100%;
+  height: 32px;
+}
+
+.skeleton:nth-child(3) {
+  width: 40%;
+  height: 14px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* RTL Support for header */
+[dir='rtl'] .header {
+  flex-direction: row-reverse;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md, 8px);
+  background-color: var(--color-primary-light, var(--primary-light));
+  color: var(--color-primary, var(--primary-color));
+  flex-shrink: 0;
+  transition: all var(--transition-base, 0.2s ease);
+}
+
+.statCard:hover .iconWrapper {
+  transform: scale(1.05);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* RTL Support for content */
+[dir='rtl'] .content {
+  text-align: right;
+}
+
+.title {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--text-secondary, var(--text-muted));
+  margin: 0;
+  line-height: var(--line-height-normal, 1.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--text-tertiary, var(--text-muted));
+  margin: 4px 0 0 0;
+  line-height: var(--line-height-normal, 1.5);
+}
+
+/* Body */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.value {
+  font-size: var(--font-size-4xl, 2.25rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--text-primary, var(--text-color));
+  line-height: var(--line-height-tight, 1.25);
+  margin: 0;
+}
+
+/* Trend */
+.trendWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* RTL Support for trend wrapper */
+[dir='rtl'] .trendWrapper {
+  flex-direction: row-reverse;
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.trendUp {
+  color: var(--color-success-dark, var(--success-color));
+  background-color: var(--color-success-light, var(--success-bg));
+}
+
+.trendDown {
+  color: var(--color-error-dark, var(--error-color));
+  background-color: var(--color-error-light, var(--error-bg));
+}
+
+.trendNeutral {
+  color: var(--text-secondary, var(--text-muted));
+  background-color: var(--bg-secondary, var(--bg-tertiary));
+}
+
+.trendLabel {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--text-tertiary, var(--text-muted));
+}
+
+/* Variants */
+.primary::before {
+  background-color: var(--color-primary, var(--primary-color));
+}
+
+.primary .iconWrapper {
+  background-color: var(--color-primary-light, var(--primary-light));
+  color: var(--color-primary, var(--primary-color));
+}
+
+.secondary::before {
+  background-color: var(--color-secondary, var(--secondary-color));
+}
+
+.secondary .iconWrapper {
+  background-color: var(--color-secondary-light, rgba(143, 162, 255, 0.1));
+  color: var(--color-secondary, var(--secondary-color));
+}
+
+.success::before {
+  background-color: var(--color-success, var(--success-color));
+}
+
+.success .iconWrapper {
+  background-color: var(--color-success-light, var(--success-bg));
+  color: var(--color-success-dark, var(--success-color));
+}
+
+.warning::before {
+  background-color: var(--color-warning, var(--warning-color));
+}
+
+.warning .iconWrapper {
+  background-color: var(--color-warning-light, var(--warning-bg));
+  color: var(--color-warning-dark, var(--warning-color));
+}
+
+.error::before {
+  background-color: var(--color-error, var(--error-color));
+}
+
+.error .iconWrapper {
+  background-color: var(--color-error-light, var(--error-bg));
+  color: var(--color-error-dark, var(--error-color));
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .statCard {
+    padding: 20px;
+  }
+
+  .header {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .iconWrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .value {
+    font-size: var(--font-size-3xl, 1.875rem);
+  }
+  
+  /* Adjust size variants for mobile */
+  .small {
+    padding: 16px;
+  }
+  
+  .small .iconWrapper {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .small .value {
+    font-size: var(--font-size-xl, 1.25rem);
+  }
+  
+  .large {
+    padding: 24px;
+  }
+  
+  .large .iconWrapper {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .large .value {
+    font-size: var(--font-size-4xl, 2.25rem);
+  }
+}
+
+/* Dark mode adjustments */
+.dark .statCard,
+body.dark-mode .statCard {
+  background-color: var(--bg-elevated, var(--card-bg));
+  border-color: var(--border-primary, var(--border-color));
+}
+
+.dark .iconWrapper,
+body.dark-mode .iconWrapper {
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+.dark .primary .iconWrapper,
+body.dark-mode .primary .iconWrapper {
+  background-color: rgba(167, 139, 250, 0.1);
+}
+
+.dark .secondary .iconWrapper,
+body.dark-mode .secondary .iconWrapper {
+  background-color: rgba(45, 212, 191, 0.1);
+}
+
+.dark .success .iconWrapper,
+body.dark-mode .success .iconWrapper {
+  background-color: rgba(74, 222, 128, 0.1);
+}
+
+.dark .warning .iconWrapper,
+body.dark-mode .warning .iconWrapper {
+  background-color: rgba(251, 191, 36, 0.1);
+}
+
+.dark .error .iconWrapper,
+body.dark-mode .error .iconWrapper {
+  background-color: rgba(248, 113, 113, 0.1);
+}

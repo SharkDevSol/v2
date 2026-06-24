@@ -1,0 +1,226 @@
+/* DatePicker Component Styles */
+
+.datePickerGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  position: relative;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.required {
+  color: var(--color-error);
+  margin-inline-start: 4px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 16px;
+  padding-inline-start: 44px;
+  padding-inline-end: 44px;
+  font-size: 16px;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all var(--transition-base);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--bg-secondary);
+}
+
+/* Focused state */
+.inputWrapper.focused .input {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Error state */
+.inputWrapper.error .input {
+  border-color: var(--color-error);
+}
+
+.inputWrapper.error .input:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Disabled state */
+.inputWrapper.disabled {
+  opacity: 0.6;
+}
+
+/* Prefix icon (calendar icon) */
+.prefixIcon {
+  position: absolute;
+  inset-inline-start: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Clear button */
+.clearButton {
+  position: absolute;
+  inset-inline-end: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 1;
+  transition: color var(--transition-base);
+  border-radius: var(--radius-sm);
+}
+
+.clearButton:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+}
+
+.clearButton:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Calendar popup */
+.calendarPopup {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-start: 0;
+  z-index: 1000;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  min-width: 320px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Error message */
+.errorMessage {
+  font-size: 12px;
+  color: var(--color-error);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Dark mode adjustments */
+.dark .input {
+  background-color: var(--bg-secondary);
+}
+
+.dark .input:disabled {
+  background-color: var(--bg-tertiary);
+}
+
+.dark .calendarPopup {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* RTL support */
+[dir="rtl"] .required {
+  margin-inline-start: 4px;
+  margin-inline-end: 0;
+}
+
+[dir="rtl"] .prefixIcon {
+  inset-inline-start: auto;
+  inset-inline-end: 12px;
+}
+
+[dir="rtl"] .clearButton {
+  inset-inline-end: auto;
+  inset-inline-start: 12px;
+}
+
+[dir="rtl"] .input {
+  padding-inline-start: 44px;
+  padding-inline-end: 44px;
+}
+
+[dir="rtl"] .calendarPopup {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+
+/* Touch target size for accessibility (minimum 44x44px) */
+@media (pointer: coarse) {
+  .input {
+    min-height: 44px;
+  }
+  
+  .clearButton {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .calendarPopup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    inset-inline-start: auto;
+    width: calc(100vw - 32px);
+    max-width: 360px;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}

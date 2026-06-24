@@ -1,0 +1,330 @@
+/* NotificationCenter Component Styles */
+
+.notificationCenter {
+  position: relative;
+}
+
+.notificationButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.notificationButton:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.notificationButton:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: calc(100% + var(--spacing-sm));
+  right: 0;
+  width: 380px;
+  max-height: 500px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+  animation: slideDown var(--transition-base);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.dropdownTitle {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.unreadCount {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* Notification List */
+.notificationList {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.notificationItem {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.notificationItem:last-child {
+  border-bottom: none;
+}
+
+.notificationItem:hover {
+  background-color: var(--bg-hover);
+}
+
+.notificationItem:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -2px;
+}
+
+.notificationItem.unread {
+  background-color: var(--color-primary-light);
+}
+
+.notificationIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+}
+
+.notificationIcon.info {
+  background-color: var(--color-info-light);
+  color: var(--color-info);
+}
+
+.notificationIcon.success {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.notificationIcon.warning {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.notificationIcon.error {
+  background-color: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.notificationContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.notificationHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+}
+
+.notificationTitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.unreadDot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+.notificationMessage {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.notificationTime {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.emptyState svg {
+  margin-bottom: var(--spacing-md);
+  opacity: 0.5;
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+/* Dropdown Footer */
+.dropdownFooter {
+  padding: var(--spacing-sm);
+  border-top: 1px solid var(--border-primary);
+}
+
+.viewAllButton {
+  width: 100%;
+  padding: var(--spacing-sm);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.viewAllButton:hover {
+  background-color: var(--bg-hover);
+}
+
+.viewAllButton:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Responsive Design */
+
+/* Mobile: 320px - 767px */
+@media (max-width: 767px) {
+  .dropdown {
+    position: fixed;
+    top: 60px;
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    width: auto;
+    max-height: calc(100vh - 80px);
+  }
+
+  .notificationButton {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Tablet: 768px - 1023px */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .dropdown {
+    width: 340px;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .dropdown {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .badge {
+  right: auto;
+  left: 4px;
+}
+
+[dir="rtl"] .notificationItem {
+  text-align: right;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .dropdown {
+    animation: none;
+  }
+
+  .notificationButton,
+  .notificationItem,
+  .viewAllButton {
+    transition: none;
+  }
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] .dropdown {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-secondary);
+}
+
+[data-theme="dark"] .notificationItem.unread {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+}
+
+/* Scrollbar styling */
+.notificationList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notificationList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notificationList::-webkit-scrollbar-thumb {
+  background-color: var(--border-primary);
+  border-radius: var(--radius-full);
+}
+
+.notificationList::-webkit-scrollbar-thumb:hover {
+  background-color: var(--border-secondary);
+}

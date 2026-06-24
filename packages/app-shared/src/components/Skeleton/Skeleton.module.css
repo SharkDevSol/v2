@@ -1,0 +1,121 @@
+/* Skeleton Component Styles */
+
+.skeleton {
+  background-color: var(--bg-secondary, #f3f4f6);
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Variants */
+.text {
+  border-radius: var(--radius-sm, 4px);
+  height: 1em;
+  margin-bottom: 8px;
+}
+
+.text:last-child {
+  margin-bottom: 0;
+}
+
+.circular {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.rectangular {
+  border-radius: var(--radius-md, 8px);
+  width: 100%;
+  height: 200px;
+}
+
+/* Wave Animation (shimmer effect) */
+.wave::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Pulse Animation (fade in/out effect) */
+.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Skeleton group */
+.skeletonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Screen reader only */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* RTL Support */
+[dir="rtl"] .wave::after {
+  animation: shimmerRtl 1.5s infinite;
+}
+
+@keyframes shimmerRtl {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .skeleton {
+    background-color: var(--bg-secondary, #374151);
+  }
+  
+  .wave::after {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+  }
+}

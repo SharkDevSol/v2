@@ -12,7 +12,9 @@
     "packages/mobile-super-admin",
     "packages/desktop-super-admin",
     "packages/mobile-admin",
-    "packages/desktop-staff"
+    "packages/desktop-staff",
+    "packages/app-shared",
+    "packages/desktop-admin"
   ],
   "scripts": {
     "install:all": "npm install",
@@ -26,9 +28,12 @@
     "build:mobile-super-admin": "npm run build --workspace=packages/mobile-super-admin",
     "build:mobile-admin": "npm run build --workspace=packages/mobile-admin",
     "build:desktop-staff": "npm run build --workspace=packages/desktop-staff",
-    "dev:desktop": "npm run dev --workspace=packages/desktop",
+    "build:desktop-admin": "npm run build --workspace=packages/desktop-admin",
+    "dev:desktop-admin": "npm run dev --workspace=packages/desktop-admin",
     "dev:mobile-admin": "npm run dev --workspace=packages/mobile-admin",
     "dev:desktop-staff": "npm run dev --workspace=packages/desktop-staff",
+    "tauri:dev:admin": "npm run tauri:dev --workspace=packages/desktop-admin",
+    "tauri:build:admin": "npm run tauri:build --workspace=packages/desktop-admin",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",

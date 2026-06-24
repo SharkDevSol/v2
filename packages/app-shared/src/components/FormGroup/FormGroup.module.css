@@ -1,0 +1,212 @@
+/* FormGroup Component Styles */
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Inline layout (horizontal) */
+.formGroup.inline {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Label */
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  transition: color var(--transition-base);
+}
+
+.formGroup.inline .label {
+  margin-bottom: 0;
+  padding-top: 10px; /* Align with input field */
+  flex-shrink: 0;
+}
+
+.labelIcon {
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+}
+
+.labelText {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.required {
+  color: var(--color-error);
+  margin-inline-start: 2px;
+  font-weight: 600;
+}
+
+/* Field wrapper */
+.fieldWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  width: 100%;
+}
+
+.formGroup.inline .fieldWrapper {
+  flex: 1;
+  min-width: 0; /* Allow flex item to shrink below content size */
+}
+
+/* Messages (error and helper text) */
+.message {
+  font-size: 12px;
+  margin-top: 2px;
+  display: block;
+  line-height: 1.4;
+}
+
+.errorMessage {
+  color: var(--color-error);
+  font-weight: 500;
+}
+
+.helperMessage {
+  color: var(--text-secondary);
+}
+
+/* Error state styling */
+.formGroup.hasError .label {
+  color: var(--color-error);
+}
+
+/* Focus-within effect for better UX */
+.formGroup:focus-within .label {
+  color: var(--color-primary);
+}
+
+.formGroup.hasError:focus-within .label {
+  color: var(--color-error);
+}
+
+/* Dark mode adjustments */
+.dark .label {
+  color: var(--text-primary);
+}
+
+.dark .helperMessage {
+  color: var(--text-tertiary);
+}
+
+/* RTL Support */
+[dir="rtl"] .required {
+  margin-inline-start: 2px;
+  margin-inline-end: 0;
+}
+
+[dir="rtl"] .label {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .labelText {
+  flex-direction: row-reverse;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  /* Stack inline forms on mobile */
+  .formGroup.inline {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .formGroup.inline .label {
+    padding-top: 0;
+    width: 100% !important;
+    min-width: auto !important;
+  }
+  
+  .formGroup {
+    margin-bottom: 12px;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .formGroup.inline .label {
+    min-width: 120px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .label {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Print styles */
+@media print {
+  .formGroup {
+    margin-bottom: 8px;
+    break-inside: avoid;
+  }
+  
+  .errorMessage {
+    color: #000;
+    font-weight: bold;
+  }
+  
+  .helperMessage {
+    color: var(--text-secondary);
+  }
+}
+
+/* Animation for error messages */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.errorMessage {
+  animation: slideIn 0.2s ease-out;
+}
+
+/* Accessibility: High contrast mode support */
+@media (prefers-contrast: high) {
+  .label {
+    font-weight: 600;
+  }
+  
+  .errorMessage {
+    font-weight: 700;
+    text-decoration: underline;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .errorMessage {
+    animation: none;
+  }
+  
+  .label,
+  .formGroup:focus-within .label {
+    transition: none;
+  }
+}

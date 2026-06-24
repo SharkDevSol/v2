@@ -1,0 +1,275 @@
+/* Base Language Selector Styles */
+.languageSelector {
+  position: relative;
+  display: inline-block;
+}
+
+/* Button Styles */
+.languageButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  min-height: 44px; /* WCAG AA touch target size */
+  border-radius: var(--radius-md, 8px);
+  background-color: var(--bg-secondary, #f3f4f6);
+  border: 1px solid var(--border-primary, #e5e7eb);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: var(--font-size-sm, 14px);
+  color: var(--text-primary, #1f2937);
+  font-family: inherit;
+}
+
+.languageButton:hover {
+  background-color: var(--bg-tertiary, #e5e7eb);
+  border-color: var(--border-secondary, #d1d5db);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+}
+
+.languageButton:focus {
+  outline: none;
+  border-color: var(--border-focus, #8b5cf6);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.languageButton:focus-visible {
+  outline: 2px solid var(--border-focus, #8b5cf6);
+  outline-offset: 2px;
+}
+
+.icon {
+  color: var(--text-secondary, #6b7280);
+  flex-shrink: 0;
+}
+
+.flag {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.languageName {
+  font-weight: var(--font-weight-medium, 500);
+  white-space: nowrap;
+}
+
+/* Dropdown Variant Styles */
+.languageDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background-color: var(--bg-elevated, #ffffff);
+  border: 1px solid var(--border-primary, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05));
+  padding: 8px;
+  z-index: var(--z-dropdown, 1000);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.languageOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px; /* WCAG AA touch target size */
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.languageOption:hover {
+  background-color: var(--bg-secondary, #f3f4f6);
+}
+
+.languageOption:focus {
+  outline: none;
+  background-color: var(--bg-secondary, #f3f4f6);
+  box-shadow: 0 0 0 2px var(--border-focus, #8b5cf6);
+}
+
+.languageOption:focus-visible {
+  outline: 2px solid var(--border-focus, #8b5cf6);
+  outline-offset: -2px;
+}
+
+.languageOption.active {
+  background-color: var(--color-primary-light, rgba(139, 92, 246, 0.1));
+  color: var(--color-primary, #8b5cf6);
+}
+
+.languageInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.nativeName {
+  font-size: var(--font-size-sm, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--text-primary, #1f2937);
+}
+
+.languageOption.active .nativeName {
+  color: var(--color-primary, #8b5cf6);
+}
+
+.englishName {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--text-secondary, #6b7280);
+}
+
+.checkIcon {
+  color: var(--color-primary, #8b5cf6);
+  flex-shrink: 0;
+}
+
+/* Button Group Variant Styles */
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.groupButton {
+  min-width: 100px;
+  justify-content: center;
+  position: relative;
+}
+
+.groupButton.active {
+  background-color: var(--color-primary, #8b5cf6);
+  border-color: var(--color-primary, #8b5cf6);
+  color: #ffffff;
+}
+
+.groupButton.active .languageName {
+  color: #ffffff;
+}
+
+.groupButton.active .flag {
+  filter: brightness(1.2);
+}
+
+.groupButton.active .checkIcon {
+  color: #ffffff;
+}
+
+.groupButton:hover:not(.active) {
+  background-color: var(--bg-tertiary, #e5e7eb);
+}
+
+/* RTL Support */
+[dir="rtl"] .languageDropdown {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .languageOption {
+  text-align: right;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .languageButton {
+    background-color: var(--bg-secondary, #374151);
+    border-color: var(--border-primary, #4b5563);
+    color: var(--text-primary, #f9fafb);
+  }
+
+  .languageButton:hover {
+    background-color: var(--bg-tertiary, #4b5563);
+    border-color: var(--border-secondary, #6b7280);
+  }
+
+  .languageDropdown {
+    background-color: var(--bg-elevated, #1f2937);
+    border-color: var(--border-primary, #374151);
+  }
+
+  .languageOption:hover {
+    background-color: var(--bg-secondary, #374151);
+  }
+
+  .nativeName {
+    color: var(--text-primary, #f9fafb);
+  }
+
+  .englishName {
+    color: var(--text-secondary, #9ca3af);
+  }
+
+  .icon {
+    color: var(--text-secondary, #9ca3af);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+  .languageDropdown {
+    min-width: 180px;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .groupButton {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .languageButton {
+    border-width: 2px;
+  }
+
+  .languageButton:focus {
+    outline: 3px solid;
+    outline-offset: 2px;
+  }
+
+  .languageOption.active {
+    border: 2px solid var(--color-primary, #8b5cf6);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .languageButton,
+  .languageOption {
+    transition: none;
+  }
+
+  .languageDropdown {
+    animation: none;
+  }
+
+  .languageButton:hover {
+    transform: none;
+  }
+}

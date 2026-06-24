@@ -1,0 +1,212 @@
+/* Input Component Styles */
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.required {
+  color: var(--color-error);
+  margin-inline-start: 4px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all var(--transition-base);
+  font-family: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--bg-secondary);
+}
+
+.input:read-only {
+  background-color: var(--bg-secondary);
+  cursor: default;
+}
+
+/* Validation states */
+.inputWrapper.error .input {
+  border-color: var(--color-error);
+}
+
+.inputWrapper.error .input:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.inputWrapper.success .input {
+  border-color: var(--color-success);
+}
+
+.inputWrapper.success .input:focus {
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.inputWrapper.warning .input {
+  border-color: var(--color-warning);
+}
+
+.inputWrapper.warning .input:focus {
+  box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
+}
+
+/* Icon support - prefix */
+.prefixIcon {
+  position: absolute;
+  inset-inline-start: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.inputWrapper.hasPrefix .input {
+  padding-inline-start: 44px;
+}
+
+/* Icon support - suffix */
+.suffixIcon {
+  position: absolute;
+  inset-inline-end: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 1;
+  transition: color var(--transition-base);
+}
+
+.suffixIcon:hover:not(:disabled) {
+  color: var(--text-primary);
+}
+
+.suffixIcon:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.inputWrapper.hasSuffix .input {
+  padding-inline-end: 44px;
+}
+
+/* Helper text and validation messages */
+.helperText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.validationMessage {
+  font-size: 12px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.errorText {
+  color: var(--color-error);
+}
+
+.successText {
+  color: var(--color-success);
+}
+
+.warningText {
+  color: var(--color-warning);
+}
+
+/* Disabled and readonly states */
+.inputWrapper.disabled {
+  opacity: 0.6;
+}
+
+.inputWrapper.readOnly .input {
+  background-color: var(--bg-secondary);
+  cursor: default;
+}
+
+/* Dark mode adjustments */
+.dark .input {
+  background-color: var(--bg-secondary);
+}
+
+.dark .input:disabled,
+.dark .input:read-only {
+  background-color: var(--bg-tertiary);
+}
+
+/* RTL support */
+[dir="rtl"] .required {
+  margin-inline-start: 4px;
+  margin-inline-end: 0;
+}
+
+[dir="rtl"] .prefixIcon {
+  inset-inline-start: auto;
+  inset-inline-end: 12px;
+}
+
+[dir="rtl"] .suffixIcon {
+  inset-inline-end: auto;
+  inset-inline-start: 12px;
+}
+
+[dir="rtl"] .inputWrapper.hasPrefix .input {
+  padding-inline-start: 16px;
+  padding-inline-end: 44px;
+}
+
+[dir="rtl"] .inputWrapper.hasSuffix .input {
+  padding-inline-end: 16px;
+  padding-inline-start: 44px;
+}
+
+/* Touch target size for accessibility (minimum 44x44px) */
+@media (pointer: coarse) {
+  .input {
+    min-height: 44px;
+  }
+  
+  .suffixIcon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

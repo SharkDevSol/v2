@@ -1,0 +1,526 @@
+/* animations.css - Smooth animations and transitions for Skoolific V2 */
+
+/* ============================================
+   ANIMATION GUIDELINES
+   ============================================
+   - Duration: 150ms - 300ms
+   - Easing: ease-in-out, ease-out
+   - Use transform and opacity (GPU-accelerated)
+   - Respect prefers-reduced-motion
+   ============================================ */
+
+/* ============================================
+   GLOBAL TRANSITIONS
+   ============================================ */
+
+/* Theme switching animation */
+:root {
+  transition: background-color 200ms ease-in-out,
+              color 200ms ease-in-out;
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, input, select, textarea {
+  transition: background-color 150ms ease-in-out,
+              color 150ms ease-in-out,
+              border-color 150ms ease-in-out,
+              box-shadow 150ms ease-in-out,
+              transform 150ms ease-in-out,
+              opacity 150ms ease-in-out;
+}
+
+/* ============================================
+   SIDEBAR ANIMATIONS
+   ============================================ */
+
+/* Sidebar collapse/expand */
+.sidebar {
+  transition: width 250ms ease-in-out,
+              transform 250ms ease-in-out;
+}
+
+.sidebar-collapsed {
+  animation: sidebarCollapse 250ms ease-in-out;
+}
+
+.sidebar-expanded {
+  animation: sidebarExpand 250ms ease-in-out;
+}
+
+@keyframes sidebarCollapse {
+  from {
+    width: 240px;
+  }
+  to {
+    width: 64px;
+  }
+}
+
+@keyframes sidebarExpand {
+  from {
+    width: 64px;
+  }
+  to {
+    width: 240px;
+  }
+}
+
+/* Sidebar menu items */
+.sidebar-menu-item {
+  transition: background-color 150ms ease-in-out,
+              padding-left 150ms ease-in-out;
+}
+
+.sidebar-menu-item:hover {
+  background-color: var(--color-surface);
+  padding-left: calc(var(--spacing-md) + 4px);
+}
+
+/* ============================================
+   MODAL ANIMATIONS
+   ============================================ */
+
+/* Modal backdrop */
+.modal-backdrop {
+  animation: fadeIn 200ms ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content */
+.modal-content {
+  animation: modalSlideIn 200ms ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal close animation */
+.modal-closing .modal-backdrop {
+  animation: fadeOut 200ms ease-in;
+}
+
+.modal-closing .modal-content {
+  animation: modalSlideOut 200ms ease-in;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+}
+
+/* ============================================
+   DROPDOWN ANIMATIONS
+   ============================================ */
+
+/* Dropdown menu */
+.dropdown-menu {
+  animation: slideDown 150ms ease-out;
+  transform-origin: top;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dropdown items */
+.dropdown-item {
+  transition: background-color 150ms ease-in-out,
+              padding-left 150ms ease-in-out;
+}
+
+.dropdown-item:hover {
+  background-color: var(--color-surface);
+  padding-left: calc(var(--spacing-sm) + 4px);
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+
+/* Toast slide in from right */
+.toast {
+  animation: slideInRight 250ms ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Toast slide out to right */
+.toast-closing {
+  animation: slideOutRight 250ms ease-in;
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* Toast slide in from top (alternative) */
+.toast-top {
+  animation: slideInTop 250ms ease-out;
+}
+
+@keyframes slideInTop {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   CARD ANIMATIONS
+   ============================================ */
+
+/* Card hover effect */
+.card-hoverable {
+  transition: transform 200ms ease-in-out,
+              box-shadow 200ms ease-in-out;
+}
+
+.card-hoverable:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card appear animation */
+.card-appear {
+  animation: cardFadeIn 300ms ease-out;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   BUTTON ANIMATIONS
+   ============================================ */
+
+/* Button press effect */
+.button:active {
+  transform: scale(0.98);
+}
+
+/* Button loading spinner */
+.button-loading {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   SKELETON LOADING
+   ============================================ */
+
+/* Skeleton shimmer effect */
+.skeleton {
+  animation: shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 0%,
+    var(--color-border) 50%,
+    var(--color-surface) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ============================================
+   PAGE TRANSITIONS
+   ============================================ */
+
+/* Page fade in */
+.page-enter {
+  animation: pageFadeIn 300ms ease-out;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Page slide in from right */
+.page-slide-enter {
+  animation: pageSlideIn 300ms ease-out;
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================
+   FORM ANIMATIONS
+   ============================================ */
+
+/* Input focus animation */
+input:focus,
+select:focus,
+textarea:focus {
+  transition: border-color 150ms ease-in-out,
+              box-shadow 150ms ease-in-out;
+}
+
+/* Error shake animation */
+.input-error {
+  animation: shake 300ms ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+/* Success checkmark animation */
+.success-checkmark {
+  animation: checkmark 400ms ease-in-out;
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   TABLE ANIMATIONS
+   ============================================ */
+
+/* Table row hover */
+.table-row {
+  transition: background-color 150ms ease-in-out;
+}
+
+.table-row:hover {
+  background-color: var(--color-surface);
+}
+
+/* Table sort indicator */
+.table-sort-indicator {
+  transition: transform 200ms ease-in-out;
+}
+
+.table-sort-asc .table-sort-indicator {
+  transform: rotate(0deg);
+}
+
+.table-sort-desc .table-sort-indicator {
+  transform: rotate(180deg);
+}
+
+/* ============================================
+   BADGE ANIMATIONS
+   ============================================ */
+
+/* Badge pulse animation */
+.badge-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+/* Badge bounce animation */
+.badge-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* ============================================
+   ACCORDION ANIMATIONS
+   ============================================ */
+
+/* Accordion expand */
+.accordion-content {
+  transition: max-height 250ms ease-in-out,
+              opacity 250ms ease-in-out;
+}
+
+.accordion-expanded .accordion-content {
+  animation: accordionExpand 250ms ease-out;
+}
+
+@keyframes accordionExpand {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+/* Accordion icon rotation */
+.accordion-icon {
+  transition: transform 200ms ease-in-out;
+}
+
+.accordion-expanded .accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* ============================================
+   ACCESSIBILITY - REDUCED MOTION
+   ============================================ */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Disable all custom animations */
+  .sidebar,
+  .modal-content,
+  .dropdown-menu,
+  .toast,
+  .card-hoverable,
+  .skeleton,
+  .page-enter,
+  .page-slide-enter {
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Use GPU acceleration for transforms */
+.gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimize animations for 60fps */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    /* Ensure smooth animations at 60fps */
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
