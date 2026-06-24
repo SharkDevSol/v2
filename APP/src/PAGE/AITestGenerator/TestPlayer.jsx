@@ -34,19 +34,26 @@ const TestPlayer = () => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
+  const isAutoGraded = (type) => ['mcq', 'true_false', 'fill_blank', 'short_answer', 'transformation'].includes(type);
+
   const handleSubmit = () => {
     let correct = 0;
-    let total = 0;
+    let totalAuto = 0;
+    let manualCount = 0;
     test.questions.forEach(q => {
-      total += q.marks;
       const userAnswer = answers[q.id];
+      if (!isAutoGraded(q.type)) {
+        manualCount += q.marks;
+        return;
+      }
+      totalAuto += q.marks;
       if (q.type === 'mcq' || q.type === 'true_false') {
         if (userAnswer && userAnswer.toLowerCase() === (q.answer || '').toLowerCase()) correct += q.marks;
-      } else if (q.type === 'fill_blank' || q.type === 'short_answer') {
+      } else {
         if (userAnswer && userAnswer.toLowerCase().trim() === (q.answer || '').toLowerCase().trim()) correct += q.marks;
       }
     });
-    setScore({ correct, total, percentage: total > 0 ? Math.round((correct / total) * 100) : 0 });
+    setScore({ correct, total: totalAuto, autoTotal: totalAuto, manualTotal: manualCount, percentage: totalAuto > 0 ? Math.round((correct / totalAuto) * 100) : 0 });
     setSubmitted(true);
   };
 
@@ -64,11 +71,13 @@ const TestPlayer = () => {
       </div>
 
       {submitted && score && (
-        <div style={{ padding: '1.5rem', borderRadius: '12px', marginBottom: '1.5rem', background: score.percentage >= 50 ? '#dcfce7' : '#fee2e2', border: `1px solid ${score.percentage >= 50 ? '#86efac' : '#fca5a5'}` }}>
-          <h2 style={{ margin: 0 }}>Score: {score.correct} / {score.total} ({score.percentage}%)</h2>
-          <p style={{ margin: '0.5rem 0 0', color: score.percentage >= 50 ? '#166534' : '#991b1b' }}>
-            {score.percentage >= 50 ? '✅ Passed' : '❌ Failed'}
-          </p>
+        <div style={{ padding: '1.5rem', borderRadius: '12px', marginBottom: '1.5rem', background: '#dcfce7', border: '1px solid #86efac' }}>
+          <h2 style={{ margin: 0 }}>Auto-graded Score: {score.correct} / {score.autoTotal} ({score.percentage}%)</h2>
+          {score.manualTotal > 0 && (
+            <p style={{ margin: '0.5rem 0 0', color: '#92400e' }}>
+              ⏳ {score.manualTotal} marks in essay/optional questions require manual review by your teacher.
+            </p>
+          )}
         </div>
       )}
 
@@ -108,10 +117,17 @@ const TestPlayer = () => {
             </div>
           )}
 
-          {(q.type === 'fill_blank' || q.type === 'short_answer') && (
+          {(q.type === 'fill_blank' || q.type === 'short_answer' || q.type === 'transformation') && (
             <div>
               <input type="text" value={answers[q.id] || ''} onChange={e => handleAnswer(q.id, e.target.value)} disabled={submitted}
                 placeholder="Type your answer..." style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: `1.5px solid ${submitted ? '#d1d5db' : '#e5e7eb'}`, fontSize: '0.95rem', boxSizing: 'border-box' }} />
+            </div>
+          )}
+
+          {q.type === 'essay' && (
+            <div>
+              <textarea value={answers[q.id] || ''} onChange={e => handleAnswer(q.id, e.target.value)} disabled={submitted}
+                placeholder="Write your answer..." rows={4} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: `1.5px solid ${submitted ? '#d1d5db' : '#e5e7eb'}`, fontSize: '0.95rem', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }} />
             </div>
           )}
 
