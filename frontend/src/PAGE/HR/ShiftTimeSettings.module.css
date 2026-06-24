@@ -1,0 +1,86 @@
+.container {
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg-secondary);
+}
+
+.header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs);
+}
+
+.header p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.shiftGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.shiftCard {
+  height: 100%;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.previewTime {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+.successMessage {
+  background: var(--color-success-light);
+  border: 1px solid var(--color-success);
+  color: var(--color-success-dark);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.errorMessage {
+  background: var(--color-danger-light);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger-dark);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.loading {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-secondary);
+}
+
+.cardActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-md);
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

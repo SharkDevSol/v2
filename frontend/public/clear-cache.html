@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>Clear Cache - Skoolific</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .spinner {
+            border: 6px solid rgba(255, 255, 255, 0.2);
+            border-top: 6px solid white;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            opacity: 0.95;
+            margin-bottom: 1.5rem;
+        }
+        
+        .progress {
+            background: rgba(255, 255, 255, 0.2);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+        
+        .progress-bar {
+            background: white;
+            height: 100%;
+            width: 0%;
+            animation: progress 2.5s ease-in-out forwards;
+        }
+        
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        .status {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄</h1>
+        <h1>Clearing Cache</h1>
+        <div class="spinner"></div>
+        <p>Loading latest version of Skoolific...</p>
+        <div class="progress">
+            <div class="progress-bar"></div>
+        </div>
+        <div class="status" id="status">Please wait...</div>
+    </div>
+    
+    <script>
+        const statusEl = document.getElementById('status');
+        
+        // Clear all caches
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (let name of names) {
+                    caches.delete(name);
+                }
+            });
+        }
+        
+        // Unregister service workers
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+        
+        statusEl.textContent = 'Cache cleared! Redirecting...';
+        
+        // Redirect after 2.5 seconds with cache-busting parameter
+        setTimeout(function() {
+            window.location.href = '/?v=' + Date.now();
+        }, 2500);
+    </script>
+</body>
+</html>

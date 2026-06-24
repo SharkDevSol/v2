@@ -6,11 +6,11 @@ import { Building2, User as UserIcon, Lock } from 'lucide-react';
 import styles from './Login.module.css';
 import { getPermissionPath } from '../../config/adminPermissions';
 import { ValidationRules, ErrorMessages } from '../../utils/validation';
-import Input from '../../components/Input/Input';
-import Button from '../../components/Button/Button';
-import ThemeToggle from '../../components/ThemeToggle/ThemeToggle';
-import LanguageSelector from '../../components/LanguageSelector/LanguageSelector';
-import Toast from '../../components/Toast/Toast';
+import Input from '../../COMPONENTS/Input/Input';
+import Button from '../../COMPONENTS/Button/Button';
+import ThemeToggle from '../../COMPONENTS/ThemeToggle/ThemeToggle';
+import LanguageSelector from '../../COMPONENTS/LanguageSelector/LanguageSelector';
+import Toast from '../../COMPONENTS/Toast/Toast';
 
 const Login = () => {
   const { t } = useTranslation();

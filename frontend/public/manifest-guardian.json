@@ -1,0 +1,38 @@
+{
+  "name": "Skoolific Guardian App",
+  "short_name": "Guardian",
+  "description": "Monitor your child's progress, attendance, and payments",
+  "start_url": "/app/guardian-login",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#10b981",
+  "theme_color": "#10b981",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/skoolific-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/skoolific-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/skoolific-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/skoolific-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["education", "productivity"]
+}

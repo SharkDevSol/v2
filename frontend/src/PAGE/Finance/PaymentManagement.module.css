@@ -1,0 +1,819 @@
+.container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.header p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.recordButton {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: var(--bg-primary);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.recordButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.filters {
+  background: var(--bg-primary);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filterTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filterTab {
+  padding: 8px 16px;
+  border: 1px solid var(--border-primary);
+  background: var(--bg-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.filterTab:hover {
+  background: var(--bg-secondary);
+}
+
+.filterTab.active {
+  background: #4CAF50;
+  color: var(--bg-primary);
+  border-color: #4CAF50;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.dateInput {
+  padding: 10px 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.clearButton {
+  padding: 10px 16px;
+  background: #f44336;
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.clearButton:hover {
+  background: #d32f2f;
+}
+
+.tableContainer {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: var(--bg-secondary);
+}
+
+.table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border-primary);
+}
+
+.table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-primary);
+  font-size: 14px;
+}
+
+.table tbody tr:hover {
+  background: var(--bg-secondary);
+}
+
+.receiptNumber {
+  font-weight: 600;
+  color: #4CAF50;
+}
+
+.amount {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.feeType {
+  font-weight: 500;
+  color: #2196F3;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bg-primary);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.actionButton:hover {
+  background: var(--border-primary);
+}
+
+.noData {
+  text-align: center;
+  padding: 40px !important;
+  color: var(--text-tertiary);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.modalHeader h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  line-height: 1;
+}
+
+.form {
+  padding: 24px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.formGroup input,
+.formGroup select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.invoiceInfo {
+  background: var(--bg-secondary);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #4CAF50;
+}
+
+.invoiceInfo p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.invoiceInfo strong {
+  color: var(--text-secondary);
+  margin-right: 8px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.cancelButton {
+  padding: 10px 20px;
+  border: 1px solid var(--border-primary);
+  background: var(--bg-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.submitButton {
+  padding: 10px 20px;
+  background: #4CAF50;
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .tableContainer {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 800px;
+  }
+}
+
+/* Print Styles for A6 Receipt (105mm x 148mm) */
+@media print {
+  /* Set A6 page size */
+  @page {
+    size: 105mm 148mm;
+    margin: 8mm;
+  }
+  
+  /* Reset everything */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  /* Hide everything first */
+  body > * {
+    display: none !important;
+  }
+  
+  /* Show only the printable receipt */
+  #printable-receipt,
+  #printable-receipt * {
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  /* Make sure the receipt is positioned correctly */
+  #printable-receipt {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    padding: 10mm !important;
+    margin: 0 !important;
+    background: var(--bg-primary) !important;
+  }
+  
+  /* Hide the modal overlay and background */
+  .modalOverlay {
+    background: none !important;
+    position: static !important;
+  }
+  
+  .modal {
+    box-shadow: none !important;
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Hide non-print elements */
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Show print-only elements */
+  .print-only {
+    display: block !important;
+  }
+  
+  /* Make receipt content visible and properly sized */
+  .receipt-content {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    background: var(--bg-primary) !important;
+    color: black !important;
+  }
+  
+  /* Ensure all child elements are visible */
+  .receipt-content * {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  /* Tables should display as tables */
+  .receipt-content table {
+    display: table !important;
+    width: 100% !important;
+  }
+  
+  .receipt-content tbody {
+    display: table-row-group !important;
+  }
+  
+  .receipt-content tr {
+    display: table-row !important;
+  }
+  
+  .receipt-content td {
+    display: table-cell !important;
+  }
+  
+  /* Inline elements */
+  .receipt-content span {
+    display: inline !important;
+  }
+  
+  /* Remove box shadows */
+  .receipt-content * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  /* Font sizes for print */
+  .receipt-content h1 {
+    font-size: 16pt !important;
+    line-height: 1.2 !important;
+  }
+  
+  .receipt-content h2 {
+    font-size: 14pt !important;
+    line-height: 1.2 !important;
+  }
+  
+  .receipt-content h3 {
+    font-size: 11pt !important;
+    line-height: 1.2 !important;
+  }
+  
+  .receipt-content p,
+  .receipt-content div,
+  .receipt-content td,
+  .receipt-content span {
+    font-size: 9pt !important;
+    line-height: 1.3 !important;
+  }
+  
+  /* Prevent page breaks */
+  .receipt-content > div {
+    page-break-inside: avoid !important;
+  }
+}
+
+/* Shift Badge Styles */
+.shiftBadge1 {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #FFB74D 0%, #FFA726 100%);
+  color: var(--bg-primary);
+}
+
+.shiftBadge2 {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #7E57C2 0%, #673AB7 100%);
+  color: var(--bg-primary);
+}
+
+.shiftBadgeBoth {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #42A5F5 0%, #1E88E5 100%);
+  color: var(--bg-primary);
+}
+
+.shiftSelect {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shiftSelect:hover {
+  border-color: #4CAF50;
+}
+
+.shiftSelect:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.shiftsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.shiftCard {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shiftHeader {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border-primary);
+}
+
+.shiftHeader h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.formGroup small {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.saveButton {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: var(--bg-primary);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.saveButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.infoBox {
+  background: var(--bg-secondary);
+  border-left: 4px solid #4CAF50;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 24px;
+}
+
+.infoBox h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.infoBox ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.infoBox li {
+  padding: 8px 0;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.infoBox li strong {
+  color: var(--text-primary);
+}
+
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summaryCard {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.summaryCard h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.summaryValue {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.summaryCard p {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.filterSelect {
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg-primary);
+}
+
+.filterSelect:hover {
+  border-color: #4CAF50;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.tableContainer {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: var(--bg-secondary);
+}
+
+.table th {
+  padding: 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-primary);
+}
+
+.table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #555;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.table tbody tr:hover {
+  background: var(--bg-secondary);
+}
+
+.subText {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+.noData {
+  text-align: center;
+  padding: 40px !important;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.successMessage {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.errorMessage {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.fieldHint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+.fieldDescription {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}

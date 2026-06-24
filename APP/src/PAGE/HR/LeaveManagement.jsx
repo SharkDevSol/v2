@@ -8,7 +8,7 @@ import Card from '../../COMPONENTS/Card/Card';
 import Button from '../../COMPONENTS/Button/Button';
 import Select from '../../COMPONENTS/Select/Select';
 import Input from '../../COMPONENTS/Input/Input';
-import Table from '../../components/Table/Table';
+import Table from '../../COMPONENTS/Table/Table';
 import Badge from '../../COMPONENTS/Badge/Badge';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://v2.skoolific.com';

@@ -7,7 +7,7 @@ import Button from '../../COMPONENTS/Button/Button';
 import Input from '../../COMPONENTS/Input/Input';
 import Select from '../../COMPONENTS/Select/Select';
 import Card from '../../COMPONENTS/Card/Card';
-import Table from '../../components/Table/Table';
+import Table from '../../COMPONENTS/Table/Table';
 import Badge from '../../COMPONENTS/Badge/Badge';
 
 const InvoiceManagement = () => {

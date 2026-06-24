@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Clearing Cache - Skoolific</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+        }
+        h1 { margin: 0 0 1rem; font-size: 2rem; }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .status {
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        .success { color: #4ade80; font-weight: bold; }
+        .info { color: #fbbf24; }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: scale(1.05); }
+        .steps {
+            text-align: left;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        .steps li { margin: 0.5rem 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Cache Clearing in Progress</h1>
+        <div class="spinner"></div>
+        <div class="status" id="status">Clearing old cached files...</div>
+        
+        <div class="steps" id="steps" style="display: none;">
+            <h3>✅ Cache Cleared Successfully!</h3>
+            <p>The system has:</p>
+            <ul>
+                <li>✓ Unregistered service workers</li>
+                <li>✓ Cleared all cached assets</li>
+                <li>✓ Forced reload of new JavaScript files</li>
+            </ul>
+        </div>
+        
+        <button id="continueBtn" style="display: none;" onclick="goToApp()">
+            Continue to Skoolific →
+        </button>
+    </div>
+
+    <script>
+        // Comprehensive cache clearing
+        async function clearAllCaches() {
+            const statusEl = document.getElementById('status');
+            const stepsEl = document.getElementById('steps');
+            const btnEl = document.getElementById('continueBtn');
+            
+            try {
+                // Step 1: Unregister all service workers
+                statusEl.innerHTML = '🗑️ Unregistering service workers...';
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                        console.log('✅ Service worker unregistered');
+                    }
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Step 2: Clear all caches
+                statusEl.innerHTML = '🧹 Clearing cache storage...';
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(
+                        cacheNames.map(cacheName => caches.delete(cacheName))
+                    );
+                    console.log('✅ All caches cleared');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Step 3: Clear localStorage and sessionStorage
+                statusEl.innerHTML = '💾 Clearing local storage...';
+                try {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    console.log('✅ Storage cleared');
+                } catch (e) {
+                    console.log('⚠️ Could not clear storage:', e);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Step 4: Force reload with cache bypass
+                statusEl.innerHTML = '🔄 Preparing fresh load...';
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Success!
+                statusEl.innerHTML = '<span class="success">✅ Cache Cleared Successfully!</span>';
+                stepsEl.style.display = 'block';
+                btnEl.style.display = 'inline-block';
+                
+                // Add timestamp to force fresh load
+                const timestamp = new Date().getTime();
+                localStorage.setItem('cache_cleared_at', timestamp);
+                
+            } catch (error) {
+                console.error('Error clearing cache:', error);
+                statusEl.innerHTML = '<span class="info">⚠️ Partial clear completed. Click continue.</span>';
+                btnEl.style.display = 'inline-block';
+            }
+        }
+        
+        function goToApp() {
+            // Force hard reload with cache bypass
+            const timestamp = new Date().getTime();
+            window.location.href = '/app/staff-login?nocache=' + timestamp;
+        }
+        
+        // Start clearing immediately
+        clearAllCaches();
+    </script>
+</body>
+</html>

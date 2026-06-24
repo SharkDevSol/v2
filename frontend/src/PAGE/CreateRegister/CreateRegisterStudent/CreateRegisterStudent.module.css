@@ -1,0 +1,654 @@
+/* Student Registration - Modern Glassmorphism Design */
+
+.container {
+  padding: var(--spacing-lg);
+  min-height: 100%;
+  background: var(--bg-primary, #ffffff);
+  position: relative;
+}
+
+.form {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  color: var(--text-primary, #1e293b);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pageSubtitle {
+  margin: 6px 0 0 0;
+  color: var(--text-secondary, #64748b);
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.excelUploadLabel {
+  display: inline-flex;
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+/* Multi-step Progress Indicator - Glassmorphism */
+.stepIndicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg) var(--spacing-xl, 2rem);
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.8));
+  border-radius: 20px;
+  position: relative;
+  box-shadow: 
+    0 4px 24px rgba(139, 92, 246, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    var(--glass-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.9));
+}
+
+.stepIndicator::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.15), rgba(20, 184, 166, 0.15));
+  transform: translateY(-50%);
+  z-index: 0;
+  border-radius: 2px;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.stepNumber {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.9));
+  border: 2px solid rgba(139, 92, 246, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-tertiary, #94a3b8);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stepActive .stepNumber {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  border-color: transparent;
+  color: white;
+  box-shadow: 
+    0 4px 16px rgba(139, 92, 246, 0.35),
+    0 0 0 4px rgba(139, 92, 246, 0.1);
+  transform: scale(1.05);
+}
+
+.stepCompleted .stepNumber {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+}
+
+.stepLabel {
+  font-size: 0.82rem;
+  color: var(--text-tertiary, #94a3b8);
+  font-weight: 500;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stepActive .stepLabel {
+  color: #7c3aed;
+  font-weight: 700;
+}
+
+.stepCompleted .stepLabel {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* Review Section */
+.reviewSection {
+  width: 100%;
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.reviewSectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary, #1e293b);
+  margin: 0 0 var(--spacing-md) 0;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid rgba(139, 92, 246, 0.12);
+}
+
+.reviewItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.06);
+}
+
+.reviewItem:last-child {
+  border-bottom: none;
+}
+
+.reviewLabel {
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  font-size: 0.9rem;
+}
+
+.reviewValue {
+  color: var(--text-primary, #1e293b);
+  font-weight: 500;
+}
+
+/* Page Error - Glassmorphism */
+.pageError {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 16px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(254, 242, 242, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #dc2626;
+  font-weight: 500;
+  box-shadow: 0 2px 12px rgba(239, 68, 68, 0.06);
+}
+
+/* Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+}
+
+/* Card - Glassmorphism */
+.card {
+  height: 100%;
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.65));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.8));
+  border-radius: 20px;
+  box-shadow: 
+    0 4px 24px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.02),
+    var(--glass-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  box-shadow: 
+    0 8px 32px rgba(139, 92, 246, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    var(--glass-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.95));
+  transform: translateY(-1px);
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+/* Student Type - Glassmorphism */
+.studentType {
+  padding: var(--spacing-md);
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.1));
+  border-radius: 16px;
+  background: var(--glass-surface-2, rgba(255, 255, 255, 0.5));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.studentTypeTitle {
+  font-weight: 700;
+  color: var(--text-primary, #1e293b);
+  margin-bottom: var(--spacing-sm);
+}
+
+.studentTypeOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+/* Form Fields */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  color: var(--text-secondary, #475569);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.required {
+  color: #ef4444;
+  margin-inline-start: 4px;
+}
+
+.errorMessage {
+  margin-top: 4px;
+  color: #ef4444;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.nativeTextarea {
+  width: 100%;
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.15));
+  border-radius: 12px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-primary, #1e293b);
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.nativeTextarea:focus-visible {
+  outline: none;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+  background: var(--glass-surface-hover, rgba(255, 255, 255, 0.95));
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* Multi-Select - Glassmorphism */
+.multiSelectContainer {
+  padding: var(--spacing-md);
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.1));
+  border-radius: 16px;
+  background: var(--glass-surface-2, rgba(255, 255, 255, 0.5));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.multiSelectLabel {
+  color: var(--text-secondary, #475569);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.multiSelectOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.multiSelectOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.12));
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-primary, #1e293b);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.multiSelectOption:hover {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.04);
+  transform: translateY(-1px);
+}
+
+.multiSelectCheckbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #8b5cf6;
+}
+
+.inlineActions {
+  display: flex;
+  justify-content: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.helperSuccess {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 12px;
+  background: rgba(240, 253, 244, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.customFieldsCard {
+  margin-top: 0;
+}
+
+.customFieldsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* Footer Bar - Glassmorphism */
+.footerBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.8));
+  border-radius: 20px;
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 4px 24px rgba(0, 0, 0, 0.04),
+    0 -2px 12px rgba(139, 92, 246, 0.03),
+    var(--glass-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.9));
+}
+
+.footerLeft,
+.footerRight {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+/* Credentials card - Glassmorphism */
+.credentialsCard {
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  background: rgba(240, 253, 244, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.06);
+}
+
+.credentialsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-md);
+}
+
+.credentialItem {
+  padding: var(--spacing-md);
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.08));
+  border-radius: 14px;
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.credentialLabel {
+  color: var(--text-secondary, #64748b);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.credentialValue {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-primary, #1e293b);
+  font-weight: 700;
+}
+
+.copyBtn {
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.15));
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-primary, #6366f1);
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copyBtn:hover {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.3);
+  transform: scale(1.05);
+}
+
+.copyBtn:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+/* Camera modal - Glassmorphism */
+.cameraModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  z-index: 9999;
+}
+
+.cameraContent {
+  width: min(780px, 100%);
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.9));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.8));
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 
+    0 24px 48px rgba(0, 0, 0, 0.12),
+    0 8px 16px rgba(0, 0, 0, 0.06),
+    var(--glass-highlight, inset 0 1px 0 rgba(255, 255, 255, 0.9));
+}
+
+.cameraHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--glass-surface-2, rgba(255, 255, 255, 0.6));
+  border-bottom: 1px solid var(--glass-border, rgba(139, 92, 246, 0.08));
+}
+
+.cameraTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-primary, #1e293b);
+  font-weight: 700;
+}
+
+.closeCamera {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.12));
+  background: var(--glass-surface-1, rgba(255, 255, 255, 0.8));
+  color: var(--text-secondary, #475569);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.closeCamera:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.webcam {
+  width: 100%;
+  display: block;
+}
+
+.cameraControls {
+  padding: var(--spacing-md);
+  display: flex;
+  justify-content: center;
+  background: var(--glass-surface-2, rgba(255, 255, 255, 0.6));
+  border-top: 1px solid var(--glass-border, rgba(139, 92, 246, 0.08));
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .customFieldsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepIndicator {
+    padding: var(--spacing-md);
+  }
+
+  .stepLabel {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .row2 {
+    grid-template-columns: 1fr;
+  }
+
+  .customFieldsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .credentialsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepIndicator {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    border-radius: 16px;
+  }
+
+  .stepIndicator::before {
+    display: none;
+  }
+
+  .stepItem {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .stepNumber {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+
+  .stepLabel {
+    text-align: left;
+    font-size: 0.85rem;
+  }
+
+  .footerBar {
+    flex-direction: column;
+    border-radius: 16px;
+  }
+
+  .footerLeft,
+  .footerRight {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .footerLeft button,
+  .footerRight button {
+    flex: 1;
+  }
+}

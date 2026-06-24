@@ -1,0 +1,286 @@
+.container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 28px;
+  color: #333;
+  margin: 0;
+}
+
+.createButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.createButton:hover {
+  background-color: #45a049;
+}
+
+.createForm {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.createForm h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.formGroup input,
+.formGroup select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.formActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.submitButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.submitButton:hover {
+  background-color: #45a049;
+}
+
+.cancelButton {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.cancelButton:hover {
+  background-color: #da190b;
+}
+
+.evaluationsList {
+  margin-bottom: 40px;
+}
+
+.evaluationsList h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.evaluationsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.evaluationCard {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.evaluationCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cardHeader {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status.draft {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.status.published {
+  background-color: rgba(76, 175, 80, 0.3);
+}
+
+.status.completed {
+  background-color: rgba(33, 150, 243, 0.3);
+}
+
+.cardBody {
+  padding: 20px;
+}
+
+.cardBody p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.cardBody strong {
+  color: #333;
+}
+
+.cardActions {
+  padding: 15px 20px;
+  background-color: #f9f9f9;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid #eee;
+}
+
+.viewButton {
+  flex: 1;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.viewButton:hover {
+  background-color: #0b7dda;
+}
+
+.deleteButton {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.deleteButton:hover {
+  background-color: #da190b;
+}
+
+.areasSection {
+  margin-top: 40px;
+}
+
+.areasSection h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.areasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+.areaCard {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #4CAF50;
+}
+
+.areaCard h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.areaCard p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ageGroup {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 10px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+
+.noData {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 16px;
+}

@@ -1,0 +1,122 @@
+/* Login Page - Clean Light Theme Input Overrides */
+/* Fix: Only target actual <input> elements, not wrapper divs */
+
+/* Labels */
+[data-theme="glass"] label {
+  color: #374151 !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* Only target actual input elements (not divs with "input" in class name) */
+[data-theme="glass"] input:not([type="checkbox"]) {
+  background: #f8fafc !important;
+  border: 1.5px solid #e2e8f0 !important;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  caret-color: #6366f1 !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+  font-size: 0.9375rem !important;
+  font-weight: 400 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Prefix padding */
+[data-theme="glass"] [class*="hasPrefix"] input {
+  padding-inline-start: 42px !important;
+}
+
+/* Suffix padding */
+[data-theme="glass"] [class*="hasSuffix"] input {
+  padding-inline-end: 42px !important;
+}
+
+/* Hover state */
+[data-theme="glass"] input:not([type="checkbox"]):hover {
+  border-color: #c7d2fe !important;
+  background: #ffffff !important;
+}
+
+/* Focus state */
+[data-theme="glass"] input:not([type="checkbox"]):focus {
+  background: #ffffff !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08) !important;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+}
+
+/* Placeholder */
+[data-theme="glass"] input::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+}
+
+/* Disabled */
+[data-theme="glass"] input:disabled {
+  background: #f1f5f9 !important;
+  opacity: 0.6 !important;
+}
+
+/* Chrome autofill */
+[data-theme="glass"] input:-webkit-autofill,
+[data-theme="glass"] input:-webkit-autofill:hover,
+[data-theme="glass"] input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 40px #f8fafc inset !important;
+  -webkit-text-fill-color: #1e293b !important;
+  caret-color: #6366f1 !important;
+}
+
+/* Prefix icons */
+[data-theme="glass"] [class*="prefixIcon"] {
+  color: #6366f1 !important;
+}
+
+/* Suffix icons */
+[data-theme="glass"] [class*="suffixIcon"] {
+  color: #64748b !important;
+}
+
+[data-theme="glass"] [class*="suffixIcon"]:hover {
+  color: #6366f1 !important;
+}
+
+/* Error state */
+[data-theme="glass"] [class*="error"] input {
+  border-color: #fca5a5 !important;
+}
+
+[data-theme="glass"] [class*="errorText"] {
+  color: #dc2626 !important;
+}
+
+/* Required asterisk */
+[data-theme="glass"] [class*="required"] {
+  color: #ef4444 !important;
+}
+
+/* IMPORTANT: Remove any border/background from wrapper divs */
+[data-theme="glass"] [class*="inputGroup"],
+[data-theme="glass"] [class*="inputWrapper"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
+}
+
+/* Checkbox - reset */
+[data-theme="glass"] input[type="checkbox"] {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  min-height: unset !important;
+  min-width: unset !important;
+  -webkit-text-fill-color: unset !important;
+}

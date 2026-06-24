@@ -14,10 +14,10 @@ import { useTranslation } from 'react-i18next';
 import { useApp } from '../../../context/AppContext';
 import styles from './ListStudent.module.css';
 
-import Table from '../../../components/Table/Table';
-import Input from '../../../components/Input/Input';
-import Select from '../../../components/Select/Select';
-import Button from '../../../components/Button/Button';
+import Table from '../../../COMPONENTS/Table/Table';
+import Input from '../../../COMPONENTS/Input/Input';
+import Select from '../../../COMPONENTS/Select/Select';
+import Button from '../../../COMPONENTS/Button/Button';
 
 // API base URL - use environment variable or fallback to localhost
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://v2.skoolific.com/api';
