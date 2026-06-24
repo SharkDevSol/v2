@@ -4,6 +4,9 @@ const crypto = require('crypto');
 const db = require('../config/db');
 const { authenticateWithBranch } = require('../middleware/branchAuth');
 
+// ─── Type Normalization ───────────────────────────────────────────────────────
+const typeNormalize = (t) => ({ 'true/false':'true_false','true or false':'true_false','multiple choice':'mcq','mcq':'mcq','fill in the blank':'fill_blank','short answer':'short_answer','essay / open-ended':'essay','essay':'essay','matching':'matching','multiple true/false':'multiple_true_false','numeric':'numeric','transformation / error correction':'transformation','transformation':'transformation' })[(t || '').toLowerCase()] || t;
+
 // ─── In-Memory Cache ──────────────────────────────────────────────────────────
 const cache = new Map();
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
@@ -40,7 +43,9 @@ function validateQuestions(questions, expectedTypes) {
 
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
-    
+
+    q.type = typeNormalize(q.type);
+
     // Type must be valid
     if (!validTypes.includes(q.type)) {
       errors.push(`Question ${i + 1}: Invalid type "${q.type}"`);
@@ -392,7 +397,7 @@ router.get('/get-test', async (req, res) => {
     const questions = result.rows.map(r => ({
       id: r.id,
       ...r.question_data,
-      type: r.question_type,
+      type: typeNormalize(r.question_type),
       marks: r.marks,
     }));
 
