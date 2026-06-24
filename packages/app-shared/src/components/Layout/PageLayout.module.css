@@ -1,0 +1,188 @@
+/* Page Layout Container */
+.pageLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+/* Main Content Area */
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 260px;
+  transition: margin-left 0.3s ease;
+  min-width: 0;
+}
+
+/* Sidebar Collapsed State */
+.pageLayout.sidebarCollapsed .mainContent {
+  margin-left: 70px;
+}
+
+/* Page Container */
+.pageContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Content Area */
+.contentArea {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+/* Error State */
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  min-height: 400px;
+}
+
+.errorIcon {
+  color: var(--color-danger);
+  margin-bottom: 1.5rem;
+}
+
+.errorTitle {
+  margin: 0 0 0.75rem 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.errorMessage {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  max-width: 500px;
+}
+
+/* Tablet Styles (768px - 1023px) */
+@media (max-width: 1023px) {
+  .mainContent {
+    margin-left: 70px;
+  }
+
+  .pageLayout.sidebarCollapsed .mainContent {
+    margin-left: 260px;
+  }
+
+  .contentArea {
+    padding: 1.5rem;
+  }
+
+  .errorState {
+    padding: 3rem 1.5rem;
+    min-height: 300px;
+  }
+
+  .errorTitle {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/* Mobile Styles (320px - 767px) */
+@media (max-width: 767px) {
+  .mainContent {
+    margin-left: 0;
+  }
+
+  .pageLayout.sidebarCollapsed .mainContent {
+    margin-left: 0;
+  }
+
+  .contentArea {
+    padding: 1rem;
+  }
+
+  .loadingState {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .errorState {
+    padding: 2rem 1rem;
+    min-height: 250px;
+  }
+
+  .errorIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .errorTitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .errorMessage {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .mainContent {
+  margin-left: 0;
+  margin-right: 260px;
+}
+
+[dir="rtl"] .pageLayout.sidebarCollapsed .mainContent {
+  margin-right: 70px;
+}
+
+@media (max-width: 1023px) {
+  [dir="rtl"] .mainContent {
+    margin-right: 70px;
+  }
+
+  [dir="rtl"] .pageLayout.sidebarCollapsed .mainContent {
+    margin-right: 260px;
+  }
+}
+
+@media (max-width: 767px) {
+  [dir="rtl"] .mainContent {
+    margin-right: 0;
+  }
+
+  [dir="rtl"] .pageLayout.sidebarCollapsed .mainContent {
+    margin-right: 0;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .mainContent {
+    transition: none;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .pageLayout {
+    display: block;
+  }
+
+  .mainContent {
+    margin-left: 0;
+  }
+
+  .contentArea {
+    padding: 0;
+  }
+}

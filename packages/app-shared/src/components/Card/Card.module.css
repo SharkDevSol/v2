@@ -1,0 +1,151 @@
+/* Card Component Styles */
+
+.card {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  overflow: hidden;
+}
+
+.hoverable:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
+/* Padding variants */
+.padding-none {
+  padding: 0;
+}
+
+.padding-sm {
+  padding: 12px;
+}
+
+.padding-md {
+  padding: 20px;
+}
+
+.padding-lg {
+  padding: 32px;
+}
+
+/* Variants */
+.default {
+  /* Default styling */
+}
+
+.outlined {
+  border: 2px solid var(--border-primary);
+  box-shadow: none;
+}
+
+.elevated {
+  box-shadow: var(--shadow-lg);
+  border: none;
+}
+
+.noBorder {
+  border: none;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.card.padding-none .header {
+  padding: 20px 20px 16px 20px;
+  margin-bottom: 0;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 4px 0 0 0;
+  line-height: var(--line-height-normal);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.content {
+  color: var(--text-primary);
+}
+
+.card.padding-none .content {
+  padding: 0 20px 20px 20px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-primary);
+  color: var(--text-primary);
+}
+
+.card.padding-none .footer {
+  padding: 16px 20px 20px 20px;
+  margin-top: 0;
+}
+
+/* RTL Support */
+[dir="rtl"] .header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .actions {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .title,
+[dir="rtl"] .subtitle,
+[dir="rtl"] .content,
+[dir="rtl"] .footer {
+  text-align: right;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* RTL adjustments for mobile */
+  [dir="rtl"] .header {
+    flex-direction: column;
+  }
+
+  [dir="rtl"] .actions {
+    justify-content: flex-end;
+  }
+}

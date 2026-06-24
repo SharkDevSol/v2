@@ -1,0 +1,215 @@
+/* Calendar Component Styles */
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  user-select: none;
+}
+
+/* Header with navigation */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.monthYear {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  flex: 1;
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+}
+
+.navButton:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.navButton:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.navButton:active {
+  transform: scale(0.95);
+}
+
+/* Day names header */
+.dayNames {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.dayName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 8px 4px;
+  text-transform: uppercase;
+}
+
+/* Calendar grid */
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.dayCell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.dayCell:hover:not(:disabled) {
+  background-color: var(--bg-secondary);
+}
+
+.dayCell:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.dayCell:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Selected date */
+.dayCell.selected {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+}
+
+.dayCell.selected:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* Today's date */
+.dayCell.today:not(.selected) {
+  border: 2px solid var(--color-primary);
+  font-weight: 600;
+}
+
+/* Disabled dates */
+.dayCell:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.dayCell:disabled:hover {
+  background-color: transparent;
+}
+
+/* Footer with today button */
+.footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.todayButton {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-primary);
+  background-color: transparent;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.todayButton:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.todayButton:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.todayButton:active {
+  transform: scale(0.98);
+}
+
+/* Dark mode adjustments */
+.dark .dayCell.selected {
+  background-color: var(--color-primary);
+}
+
+.dark .dayCell.selected:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* Touch target size for accessibility (minimum 44x44px) */
+@media (pointer: coarse) {
+  .dayCell {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .navButton {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  .todayButton {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .calendar {
+    gap: 16px;
+  }
+  
+  .monthYear {
+    font-size: 18px;
+  }
+  
+  .dayCell {
+    font-size: 16px;
+  }
+  
+  .daysGrid {
+    gap: 8px;
+  }
+}

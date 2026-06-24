@@ -1,0 +1,22 @@
+{
+  "name": "@skoolific/app-shared",
+  "version": "2.0.0",
+  "description": "Skoolific V2 shared components, pages, and utilities for desktop and mobile admin apps",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.0",
+    "react-i18next": "^15.0.0",
+    "i18next": "^24.0.0",
+    "i18next-browser-languagedetector": "^8.0.0",
+    "framer-motion": "^12.0.0",
+    "recharts": "^2.15.0",
+    "lucide-react": "^0.400.0",
+    "react-icons": "^5.0.0",
+    "axios": "^1.7.0",
+    "react-hook-form": "^7.50.0"
+  }
+}

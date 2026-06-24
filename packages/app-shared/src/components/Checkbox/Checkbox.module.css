@@ -1,0 +1,206 @@
+/* Checkbox Component Styles */
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checkboxWrapper {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxWrapper.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.checkboxInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkboxBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-primary);
+  color: white;
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+  margin-top: 2px; /* Align with first line of text */
+}
+
+/* Sizes */
+.sm .checkboxBox {
+  width: 16px;
+  height: 16px;
+}
+
+.md .checkboxBox {
+  width: 20px;
+  height: 20px;
+}
+
+.lg .checkboxBox {
+  width: 24px;
+  height: 24px;
+}
+
+/* States */
+.checkboxBox.checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.checkboxBox.indeterminate {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.checkboxBox.error {
+  border-color: var(--color-error);
+}
+
+.checkboxBox.checked.error {
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.checkboxBox.indeterminate.error {
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+/* Hover */
+.checkboxWrapper:not(.disabled):hover .checkboxBox {
+  border-color: var(--color-primary);
+}
+
+.checkboxWrapper:not(.disabled):hover .checkboxBox.checked {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.checkboxWrapper:not(.disabled):hover .checkboxBox.indeterminate {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+/* Focus */
+.checkboxInput:focus-visible + .checkboxBox {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* Label wrapper */
+.labelWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Label */
+.label {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: var(--line-height-normal);
+  font-weight: 500;
+}
+
+.sm .label {
+  font-size: 12px;
+}
+
+.lg .label {
+  font-size: 16px;
+}
+
+/* Required indicator */
+.required {
+  color: var(--color-error);
+  margin-left: 4px;
+}
+
+/* Description */
+.description {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.sm .description {
+  font-size: 11px;
+}
+
+.lg .description {
+  font-size: 14px;
+}
+
+/* Helper text */
+.helperText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-left: 28px;
+  line-height: var(--line-height-normal);
+}
+
+.sm .helperText {
+  margin-left: 24px;
+}
+
+.lg .helperText {
+  margin-left: 32px;
+}
+
+.errorText {
+  color: var(--color-error);
+}
+
+/* Dark mode adjustments */
+.dark .checkboxBox {
+  background-color: var(--bg-secondary);
+}
+
+/* RTL Support */
+[dir="rtl"] .checkboxWrapper {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .helperText {
+  margin-left: 0;
+  margin-right: 28px;
+}
+
+[dir="rtl"] .sm .helperText {
+  margin-right: 24px;
+}
+
+[dir="rtl"] .lg .helperText {
+  margin-right: 32px;
+}
+
+[dir="rtl"] .required {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+/* Touch target size for accessibility (minimum 44x44px) */
+@media (pointer: coarse) {
+  .checkboxWrapper {
+    min-height: 44px;
+    align-items: center;
+  }
+  
+  .checkboxBox {
+    margin-top: 0;
+  }
+}

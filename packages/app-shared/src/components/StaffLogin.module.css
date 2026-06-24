@@ -1,0 +1,187 @@
+/* Staff Login Component Styles */
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+  animation: rotate 30s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.headerControls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 450px;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loginCard {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl);
+  padding: 40px;
+  width: 100%;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logoSection {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin: 0 auto 16px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  line-height: var(--line-height-tight);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.lockoutBanner {
+  background: var(--color-error-light);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.lockoutBanner p {
+  color: var(--color-error-dark);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin: 0 0 8px 0;
+}
+
+.lockoutTimer {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-error);
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.loginButton {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.footer {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-primary);
+  text-align: center;
+}
+
+.footer p {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .headerControls {
+    top: 15px;
+    right: 15px;
+    gap: 8px;
+  }
+  
+  .loginCard {
+    padding: 30px 20px;
+  }
+  
+  .title {
+    font-size: var(--font-size-xl);
+  }
+  
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Dark mode specific adjustments */
+.dark .loginCard {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-primary);
+}
+
+.dark .container::before {
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.1) 0%, transparent 50%);
+}
+
+.dark .lockoutBanner {
+  background: var(--color-error-light);
+  border-color: var(--color-error-dark);
+}

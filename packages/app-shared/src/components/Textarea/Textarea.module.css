@@ -1,0 +1,202 @@
+/* Textarea Component Styles */
+
+.textareaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: 4px;
+}
+
+.textareaWrapper {
+  position: relative;
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all var(--transition-base);
+  font-family: inherit;
+  line-height: var(--line-height-normal);
+  min-height: 44px; /* Minimum touch target size for accessibility */
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--bg-secondary);
+}
+
+.textarea:read-only {
+  background-color: var(--bg-secondary);
+  cursor: default;
+}
+
+/* Validation states */
+.textareaWrapper.error .textarea {
+  border-color: var(--color-error);
+}
+
+.textareaWrapper.error .textarea:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.textareaWrapper.success .textarea {
+  border-color: var(--color-success, #10b981);
+}
+
+.textareaWrapper.success .textarea:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.textareaWrapper.warning .textarea {
+  border-color: var(--color-warning, #f59e0b);
+}
+
+.textareaWrapper.warning .textarea:focus {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.textareaWrapper.disabled .textarea,
+.textareaWrapper.readOnly .textarea {
+  opacity: 0.6;
+}
+
+/* Resize options */
+.resize-none {
+  resize: none;
+}
+
+.resize-vertical {
+  resize: vertical;
+}
+
+.resize-horizontal {
+  resize: horizontal;
+}
+
+.resize-both {
+  resize: both;
+}
+
+/* Auto-resize */
+.autoResize {
+  resize: none;
+  overflow: hidden;
+  min-height: 44px;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 18px;
+}
+
+.helperTextWrapper {
+  flex: 1;
+}
+
+.helperText {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.validationMessage {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.errorText {
+  color: var(--color-error);
+}
+
+.successText {
+  color: var(--color-success, #10b981);
+}
+
+.warningText {
+  color: var(--color-warning, #f59e0b);
+}
+
+.counter {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* RTL Support */
+[dir="rtl"] .textareaGroup {
+  direction: rtl;
+}
+
+[dir="rtl"] .required {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+[dir="rtl"] .footer {
+  flex-direction: row-reverse;
+}
+
+/* Dark mode adjustments */
+.dark .textarea {
+  background-color: var(--bg-secondary);
+}
+
+.dark .textarea:disabled,
+.dark .textarea:read-only {
+  background-color: var(--bg-tertiary);
+}
+
+/* Focus visible for keyboard navigation */
+.textarea:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .textarea {
+    border-width: 3px;
+  }
+  
+  .textarea:focus {
+    outline-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .textarea {
+    transition: none;
+  }
+}

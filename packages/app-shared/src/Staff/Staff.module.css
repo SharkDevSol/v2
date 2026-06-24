@@ -1,0 +1,306 @@
+/* Staff.module.css - Mobile First Design */
+
+/* Base Styles - Mobile First */
+.staffContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Hide Desktop Sidebar */
+.sidebar {
+  display: none;
+}
+
+.logoContainer,
+.logo,
+.logoSubtext,
+.nav,
+.navLink,
+.navIcon,
+.navText,
+.logoutContainer,
+.logoutButton,
+.logoutIcon,
+.logoutText {
+  display: none;
+}
+
+/* Content Wrapper - Mobile First */
+.contentWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Mobile Header - Always Visible */
+.mobileHeader {
+  background: var(--bg-primary);
+  padding: 0.875rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  transition: all 0.3s ease;
+}
+
+.mobileHeader.scrolled {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 1rem;
+}
+
+.mobileHeaderContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 100%;
+}
+
+.mobileMenuButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #ff6b35;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+
+.mobileMenuButton:active {
+  background-color: rgba(255, 107, 53, 0.1);
+}
+
+.mobileLogo {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ff6b35;
+}
+
+.mobileActions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.mobileActionButton {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.mobileActionButton:active {
+  background-color: #f1f5f9;
+  color: #ff6b35;
+}
+
+/* Mobile Bottom Navigation - Always Visible */
+.mobileBottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  padding: 0.5rem 0 0.75rem 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 100vw;
+}
+
+.mobileBottomNavLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem 0.5rem;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.2s;
+  flex: 1;
+  max-width: 80px;
+  border-radius: 0.5rem;
+}
+
+.mobileBottomNavLink.active {
+  color: #ff6b35;
+}
+
+.mobileBottomNavLink:active {
+  background-color: rgba(255, 107, 53, 0.1);
+}
+
+.mobileBottomNavIcon {
+  font-size: 1.375rem;
+  margin-bottom: 0.125rem;
+}
+
+/* Mobile Menu Overlay */
+.mobileMenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-primary);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileMenuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.mobileMenuLogo {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #ff6b35;
+}
+
+.mobileMenuCloseButton {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.75rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+}
+
+.mobileMenuCloseButton:active {
+  background-color: #f1f5f9;
+}
+
+.mobileNav {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.mobileNav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mobileNav li {
+  margin: 0.375rem 0;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  color: #555;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 0.5rem;
+  margin: 0 1rem;
+}
+
+.mobileNavLink:active,
+.mobileNavLink.active {
+  background-color: rgba(255, 107, 53, 0.15);
+  color: #ff6b35;
+}
+
+.mobileNavIcon {
+  font-size: 1.375rem;
+  margin-right: 1rem;
+}
+
+.mobileNavText {
+  font-size: 1.0625rem;
+  font-weight: 500;
+}
+
+.mobileLogout {
+  padding: 1.25rem 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.mobileLogoutButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 0.875rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.0625rem;
+  font-weight: 500;
+}
+
+.mobileLogoutButton:active {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.mobileLogoutIcon {
+  font-size: 1.125rem;
+}
+
+/* Main Content - Mobile Optimized */
+.mainContent {
+  flex: 1;
+  padding: 1rem;
+  padding-bottom: 5rem;
+  background-color: #f5f7fa;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Floating Action Button - Hidden */
+.floatingActionButton {
+  display: none;
+}
+
+/* Tablet Optimization */
+@media (min-width: 768px) {
+  .mainContent {
+    padding: 1.5rem;
+    padding-bottom: 5.5rem;
+  }
+  
+  .mobileLogo {
+    font-size: 1.25rem;
+  }
+}
+
+/* Desktop - Keep Mobile Design */
+@media (min-width: 1024px) {
+  .mainContent {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}

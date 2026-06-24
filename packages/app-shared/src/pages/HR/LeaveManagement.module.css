@@ -1,0 +1,130 @@
+.container {
+  padding: var(--spacing-lg);
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg-secondary);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-xs);
+}
+
+.header p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.filtersCard {
+  margin-bottom: var(--spacing-lg);
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-md);
+  align-items: end;
+}
+
+.tabNavigation {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.tabBtn {
+  padding: 10px 20px;
+  border: 1px solid var(--border-primary);
+  background: var(--surface-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  min-height: 44px;
+  transition: all var(--transition-base);
+}
+
+.tabBtnActive {
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  border-color: var(--color-primary);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.loading {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-secondary);
+}
+
+.empty {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-tertiary);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.statusPending {
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.statusApproved {
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.statusRejected {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.actionGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+@media (max-width: 767px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}

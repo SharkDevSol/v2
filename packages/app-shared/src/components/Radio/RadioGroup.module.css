@@ -1,0 +1,68 @@
+/* RadioGroup Component Styles */
+
+.radioGroupWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.labelWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.groupLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: var(--line-height-normal);
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: 4px;
+}
+
+.groupDescription {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.radioGroup {
+  display: flex;
+  gap: 12px;
+}
+
+.radioGroup.vertical {
+  flex-direction: column;
+}
+
+.radioGroup.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.helperText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.errorText {
+  color: var(--color-error);
+}
+
+/* RTL Support */
+[dir="rtl"] .required {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .radioGroup.horizontal {
+    flex-direction: column;
+  }
+}

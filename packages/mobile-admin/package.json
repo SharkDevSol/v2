@@ -15,6 +15,7 @@
     "android:build": "npm run build && cap sync && cap copy"
   },
   "dependencies": {
+    "@skoolific/app-shared": "2.0.0",
     "@capacitor/android": "^6.0.0",
     "@capacitor/core": "^6.0.0",
     "@capacitor/push-notifications": "^6.0.0",

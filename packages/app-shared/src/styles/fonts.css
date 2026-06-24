@@ -1,0 +1,28 @@
+/**
+ * Web font loading with font-display: swap (Tasks 17.2)
+ * Google Fonts serves subsets; Amharic uses Noto Sans Ethiopic with unicode-range.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap');
+
+/* System fallbacks when offline */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: local('Inter'), local('Segoe UI'), local('Roboto');
+}
+
+@font-face {
+  font-family: 'Noto Sans Ethiopic';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: local('Noto Sans Ethiopic'), local('Nyala');
+}
+
+/* Apply Amharic stack when document language is Amharic */
+html[lang='am'] body {
+  font-family: var(--font-amharic, 'Noto Sans Ethiopic', 'Nyala', sans-serif);
+}

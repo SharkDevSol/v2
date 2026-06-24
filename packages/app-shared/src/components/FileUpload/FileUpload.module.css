@@ -1,0 +1,201 @@
+/* FileUpload Component Styles */
+
+.fileUploadGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+/* Drop Zone */
+.dropZone {
+  position: relative;
+  border: 2px dashed var(--border-primary);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropZone:hover:not(.disabled) {
+  border-color: var(--border-focus);
+  background-color: var(--bg-secondary);
+}
+
+.dropZone:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.dropZone.dragging {
+  border-color: var(--border-focus);
+  background-color: rgba(139, 92, 246, 0.05);
+  border-style: solid;
+}
+
+.dropZone.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--bg-secondary);
+}
+
+.dropZone.error {
+  border-color: var(--color-error);
+}
+
+.dropZone.error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Hidden file input */
+.fileInput {
+  display: none;
+}
+
+/* Drop Zone Content */
+.dropZoneContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.uploadIcon {
+  color: var(--text-secondary);
+  transition: color var(--transition-base);
+}
+
+.dropZone:hover:not(.disabled) .uploadIcon {
+  color: var(--border-focus);
+}
+
+.dropZone.dragging .uploadIcon {
+  color: var(--border-focus);
+}
+
+.dropZoneText {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.dropZoneText strong {
+  color: var(--border-focus);
+  font-weight: 600;
+}
+
+.dropZoneHint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 400px;
+}
+
+/* Error Message */
+.errorMessage {
+  font-size: 12px;
+  color: var(--color-error);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+/* File List */
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Dark mode adjustments */
+.dark .dropZone {
+  background-color: var(--bg-secondary);
+}
+
+.dark .dropZone:hover:not(.disabled) {
+  background-color: var(--bg-tertiary);
+}
+
+.dark .dropZone.dragging {
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+.dark .dropZone.disabled {
+  background-color: var(--bg-tertiary);
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+  .dropZone {
+    padding: 24px 16px;
+    min-height: 150px;
+  }
+  
+  .uploadIcon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .dropZoneText {
+    font-size: 14px;
+  }
+  
+  .dropZoneHint {
+    font-size: 11px;
+  }
+}
+
+/* Touch target size for accessibility (minimum 44x44px) */
+@media (pointer: coarse) {
+  .dropZone {
+    min-height: 200px;
+  }
+}
+
+/* RTL support */
+[dir="rtl"] .errorMessage {
+  flex-direction: row-reverse;
+}
+
+/* Animation for drag state */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.dropZone.dragging .uploadIcon {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .dropZone,
+  .uploadIcon {
+    transition: none;
+  }
+  
+  .dropZone.dragging .uploadIcon {
+    animation: none;
+  }
+}
