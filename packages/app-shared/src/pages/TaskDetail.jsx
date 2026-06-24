@@ -6,11 +6,11 @@ import { formatAPIError } from '../utils/errorMessages';
 import styles from './TaskDetail.module.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://v2.skoolific.com/api';
-import StudentFormBuilder from '../PAGE/CreateRegister/CreateRegisterStudent/StudentFormBuilder';
-import StaffFormBuilder from '../PAGE/CreateRegister/CreateRegisterStaff/StaffFormBuilder';
-import CreateRegisterStaff from '../PAGE/CreateRegister/CreateRegisterStaff/CreateRegisterStaff';
-import SubjectMappingSetup from '../PAGE/CreateMarklist/SubjectMappingSetup';
-import Task6 from '../PAGE/Task6';
+import StudentFormBuilder from './CreateRegister/CreateRegisterStudent/StudentFormBuilder';
+import StaffFormBuilder from './CreateRegister/CreateRegisterStaff/StaffFormBuilder';
+import CreateRegisterStaff from './CreateRegister/CreateRegisterStaff/CreateRegisterStaff';
+import SubjectMappingSetup from './CreateMarklist/SubjectMappingSetup';
+import Task6 from './Task6';
 import { useLanguageSelection, AVAILABLE_LANGUAGES } from '../context/LanguageSelectionContext';
 
 function TaskDetail() {

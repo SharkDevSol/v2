@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from '../Finance/FinanceDashboard.module.css';
+import styles from './HRDashboard.module.css';
 
 const HRDashboard = () => {
   const navigate = useNavigate();

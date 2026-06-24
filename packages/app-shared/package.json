@@ -17,6 +17,15 @@
     "lucide-react": "^0.400.0",
     "react-icons": "^5.0.0",
     "axios": "^1.7.0",
-    "react-hook-form": "^7.50.0"
+    "react-hook-form": "^7.50.0",
+    "react-webcam": "^7.2.0",
+    "react-redux": "^9.0.0",
+    "react-toastify": "^10.0.0",
+    "socket.io-client": "^4.7.0",
+    "dexie": "^4.0.0",
+    "html2canvas": "^1.4.0",
+    "jspdf": "^2.5.0",
+    "prop-types": "^15.8.0",
+    "xlsx": "^0.18.0"
   }
 }

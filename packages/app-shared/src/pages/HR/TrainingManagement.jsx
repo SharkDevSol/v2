@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styles from '../Finance/FeeManagement/FeeManagement.module.css';
+import styles from './FeeManagement.module.css';
 
 const TrainingManagement = () => {
   const [trainings, setTrainings] = useState([]);

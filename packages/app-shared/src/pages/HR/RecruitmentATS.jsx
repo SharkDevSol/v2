@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styles from '../Finance/PaymentManagement.module.css';
+import styles from './PaymentManagement.module.css';
 
 const RecruitmentATS = () => {
   const [applications, setApplications] = useState([]);
