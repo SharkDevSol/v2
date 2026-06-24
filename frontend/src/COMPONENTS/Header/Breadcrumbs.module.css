@@ -1,0 +1,134 @@
+/* Breadcrumbs Component Styles */
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.breadcrumbs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.breadcrumbList {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--spacing-xs);
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.breadcrumbItem {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.breadcrumbLink {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.breadcrumbLink:hover:not(:disabled) {
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.breadcrumbLink:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.breadcrumbLink:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.breadcrumbCurrent {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* Responsive Design */
+
+/* Mobile: 320px - 767px */
+@media (max-width: 767px) {
+  .breadcrumbList {
+    gap: 4px;
+  }
+
+  .breadcrumbLink,
+  .breadcrumbCurrent {
+    padding: 4px 8px;
+    font-size: var(--font-size-xs);
+  }
+
+  .separator svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Tablet: 768px - 1023px */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .breadcrumbLink,
+  .breadcrumbCurrent {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .breadcrumbList {
+  direction: rtl;
+}
+
+[dir="rtl"] .separator svg {
+  transform: scaleX(-1);
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .breadcrumbLink {
+    transition: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .breadcrumbs {
+    overflow: visible;
+  }
+
+  .breadcrumbLink:hover {
+    background-color: transparent;
+  }
+}

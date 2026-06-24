@@ -1,0 +1,401 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* ========================================
+     SKOOLIFIC V2 - GLASSMORPHISM DESIGN SYSTEM
+     Premium Dark Mode with Glass Panels
+     ======================================== */
+  
+  /* Primary Color (Main Identity) - Digital Violet */
+  --primary-color: #8b5cf6;
+  /* Secondary Color - Soft Indigo (for hover states, secondary buttons) */
+  --secondary-color: #a78bfa;
+  
+  /* Accent Colors */
+  --soft-lilac: rgba(139, 92, 246, 0.08);
+  --cloud-white: #ffffff;
+  --cool-gray: #f1f5f9;
+  
+  /* Support / UI Colors */
+  --soft-indigo: #a78bfa;
+  --ice-blue: rgba(139, 92, 246, 0.05);
+  
+  /* Optional Accent (Very Small Use) */
+  --mint-accent: #22c55e;
+  
+  /* Computed Theme Variables */
+  --primary-gradient: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  --primary-light: rgba(139, 92, 246, 0.08);
+  --primary-lighter: rgba(139, 92, 246, 0.04);
+  --primary-shadow: rgba(139, 92, 246, 0.2);
+  --primary-shadow-lg: rgba(139, 92, 246, 0.25);
+  
+  /* ========== Light White Theme ========== */
+  --bg-color: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  --text-color: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: rgba(139, 92, 246, 0.1);
+  --border-light: rgba(139, 92, 246, 0.06);
+  --card-bg: #ffffff;
+  --card-bg-hover: rgba(139, 92, 246, 0.04);
+  --card-shadow: 0 4px 16px rgba(139, 92, 246, 0.06);
+  --card-shadow-hover: 0 10px 32px rgba(139, 92, 246, 0.1);
+  --sidebar-bg: rgba(255, 255, 255, 0.75);
+  --input-bg: #ffffff;
+  --input-border: rgba(139, 92, 246, 0.12);
+  --hover-bg: rgba(139, 92, 246, 0.06);
+  
+  /* Accent Color for Links & Focus */
+  --accent-color: #8b5cf6;
+  --link-color: #7c3aed;
+  --focus-color: #8b5cf6;
+  
+  /* Status Colors */
+  --success-color: #22c55e;
+  --success-bg: rgba(34, 197, 94, 0.08);
+  --success-border: rgba(34, 197, 94, 0.2);
+  --error-color: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.08);
+  --error-border: rgba(239, 68, 68, 0.2);
+  --warning-color: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.08);
+  --warning-border: rgba(245, 158, 11, 0.2);
+  
+  /* ========== Glass Tokens ========== */
+  --glass-surface-1: rgba(255, 255, 255, 0.75);
+  --glass-surface-2: rgba(255, 255, 255, 0.6);
+  --glass-surface-3: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(139, 92, 246, 0.1);
+  --glass-border-subtle: rgba(139, 92, 246, 0.06);
+  --glass-border-accent: rgba(139, 92, 246, 0.25);
+  --glass-blur-heavy: blur(20px);
+  --glass-blur-medium: blur(12px);
+  --glass-blur-light: blur(8px);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-shadow-sm: 0 1px 3px rgba(139, 92, 246, 0.06);
+  --glass-shadow-md: 0 4px 16px rgba(139, 92, 246, 0.08);
+  --glass-shadow-lg: 0 10px 32px rgba(139, 92, 246, 0.1);
+  --glass-shadow-glow: 0 0 20px rgba(139, 92, 246, 0.08);
+}
+
+/* Dark mode overrides for legacy variables */
+[data-theme="dark"],
+.dark {
+  --bg-color: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-color: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: rgba(139, 92, 246, 0.2);
+  --border-light: rgba(139, 92, 246, 0.1);
+  --card-bg: rgba(30, 41, 59, 0.8);
+  --card-bg-hover: rgba(139, 92, 246, 0.1);
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --card-shadow-hover: 0 10px 32px rgba(139, 92, 246, 0.2);
+  --sidebar-bg: rgba(15, 23, 42, 0.9);
+  --input-bg: rgba(30, 41, 59, 0.8);
+  --input-border: rgba(139, 92, 246, 0.2);
+  --hover-bg: rgba(139, 92, 246, 0.12);
+  --glass-surface-1: rgba(30, 41, 59, 0.8);
+  --glass-surface-2: rgba(30, 41, 59, 0.6);
+  --glass-surface-3: rgba(30, 41, 59, 0.4);
+  --glass-border: rgba(139, 92, 246, 0.2);
+  --glass-border-subtle: rgba(139, 92, 246, 0.1);
+  --glass-border-accent: rgba(139, 92, 246, 0.4);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --glass-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --glass-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --glass-shadow-lg: 0 10px 32px rgba(0, 0, 0, 0.6);
+  --glass-shadow-glow: 0 0 20px rgba(139, 92, 246, 0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: #1e293b;
+  min-height: 100vh;
+}
+
+/* Dark mode body */
+body.dark,
+[data-theme="dark"] body {
+  background-color: #0f172a;
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+  color: #f1f5f9;
+}
+
+/* RTL Support for Arabic */
+body.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+body.rtl .sidebar {
+  left: auto;
+  right: 0;
+}
+
+body.rtl .mainContent {
+  margin-left: 0;
+  margin-right: 280px;
+}
+
+body.rtl .profileHeader {
+  left: 0;
+  right: 280px;
+}
+
+body.rtl .navLink {
+  flex-direction: row-reverse;
+}
+
+body.rtl .navIcon {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}
+
+body.rtl .searchContainer {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+body.rtl .searchIcon {
+  left: auto;
+  right: 1rem;
+}
+
+body.rtl .searchInput {
+  padding: 0.6rem 2.5rem 0.6rem 1rem;
+}
+
+@media (max-width: 992px) {
+  body.rtl .mainContent {
+    margin-right: 0;
+  }
+  
+  body.rtl .profileHeader {
+    right: 0;
+  }
+}
+
+/* ========================================
+   MOBILE-FIRST RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 1200px) {
+  :root {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  :root {
+    font-size: 14px;
+  }
+  
+  .container,
+  [class*="container"] {
+    padding: 1rem;
+    max-width: 100%;
+  }
+  
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    font-size: 14px;
+  }
+  
+  .container,
+  [class*="container"],
+  [class*="Container"] {
+    padding: 0.75rem;
+    max-width: 100%;
+  }
+  
+  .card,
+  [class*="card"],
+  [class*="Card"] {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  button,
+  [class*="button"],
+  [class*="Button"],
+  [class*="btn"],
+  [class*="Btn"] {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+  
+  input,
+  select,
+  textarea {
+    padding: 0.75rem;
+    font-size: 16px;
+    min-height: 44px;
+  }
+  
+  form {
+    width: 100%;
+  }
+  
+  .form-group,
+  [class*="formGroup"],
+  [class*="FormGroup"] {
+    margin-bottom: 1rem;
+  }
+  
+  .grid,
+  [class*="grid"],
+  [class*="Grid"] {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+  
+  .flex,
+  [class*="flex"],
+  [class*="Flex"] {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .modal,
+  [class*="modal"],
+  [class*="Modal"] {
+    width: 95% !important;
+    max-width: 95% !important;
+    margin: 1rem;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  table {
+    font-size: 0.85rem;
+  }
+  
+  th, td {
+    padding: 0.5rem;
+  }
+  
+  .hide-mobile,
+  [class*="hideMobile"],
+  [class*="HideMobile"] {
+    display: none !important;
+  }
+  
+  .stack-mobile,
+  [class*="stackMobile"],
+  [class*="StackMobile"] {
+    flex-direction: column !important;
+  }
+}
+
+@media (max-width: 576px) {
+  :root {
+    font-size: 13px;
+  }
+  
+  .container,
+  [class*="container"],
+  [class*="Container"] {
+    padding: 0.5rem;
+  }
+  
+  .card,
+  [class*="card"],
+  [class*="Card"] {
+    padding: 0.75rem;
+  }
+  
+  button,
+  [class*="button"],
+  [class*="Button"],
+  [class*="btn"],
+  [class*="Btn"] {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  h4 { font-size: 1.1rem; }
+  h5 { font-size: 1rem; }
+  h6 { font-size: 0.9rem; }
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  a, button, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .modal,
+  [class*="modal"],
+  [class*="Modal"] {
+    max-height: 85vh;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar,
+  [class*="sidebar"],
+  [class*="Sidebar"],
+  .header,
+  [class*="header"],
+  [class*="Header"],
+  button,
+  [class*="button"],
+  [class*="Button"] {
+    display: none !important;
+  }
+  
+  .mainContent,
+  [class*="mainContent"],
+  [class*="MainContent"] {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

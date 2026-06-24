@@ -1,0 +1,322 @@
+/* Glassmorphism Select Component */
+
+.selectGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  position: relative;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary, #374151);
+  margin-bottom: 2px;
+}
+
+.required {
+  color: #ef4444;
+  margin-left: 4px;
+}
+
+.selectWrapper {
+  position: relative;
+}
+
+.selectButton {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.15));
+  border-radius: var(--radius-lg);
+  background: var(--input-bg, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-primary, #1e293b);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+  font-family: inherit;
+}
+
+.selectButton:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: var(--glass-surface-hover, rgba(255, 255, 255, 0.95));
+}
+
+.selectButton:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 
+    0 0 0 3px rgba(139, 92, 246, 0.1),
+    0 0 12px rgba(139, 92, 246, 0.06);
+}
+
+.selectButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-secondary, rgba(241, 245, 249, 0.8));
+}
+
+.selectWrapper.error .selectButton {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.selectWrapper.error .selectButton:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.selectText {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.iconGroup {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.clearIcon {
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.clearIcon:hover {
+  color: #ef4444;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-secondary, #64748b);
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--glass-surface-hover, rgba(255, 255, 255, 0.95));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.12));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg, 0 16px 48px rgba(0, 0, 0, 0.1));
+  z-index: var(--z-dropdown);
+  max-height: 300px;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Search */
+.searchWrapper {
+  padding: 8px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.08);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.12));
+  border-radius: var(--radius-md);
+  background: var(--input-bg, rgba(255, 255, 255, 0.9));
+  color: var(--text-primary, #1e293b);
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.searchInput::placeholder {
+  color: var(--text-tertiary, #94a3b8);
+}
+
+/* Options list */
+.optionsList {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+/* Group label */
+.groupLabel {
+  padding: 8px 12px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.groupLabel:first-child {
+  margin-top: 0;
+}
+
+/* Option */
+.option {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-primary, #334155);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.option:hover:not(.optionDisabled) {
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.option.focused:not(.optionDisabled) {
+  background: rgba(139, 92, 246, 0.06);
+  outline: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.option.selected {
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
+  font-weight: 500;
+}
+
+.option.optionDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.option.selected .checkbox {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: white;
+}
+
+.optionLabel {
+  flex: 1;
+}
+
+.noOptions {
+  padding: 16px 12px;
+  font-size: 14px;
+  color: var(--text-secondary, #64748b);
+  text-align: center;
+}
+
+/* Helper text */
+.helperText {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  margin-top: 2px;
+}
+
+.errorText {
+  color: #ef4444;
+}
+
+/* Scrollbar styling */
+.optionsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.optionsList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.optionsList::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.15);
+  border-radius: var(--radius-full);
+}
+
+.optionsList::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+/* RTL Support */
+[dir="rtl"] .selectButton {
+  text-align: right;
+}
+
+[dir="rtl"] .iconGroup {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .option {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .groupLabel {
+  text-align: right;
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .option {
+    padding: 14px 12px;
+    min-height: 44px;
+  }
+  
+  .selectButton {
+    min-height: 44px;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .dropdown {
+    max-height: 250px;
+  }
+  
+  .optionsList {
+    max-height: 200px;
+  }
+}

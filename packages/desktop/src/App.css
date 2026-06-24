@@ -1,0 +1,5 @@
+/* App.css is intentionally minimal - styles are in component CSS files */
+.app {
+  width: 100%;
+  min-height: 100vh;
+}

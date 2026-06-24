@@ -1,0 +1,160 @@
+/* Glassmorphism Card Component */
+
+.card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    0 4px 16px rgba(139, 92, 246, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.hoverable:hover {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(139, 92, 246, 0.15);
+  box-shadow: 
+    0 10px 32px rgba(139, 92, 246, 0.1),
+    0 0 0 1px rgba(139, 92, 246, 0.05);
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
+/* Padding variants */
+.padding-none {
+  padding: 0;
+}
+
+.padding-sm {
+  padding: 12px;
+}
+
+.padding-md {
+  padding: 20px;
+}
+
+.padding-lg {
+  padding: 32px;
+}
+
+/* Variants */
+.default {
+  /* Default glass styling */
+}
+
+.outlined {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: none;
+  background: rgba(30, 41, 59, 0.3);
+}
+
+.elevated {
+  background: rgba(30, 41, 59, 0.6);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  border: none;
+}
+
+.noBorder {
+  border: none;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.card.padding-none .header {
+  padding: 20px 20px 16px 20px;
+  margin-bottom: 0;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary, #1e293b);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-secondary, #64748b);
+  margin: 4px 0 0 0;
+  line-height: var(--line-height-normal);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.content {
+  color: var(--text-primary, #334155);
+}
+
+.card.padding-none .content {
+  padding: 0 20px 20px 20px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.card.padding-none .footer {
+  padding: 16px 20px 20px 20px;
+  margin-top: 0;
+}
+
+/* RTL Support */
+[dir="rtl"] .header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .actions {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .title,
+[dir="rtl"] .subtitle,
+[dir="rtl"] .content,
+[dir="rtl"] .footer {
+  text-align: right;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  [dir="rtl"] .header {
+    flex-direction: column;
+  }
+
+  [dir="rtl"] .actions {
+    justify-content: flex-end;
+  }
+}

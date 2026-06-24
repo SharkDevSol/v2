@@ -1,0 +1,243 @@
+.inputGroup {
+  text-align: left;
+  margin-bottom: var(--spacing-lg, 20px);
+}
+
+.label {
+  display: block;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs, 8px);
+  font-size: var(--font-size-sm, 14px);
+  transition: color var(--transition-base, 0.2s ease);
+}
+
+.required {
+  color: var(--color-danger, #dc2626);
+  margin-left: var(--spacing-xs, 4px);
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  padding: var(--spacing-sm, 12px) var(--spacing-md, 16px);
+  padding-right: 40px; /* Space for status icon */
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-lg, 8px);
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-semibold, 600);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: border-color var(--transition-base, 0.3s ease), 
+              box-shadow var(--transition-base, 0.3s ease),
+              background-color var(--transition-base, 0.3s ease);
+  box-sizing: border-box;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-alpha, rgba(102, 126, 234, 0.1));
+}
+
+.input:disabled {
+  background-color: var(--bg-disabled, #f5f5f5);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.input::placeholder {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: var(--font-weight-normal, 400);
+  color: var(--text-tertiary);
+}
+
+/* Input validation states */
+.inputValid {
+  border-color: var(--color-success, #10b981);
+  background-color: var(--bg-success-subtle, #f0fdf4);
+}
+
+.inputValid:focus {
+  border-color: var(--color-success, #10b981);
+  box-shadow: 0 0 0 3px var(--color-success-alpha, rgba(16, 185, 129, 0.1));
+}
+
+.inputInvalid {
+  border-color: var(--color-danger, #ef4444);
+  background-color: var(--bg-danger-subtle, #fef2f2);
+}
+
+.inputInvalid:focus {
+  border-color: var(--color-danger, #ef4444);
+  box-shadow: 0 0 0 3px var(--color-danger-alpha, rgba(239, 68, 68, 0.1));
+}
+
+/* Status icon */
+.statusIcon {
+  position: absolute;
+  right: var(--spacing-sm, 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.iconSpinner {
+  font-size: 20px;
+  color: var(--color-primary);
+  animation: spin 1s linear infinite;
+}
+
+.iconValid {
+  font-size: 20px;
+  color: var(--color-success, #10b981);
+  animation: scaleIn 0.3s ease;
+}
+
+.iconInvalid {
+  font-size: 20px;
+  color: var(--color-danger, #ef4444);
+  animation: shake 0.4s ease;
+}
+
+/* Validation message */
+.validationMessage {
+  margin-top: var(--spacing-xs, 8px);
+  padding: var(--spacing-xs, 8px) var(--spacing-sm, 12px);
+  border-radius: var(--radius-md, 6px);
+  font-size: var(--font-size-xs, 13px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: 1.4;
+}
+
+.messageValid {
+  background-color: var(--bg-success-subtle, #d1fae5);
+  color: var(--text-success, #065f46);
+  border: 1px solid var(--border-success, #a7f3d0);
+}
+
+.messageInvalid {
+  background-color: var(--bg-danger-subtle, #fee2e2);
+  color: var(--text-danger, #991b1b);
+  border: 1px solid var(--border-danger, #fecaca);
+}
+
+.messageInfo {
+  background-color: var(--bg-info-subtle, #dbeafe);
+  color: var(--text-info, #1e40af);
+  border: 1px solid var(--border-info, #bfdbfe);
+}
+
+/* Hint text */
+.hint {
+  margin-top: var(--spacing-xs, 6px);
+  font-size: var(--font-size-xs, 12px);
+  color: var(--text-secondary);
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs, 8px);
+}
+
+/* Clear button */
+.clearButton {
+  background: none;
+  border: none;
+  color: var(--color-danger, #dc2626);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold, 600);
+  cursor: pointer;
+  padding: var(--spacing-xs, 4px) var(--spacing-xs, 8px);
+  border-radius: var(--radius-sm, 4px);
+  transition: background-color var(--transition-base, 0.2s ease);
+  white-space: nowrap;
+}
+
+.clearButton:hover:not(:disabled) {
+  background-color: var(--bg-danger-subtle, #fee2e2);
+}
+
+.clearButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .input {
+    font-size: var(--font-size-sm, 14px);
+    padding: var(--spacing-xs, 10px) var(--spacing-sm, 14px);
+    padding-right: 38px;
+  }
+  
+  .statusIcon {
+    right: var(--spacing-xs, 10px);
+  }
+  
+  .iconSpinner,
+  .iconValid,
+  .iconInvalid {
+    font-size: 18px;
+  }
+  
+  .validationMessage {
+    font-size: var(--font-size-xs, 12px);
+    padding: var(--spacing-xs, 6px) var(--spacing-xs, 10px);
+  }
+  
+  .hint {
+    font-size: 11px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .clearButton {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}
+

@@ -1,0 +1,247 @@
+/**
+ * Pending Sync Counter Styles
+ */
+
+.counter {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Variant styles */
+.counter.default {
+  background: white;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.counter.compact {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.counter.card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+}
+
+/* Synced state */
+.counter.synced {
+  background: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.counter.synced .icon {
+  color: #155724;
+}
+
+.counter.synced .text {
+  color: #155724;
+  font-weight: 600;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  transition: background-color 0.2s;
+}
+
+.header:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.counter.compact .header {
+  padding: 8px 12px;
+}
+
+/* Icon */
+.icon {
+  font-size: 18px;
+  color: #ffc107;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.counter.synced .icon {
+  animation: none;
+}
+
+/* Count */
+.count {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  min-width: 30px;
+  text-align: center;
+}
+
+.counter.compact .count {
+  font-size: 16px;
+}
+
+/* Label */
+.label {
+  font-size: 14px;
+  color: #666;
+  flex: 1;
+}
+
+.counter.compact .label {
+  font-size: 12px;
+}
+
+/* Expand icon */
+.expandIcon {
+  font-size: 12px;
+  color: #999;
+  transition: transform 0.2s;
+}
+
+/* Loading */
+.loading {
+  display: block;
+  padding: 12px 16px;
+  color: #999;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Details */
+.details {
+  border-top: 1px solid #e0e0e0;
+  padding: 16px;
+  background-color: #f8f9fa;
+}
+
+.counter.compact .details {
+  padding: 12px;
+}
+
+/* Breakdown */
+.breakdown {
+  margin-bottom: 16px;
+}
+
+.breakdown h4 {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.breakdownList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.breakdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.breakdownLabel {
+  font-size: 13px;
+  color: #666;
+}
+
+.breakdownValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  background-color: #ffc107;
+  padding: 2px 8px;
+  border-radius: 12px;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.syncButton {
+  flex: 1;
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.syncButton:hover {
+  background-color: #0056b3;
+}
+
+.syncButton:active {
+  transform: scale(0.98);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header {
+    padding: 10px 12px;
+  }
+
+  .count {
+    font-size: 18px;
+  }
+
+  .label {
+    font-size: 13px;
+  }
+
+  .details {
+    padding: 12px;
+  }
+
+  .breakdown h4 {
+    font-size: 12px;
+  }
+
+  .breakdownItem {
+    padding: 6px 10px;
+  }
+
+  .breakdownLabel {
+    font-size: 12px;
+  }
+
+  .breakdownValue {
+    font-size: 13px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .counter {
+    display: none;
+  }
+}

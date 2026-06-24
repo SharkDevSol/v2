@@ -1,0 +1,423 @@
+// Updated App.jsx with Code Splitting and Lazy Loading
+import { Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import LoadingScreen from "./COMPONENTS/LoadingScreen";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import "./i18n/config"; // Initialize i18n
+import "./styles/theme.css";
+import "./styles/global.css";
+import "./styles/animations.css";
+import { Provider } from 'react-redux';
+import { store } from '../src/PAGE/store';
+import { useParams } from "react-router-dom";
+
+// Critical components - loaded immediately (needed for initial render)
+import InitialRedirect from "./COMPONENTS/InitialRedirect";  
+import ProtectedRoute from "./COMPONENTS/ProtectedRoute";
+import RoleProtectedRoute from "./COMPONENTS/RoleProtectedRoute";
+import ErrorBoundary from "./COMPONENTS/ErrorBoundary";
+import Login from "./PAGE/Login/Login";
+import Home from "./PAGE/Home";
+
+// Lazy-loaded components - loaded on demand
+// Core Pages
+const ComponentShowcase = lazy(() => import("./pages/ComponentShowcase"));
+
+const ModernDashboard = lazy(() => import("./PAGE/Dashboard/Dashboard"));
+const AboutUs = lazy(() => import("./PAGE/AboutUs/AboutUs"));
+const Setting = lazy(() => import("./PAGE/Setting/Setting"));
+const Diagnostics = lazy(() => import("./PAGE/Diagnostics/Diagnostics"));
+
+// Student Management
+const CreateRegisterStudent = lazy(() => import("./PAGE/CreateRegister/CreateRegisterStudent/CreateRegisterStudent"));
+const StudentFormBuilder = lazy(() => import("./PAGE/CreateRegister/CreateRegisterStudent/StudentFormBuilder"));
+const ListStudent = lazy(() => import("./PAGE/List/ListStudent/ListStudent"));
+const StudentFaults = lazy(() => import("./PAGE/StudentFaults/StudentFaultsS"));
+
+// Staff Management
+const CreateRegisterStaff = lazy(() => import("./PAGE/CreateRegister/CreateRegisterStaff/CreateRegisterStaff"));
+const StaffFormBuilder = lazy(() => import("./PAGE/CreateRegister/CreateRegisterStaff/StaffFormBuilder"));
+const StaffForm = lazy(() => import("./PAGE/CreateRegister/CreateRegisterStaff/StaffForm"));
+const ListStaff = lazy(() => import("./PAGE/List/ListStaff/ListStaff"));
+const EditStaff = lazy(() => import("./PAGE/List/ListStaff/EditStaff"));
+
+// Guardian Management
+const ListGuardian = lazy(() => import("./PAGE/List/ListGuardian/ListGuardian"));
+
+// Academic Module
+const EvaluationManager = lazy(() => import("./PAGE/Evaluation/Evaluation").then(module => ({ default: module.EvaluationManager })));
+const EvaluationFormPage = lazy(() => import("./PAGE/Evaluation/EvaluationFormPage"));
+const EvaluationFormDisplay = lazy(() => import("./PAGE/Evaluation/EvaluationFormDisplay"));
+const EvaluationDetailsView = lazy(() => import("./PAGE/Evaluation/EvaluationDetailsView"));
+const MarkListView = lazy(() => import("./PAGE/MarkListView/MarkListView"));
+const StudentAttendanceSystem = lazy(() => import("./PAGE/Academic/StudentAttendanceSystem"));
+const StudentAttendanceTimeSettings = lazy(() => import("./PAGE/Academic/StudentAttendanceTimeSettings"));
+const AITestGenerator = lazy(() => import("./PAGE/AITestGenerator/AITestGenerator"));
+const SavedTests = lazy(() => import("./PAGE/AITestGenerator/SavedTests"));
+const TestPlayer = lazy(() => import("./PAGE/AITestGenerator/TestPlayer"));
+const MarkListSystem = lazy(() => import("./PAGE/CreateMarklist/CreateMarklist/CreateMarklist"));
+const MarkListManagement = lazy(() => import("./PAGE/CreateMarklist/MarkListManagement"));
+const SubjectMappingSetup = lazy(() => import("./PAGE/CreateMarklist/SubjectMappingSetup"));
+const ReportCard = lazy(() => import("./PAGE/CreateMarklist/ReportCard/ReportCard"));
+
+// Communication
+const Post = lazy(() => import("./PAGE/Post/Post"));
+const AdminChat = lazy(() => import("./PAGE/Communication/AdminChat"));
+const GuardianChat = lazy(() => import("./PAGE/Communication/GuardianChat"));
+const TeacherChat = lazy(() => import("./PAGE/Communication/TeacherChat"));
+const AdminCommunications = lazy(() => import("./PAGE/Communication/AdminCommunications"));
+const GuardianNotifications = lazy(() => import("./PAGE/Communication/GuardianNotifications"));
+
+// Schedule
+const ScheduleDashboard = lazy(() => import("./PAGE/Schedule/ScheduleDashboard"));
+const ScheduleTimetable = lazy(() => import("./PAGE/Schedule/ScheduleTimetable"));
+const ClassRequirementsForm = lazy(() => import('./PAGE/Schedule/ClassRequirementsForm'));
+const ClassShiftForm = lazy(() => import('./PAGE/Schedule/ClassShiftForm'));
+
+// Accounts & Tasks
+const CreateAccounts = lazy(() => import("./PAGE/CreateAccounts/CreateAccounts"));
+const AdminSubAccounts = lazy(() => import("./PAGE/AdminSubAccounts/AdminSubAccounts"));
+const TaskPage = lazy(() => import("./PAGE/TaskPage"));
+const TaskDetail = lazy(() => import("./PAGE/TaskDetail"));
+
+// Mobile App Installation
+const InstallStudentApp = lazy(() => import("./PAGE/InstallApp/InstallStudentApp"));
+const InstallStaffApp = lazy(() => import("./PAGE/InstallApp/InstallStaffApp"));
+const InstallGuardianApp = lazy(() => import("./PAGE/InstallApp/InstallGuardianApp"));
+
+// Student App
+const Students = lazy(() => import("./Students/Students"));
+const PostStudents = lazy(() => import("./Students/PostStudents/PostStudents"));
+const ClassStudents = lazy(() => import("./Students/ClassStudents/ClassStudents"));
+const CommunicationStudents = lazy(() => import("./Students/CommunicationStudents/CommunicationStudents"));
+const ProfileStudents = lazy(() => import("./Students/ProfileStudents/ProfileStudents"));
+
+// Staff App
+const Staff = lazy(() => import("./Staff/Staff"));
+const POSTS = lazy(() => import("./Staff/POSTS/POSTS"));
+const MRLIST = lazy(() => import("./Staff/MRLIST/MRLIST"));
+const EVA = lazy(() => import("./Staff/EVA/EVA"));
+const COMSTA = lazy(() => import("./Staff/COMSTA/COMSTA"));
+const TeacherClassAttendance = lazy(() => import("./Staff/ATTENDANCE/TeacherClassAttendance"));
+const ExamCreationStaff = lazy(() => import("./Staff/EXAM/ExamCreationStaff"));
+const ClassTeacherAssignment = lazy(() => import("./PAGE/AttendanceView/ClassTeacherAssignment"));
+const LiveAttendanceMonitor = lazy(() => import("./PAGE/LiveAttendanceMonitor"));
+
+// Mobile Profiles
+const StaffLogin = lazy(() => import("./COMPONENTS/StaffLogin"));
+const StaffProfile = lazy(() => import("./COMPONENTS/StaffProfile"));
+const StudentProfile = lazy(() => import("./COMPONENTS/StudentProfile"));
+const GuardianProfile = lazy(() => import("./COMPONENTS/GuardianProfile"));
+const StudentLogin = lazy(() => import("./COMPONENTS/StudentLogin"));
+const GuardianLogin = lazy(() => import("./COMPONENTS/GuardianLogin"));
+
+// Evaluation Book
+const EvaluationBookFormBuilder = lazy(() => import("./PAGE/EvaluationBook").then(module => ({ default: module.EvaluationBookFormBuilder })));
+const TeacherAssignmentManager = lazy(() => import("./PAGE/EvaluationBook").then(module => ({ default: module.TeacherAssignmentManager })));
+const TeacherClassList = lazy(() => import("./PAGE/EvaluationBook").then(module => ({ default: module.TeacherClassList })));
+const DailyEvaluationForm = lazy(() => import("./PAGE/EvaluationBook").then(module => ({ default: module.DailyEvaluationForm })));
+const GuardianEvaluationInbox = lazy(() => import("./PAGE/EvaluationBook").then(module => ({ default: module.GuardianEvaluationInbox })));
+const GuardianFeedbackForm = lazy(() => import("./PAGE/EvaluationBook").then(module => ({ default: module.GuardianFeedbackForm })));
+const EvaluationBookReports = lazy(() => import("./PAGE/EvaluationBook").then(module => ({ default: module.EvaluationBookReports })));
+
+// Guardian App
+const Guardian = lazy(() => import("./Guardian/Guardian"));
+const GuardianHome = lazy(() => import("./Guardian/GuardianHome/GuardianHome"));
+const GuardianProfilePage = lazy(() => import("./Guardian/GuardianProfilePage/GuardianProfilePage"));
+const GuardianWards = lazy(() => import("./Guardian/GuardianWards/GuardianWards"));
+const GuardianAttendance = lazy(() => import("./Guardian/GuardianAttendance/GuardianAttendance"));
+const GuardianMarks = lazy(() => import("./Guardian/GuardianMarks/GuardianMarks"));
+const GuardianMessages = lazy(() => import("./Guardian/GuardianMessages/GuardianMessages"));
+const GuardianNotificationsPage = lazy(() => import("./Guardian/GuardianNotifications/GuardianNotifications"));
+
+// Finance Module
+const FinanceDashboard = lazy(() => import("./PAGE/Finance/FinanceDashboard"));
+const ChartOfAccounts = lazy(() => import("./PAGE/Finance/ChartOfAccounts/ChartOfAccounts"));
+const FeeManagement = lazy(() => import("./PAGE/Finance/FeeManagement/FeeManagement"));
+const InvoiceManagement = lazy(() => import("./PAGE/Finance/InvoiceManagement"));
+const FeePaymentManagement = lazy(() => import("./PAGE/Finance/FeePaymentManagement"));
+const ExpenseManagement = lazy(() => import("./PAGE/Finance/ExpenseManagement"));
+const ExpenseApproval = lazy(() => import("./PAGE/Finance/ExpenseApproval"));
+const BudgetManagement = lazy(() => import("./PAGE/Finance/BudgetManagement"));
+const PayrollManagement = lazy(() => import("./PAGE/Finance/PayrollManagement"));
+const FinanceReports = lazy(() => import("./PAGE/Finance/FinanceReports"));
+const ComingSoon = lazy(() => import("./PAGE/Finance/ComingSoon"));
+const MonthlyPayments = lazy(() => import("./PAGE/Finance/MonthlyPaymentsNew"));
+const MonthlyPaymentSettings = lazy(() => import("./PAGE/Finance/MonthlyPaymentSettings"));
+
+// Report Pages
+const StudentsReport = lazy(() => import("./PAGE/Reports/StudentsReport"));
+const StaffReport = lazy(() => import("./PAGE/Reports/StaffReport"));
+const AcademicReport = lazy(() => import("./PAGE/Reports/AcademicReport"));
+const AttendanceReport = lazy(() => import("./PAGE/Reports/AttendanceReport"));
+const BehaviorReport = lazy(() => import("./PAGE/Reports/BehaviorReport"));
+const EvaluationsReport = lazy(() => import("./PAGE/Reports/EvaluationsReport"));
+
+// Faults Page
+const FaultsPage = lazy(() => import("./PAGE/Faults/FaultsPage"));
+
+// HR & Staff Management Module
+const HRDashboard = lazy(() => import("./PAGE/HR/HRDashboard"));
+const SalaryManagement = lazy(() => import("./PAGE/HR/SalaryManagement"));
+const AttendanceSystem = lazy(() => import("./PAGE/HR/AttendanceSystem"));
+const AttendanceDeductionSettings = lazy(() => import("./PAGE/HR/AttendanceDeductionSettings"));
+const AttendanceTimeSettings = lazy(() => import("./PAGE/HR/AttendanceTimeSettingsCombined"));
+const StaffSpecificTiming = lazy(() => import("./PAGE/HR/StaffSpecificTiming"));
+const DeviceStatus = lazy(() => import("./PAGE/HR/DeviceStatus"));
+const LeaveManagement = lazy(() => import("./PAGE/HR/LeaveManagement"));
+const PayrollSystem = lazy(() => import("./PAGE/HR/PayrollSystem"));
+const PerformanceManagement = lazy(() => import("./PAGE/HR/PerformanceManagement"));
+const HRReports = lazy(() => import("./PAGE/HR/HRReports"));
+
+// Loading fallback component - renders LoadingScreen directly without wrapper
+const PageLoader = () => <LoadingScreen />;
+
+// Wrapper component for lazy-loaded routes
+const LazyRoute = ({ component: Component, ...props }) => (
+  <Suspense fallback={<PageLoader />}>
+    <Component {...props} />
+  </Suspense>
+);
+
+// Redirect components for legacy routes with params
+const StudentProfileRedirect = () => {
+  const { username } = useParams();
+  return <Navigate to={`/app/student/${username}`} replace />;
+};
+
+const GuardianProfileRedirect = () => {
+  const { username } = useParams();
+  return <Navigate to={`/app/guardian/${username}`} replace />;
+};
+
+function App() {
+  return (
+    <LanguageProvider>
+        <div>
+          <Provider store={store}>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/about-us" element={<Suspense fallback={<PageLoader />}><AboutUs /></Suspense>} />
+          <Route path="/diagnostics" element={<Suspense fallback={<PageLoader />}><Diagnostics /></Suspense>} />
+          
+          {/* UI Component Showcase - Public for testing */}
+          <Route path="/showcase" element={<Suspense fallback={<PageLoader />}><ComponentShowcase /></Suspense>} />
+          
+          {/* Protected Routes */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <InitialRedirect>
+                <Home />
+              </InitialRedirect>
+            </ProtectedRoute>
+          }>
+              <Route index element={<Suspense fallback={<PageLoader />}><ModernDashboard /></Suspense>} />
+              <Route path="dashboard" element={<Navigate to="/" replace />} />
+              
+              {/* Tasks routes - separate from dashboard */}
+              <Route path="tasks" element={<LazyRoute component={TaskPage} />} />
+              <Route path="tasks/:taskId" element={<LazyRoute component={TaskDetail} />} />
+              
+              {/* Report Pages */}
+              <Route path="reports/students" element={<LazyRoute component={StudentsReport} />} />
+              <Route path="reports/staff" element={<LazyRoute component={StaffReport} />} />
+              <Route path="reports/academic" element={<LazyRoute component={AcademicReport} />} />
+              <Route path="reports/attendance" element={<LazyRoute component={AttendanceReport} />} />
+              <Route path="reports/behavior" element={<LazyRoute component={BehaviorReport} />} />
+              <Route path="reports/evaluations" element={<LazyRoute component={EvaluationsReport} />} />
+              
+              <Route path="create-register-student" element={<LazyRoute component={CreateRegisterStudent} />} />
+              <Route path="Student-Form-Builder" element={<LazyRoute component={StudentFormBuilder} />} />
+              <Route path="Staff-Form-Builder" element={<LazyRoute component={StaffFormBuilder} />} />
+              <Route path="create-register-staff" element={<LazyRoute component={CreateRegisterStaff} />} />
+              <Route path="list-student" element={<LazyRoute component={ListStudent} />} />
+              <Route path="list-staff" element={<LazyRoute component={ListStaff} />} />
+              <Route path="edit-staff/:staffType/:className/:uniqueId" element={<LazyRoute component={EditStaff} />} />
+              <Route path="list-guardian" element={<LazyRoute component={ListGuardian} />} />
+              <Route
+                path="evaluation"
+                element={
+                  <ErrorBoundary>
+                    <EvaluationManager />
+                  </ErrorBoundary>
+                }
+              />
+              <Route
+                path="evaluation-form/:evaluationId"
+                element={
+                  <ErrorBoundary>
+                    <EvaluationFormPage />
+                  </ErrorBoundary>
+                }
+              />
+              <Route path="/evaluation-form/:id" element={<EvaluationFormDisplay />} />
+              <Route path="/evaluation/:id" element={<EvaluationDetailsView />} />
+              <Route path="evaluation-book" element={<EvaluationBookFormBuilder />} />
+              <Route path="evaluation-book/assignments" element={<TeacherAssignmentManager />} />
+              <Route path="evaluation-book/teacher" element={<TeacherClassList />} />
+              <Route path="evaluation-book/daily/:className" element={<DailyEvaluationForm />} />
+              <Route path="evaluation-book/guardian" element={<GuardianEvaluationInbox />} />
+              <Route path="evaluation-book/guardian/feedback/:evaluationId" element={<GuardianFeedbackForm />} />
+              <Route path="evaluation-book/reports" element={<EvaluationBookReports />} />
+              <Route path="mark-list-view" element={<MarkListView />} />
+              <Route path="student-attendance-system" element={<StudentAttendanceSystem />} />
+              <Route path="student-attendance-time-settings" element={<StudentAttendanceTimeSettings />} />
+              <Route path="ai-test-generator" element={<AITestGenerator />} />
+              <Route path="ai-tests" element={<SavedTests />} />
+              <Route path="ai-test-player" element={<TestPlayer />} />
+              <Route path="class-teacher-assignment" element={<ClassTeacherAssignment />} />
+              <Route path="live-attendance" element={<LiveAttendanceMonitor />} />
+              <Route path="communication" element={<AdminChat />} />
+              <Route path="guardian-notifications" element={<GuardianNotifications />} />
+              {/* Counsellor route removed */}
+              <Route path="create-mark-list" element={<MarkListSystem />} />
+              <Route path="Mark-List-Management" element={<MarkListManagement />} />
+              <Route path="Subject-Mapping-Setup" element={<SubjectMappingSetup />} />
+              <Route path="post" element={<Post />} />
+              {/* Roaster route removed */}
+              <Route path="report-card" element={<ReportCard />} />
+              <Route path="create-accounts" element={<CreateAccounts />} />
+              <Route path="admin-sub-accounts" element={<AdminSubAccounts />} />
+              {/* Payment route removed */}
+              <Route path="settings" element={<Setting />} />
+              {/* Branch-create route removed */}
+              <Route path="schedule" element={<ScheduleDashboard />} />
+              <Route path="schedule/Timetable" element={<ScheduleTimetable />} />
+              <Route path="schedule/ClassShiftForm" element={<ClassShiftForm />} />
+              <Route path="schedule/requirements" element={<ClassRequirementsForm />} />
+
+              {/* New route for StaffForm */}
+              <Route path="staff-form/:staffType/:className" element={<StaffForm />} />
+              
+              {/* Finance Module Routes */}
+              <Route path="finance" element={<FinanceDashboard />} />
+              <Route path="finance/accounts" element={<ChartOfAccounts />} />
+              <Route path="finance/fee-management" element={<FeeManagement />} />
+              <Route path="finance/fee-types" element={<FeeManagement />} />
+              <Route path="finance/invoices" element={<InvoiceManagement />} />
+              <Route path="finance/payments" element={<FeePaymentManagement />} />
+              <Route path="finance/monthly-payments" element={<MonthlyPayments />} />
+              <Route path="finance/monthly-payment-settings" element={<MonthlyPaymentSettings />} />
+              <Route path="finance/expenses" element={<ExpenseManagement />} />
+              <Route path="finance/expense-approval" element={<ExpenseApproval />} />
+              <Route path="finance/budgets" element={<BudgetManagement />} />
+              <Route path="finance/payroll" element={<PayrollManagement />} />
+              <Route path="finance/reports" element={<FinanceReports />} />
+              <Route path="finance/inventory-integration" element={<ComingSoon title="Inventory Integration" description="Connect finance with inventory for automated expense tracking." />} />
+              
+              {/* Inventory Module Routes - Coming Soon */}
+              <Route path="inventory" element={<ComingSoon title="Inventory Dashboard" description="Manage your school's inventory and stock items." />} />
+              <Route path="inventory/items" element={<ComingSoon title="Items Management" description="Add and manage inventory items." />} />
+              <Route path="inventory/purchase-orders" element={<ComingSoon title="Purchase Orders" description="Create and track purchase orders." />} />
+              <Route path="inventory/movements" element={<ComingSoon title="Stock Movements" description="Track stock movements and transfers." />} />
+              <Route path="inventory/suppliers" element={<ComingSoon title="Supplier Management" description="Manage your suppliers and vendors." />} />
+              <Route path="inventory/reports" element={<ComingSoon title="Inventory Reports" description="View inventory analytics and reports." />} />
+              
+              {/* Asset Management Module Routes - Coming Soon */}
+              <Route path="assets" element={<ComingSoon title="Asset Dashboard" description="Overview of all school assets." />} />
+              <Route path="assets/registry" element={<ComingSoon title="Asset Registry" description="Register and manage school assets." />} />
+              <Route path="assets/assignments" element={<ComingSoon title="Asset Assignments" description="Assign assets to staff and departments." />} />
+              <Route path="assets/maintenance" element={<ComingSoon title="Asset Maintenance" description="Track asset maintenance schedules." />} />
+              <Route path="assets/depreciation" element={<ComingSoon title="Asset Depreciation" description="Calculate and track asset depreciation." />} />
+              <Route path="assets/disposal" element={<ComingSoon title="Asset Disposal" description="Manage asset disposal and write-offs." />} />
+              <Route path="assets/reports" element={<ComingSoon title="Asset Reports" description="View asset analytics and reports." />} />
+              
+              {/* HR & Staff Management Module Routes */}
+              <Route path="hr" element={<HRDashboard />} />
+              <Route path="hr/salary" element={<SalaryManagement />} />
+              <Route path="hr/attendance" element={<AttendanceSystem />} />
+              <Route path="hr/device-status" element={<DeviceStatus />} />
+              <Route path="hr/attendance-deduction-settings" element={<AttendanceDeductionSettings />} />
+              <Route path="hr/attendance-time-settings" element={<AttendanceTimeSettings />} />
+              <Route path="hr/staff-specific-timing" element={<StaffSpecificTiming />} />
+              {/* Redirect old shift routes to combined time settings */}
+              <Route path="hr/shift-time-settings" element={<Navigate to="/hr/attendance-time-settings" replace />} />
+              <Route path="hr/staff-shift-assignment" element={<Navigate to="/hr/attendance-time-settings" replace />} />
+              <Route path="hr/leave" element={<LeaveManagement />} />
+              <Route path="hr/payroll" element={<PayrollSystem />} />
+              <Route path="hr/performance" element={<PerformanceManagement />} />
+              <Route path="hr/reports" element={<HRReports />} />
+              
+              {/* Student Faults */}
+              <Route path="student-faults" element={<StudentFaults />} />
+              <Route path="faults" element={<FaultsPage />} />
+            </Route>
+            <Route path="/students" element={<ProtectedRoute><Students /></ProtectedRoute>}>
+              <Route index element={<PostStudents />} />
+              <Route path="class-students" element={<ClassStudents />} />
+              <Route path="communication-students" element={<CommunicationStudents />} />
+              <Route path="profile-students" element={<ProfileStudents />} />
+            </Route>
+            <Route path="/staff" element={<ProtectedRoute><Staff /></ProtectedRoute>}>
+              <Route index element={<StaffProfile />} />
+              <Route path="post-staff-new" element={<POSTS />} />
+              {/* OLD ATTENDANCE REMOVED - Use /app/staff profile instead */}
+              {/* <Route path="attendance-staff" element={<TeacherClassAttendance />} /> */}
+              <Route path="attendance-staff" element={
+                <RoleProtectedRoute requiredFeature="attendance">
+                  <TeacherClassAttendance />
+                </RoleProtectedRoute>
+              } />
+              <Route path="mark-list-staff" element={
+                <RoleProtectedRoute requiredFeature="mark-lists">
+                  <MRLIST />
+                </RoleProtectedRoute>
+              } />
+              <Route path="exam-creation-staff" element={
+                <RoleProtectedRoute requiredFeature="exam-creation">
+                  <ExamCreationStaff />
+                </RoleProtectedRoute>
+              } />
+              <Route path="evaluation-staff-control" element={<EVA />} />
+              {/* OLD PROFILE ROUTE REMOVED - Use /app/staff (index) instead */}
+              <Route path="communication-staff" element={<COMSTA />} />
+            </Route>
+            <Route path="/guardian" element={<ProtectedRoute><Guardian /></ProtectedRoute>}>
+              <Route index element={<GuardianHome />} />
+              <Route path="wards" element={<GuardianWards />} />
+              <Route path="attendance" element={<GuardianAttendance />} />
+              <Route path="marks" element={<GuardianMarks />} />
+              <Route path="notifications" element={<GuardianNotificationsPage />} />
+              <Route path="messages" element={<GuardianMessages />} />
+              <Route path="profile" element={<GuardianProfilePage />} />
+            </Route>
+            
+            {/* ============================================== */}
+            {/* MOBILE APP ROUTES - Completely Standalone      */}
+            {/* These routes are independent from the main app */}
+            {/* Access via: /app/student-login, /app/staff-profile, etc. */}
+            {/* ============================================== */}
+            
+            {/* PWA Installation Pages - Standalone (No Header/Sidebar) */}
+            <Route path="/install/student-app" element={<InstallStudentApp />} />
+            <Route path="/install/staff-app" element={<InstallStaffApp />} />
+            <Route path="/install/guardian-app" element={<InstallGuardianApp />} />
+            
+            {/* Mobile App Login Pages */}
+            <Route path="/app/student-login" element={<StudentLogin />} />
+            <Route path="/app/guardian-login" element={<GuardianLogin />} />
+            <Route path="/app/staff-login" element={<StaffLogin />} />
+            <Route path="/app/student/:username" element={<StudentProfile />} />
+            <Route path="/app/guardian/:username" element={<GuardianProfile />} />
+            <Route path="/app/guardian-chat" element={<GuardianChat />} />
+            <Route path="/app/staff" element={<StaffProfile />} />
+            <Route path="/app/teacher-chat" element={<TeacherChat />} />
+            
+            {/* Legacy route redirects - for backward compatibility */}
+            <Route path="/student-login" element={<Navigate to="/app/student-login" replace />} />
+            <Route path="/guardian-login" element={<Navigate to="/app/guardian-login" replace />} />
+            <Route path="/staff-login" element={<Navigate to="/app/staff-login" replace />} />
+            <Route path="/student-profile/:username" element={<StudentProfileRedirect />} />
+            <Route path="/guardian-profile/:username" element={<GuardianProfileRedirect />} />
+            <Route path="/staff-profile" element={<Navigate to="/app/staff" replace />} />
+          </Routes>
+            </Suspense>
+          </Provider>
+        </div>
+      </LanguageProvider>
+  );
+}
+
+export default App;

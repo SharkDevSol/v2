@@ -1,0 +1,22 @@
+{
+  "name": "@skoolific/desktop",
+  "version": "2.0.0",
+  "description": "Skoolific V2 Desktop Application (Tauri) for Admin and Super Admin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Desktop app not yet configured. Run tauri dev when setup is complete.'",
+    "build": "echo 'Desktop app not yet configured. Run tauri build when setup is complete.'",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.0",
+    "@vitejs/plugin-react": "^4.6.0",
+    "vite": "^4.5.14"
+  }
+}

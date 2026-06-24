@@ -1,0 +1,80 @@
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+}
+
+.header {
+  background: var(--bg-primary);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header svg {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.conversationsList {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-primary);
+}
+
+.loading, .empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty svg {
+  font-size: 3rem;
+}
+
+.chatHeader {
+  background: var(--bg-primary);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.headerInfo h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.headerInfo span {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}

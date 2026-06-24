@@ -1,0 +1,213 @@
+/* Glassmorphism Input Component - Light Theme */
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary, #374151);
+  margin-bottom: 2px;
+}
+
+.required {
+  color: #ef4444;
+  margin-inline-start: 4px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: 1px solid var(--glass-border, rgba(139, 92, 246, 0.15));
+  border-radius: var(--radius-lg);
+  background: var(--input-bg, rgba(255, 255, 255, 0.8));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-primary, #1e293b);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.input:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 
+    0 0 0 3px rgba(139, 92, 246, 0.1),
+    0 0 12px rgba(139, 92, 246, 0.06);
+  background: var(--glass-surface-hover, rgba(255, 255, 255, 0.95));
+}
+
+.input::placeholder {
+  color: var(--text-tertiary, #94a3b8);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-secondary, rgba(241, 245, 249, 0.8));
+}
+
+.input:read-only {
+  background: var(--bg-secondary, rgba(241, 245, 249, 0.8));
+  cursor: default;
+}
+
+/* Validation states */
+.inputWrapper.error .input {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.inputWrapper.error .input:focus {
+  box-shadow: 
+    0 0 0 3px rgba(239, 68, 68, 0.1),
+    0 0 12px rgba(239, 68, 68, 0.06);
+}
+
+.inputWrapper.success .input {
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.inputWrapper.success .input:focus {
+  box-shadow: 
+    0 0 0 3px rgba(34, 197, 94, 0.1),
+    0 0 12px rgba(34, 197, 94, 0.06);
+}
+
+.inputWrapper.warning .input {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.inputWrapper.warning .input:focus {
+  box-shadow: 
+    0 0 0 3px rgba(245, 158, 11, 0.1),
+    0 0 12px rgba(245, 158, 11, 0.06);
+}
+
+/* Icon support - prefix */
+.prefixIcon {
+  position: absolute;
+  inset-inline-start: 12px;
+  color: var(--text-secondary, #64748b);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.inputWrapper.hasPrefix .input {
+  padding-inline-start: 44px;
+}
+
+/* Icon support - suffix */
+.suffixIcon {
+  position: absolute;
+  inset-inline-end: 12px;
+  color: var(--text-secondary, #64748b);
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 1;
+  transition: color 0.2s ease;
+}
+
+.suffixIcon:hover:not(:disabled) {
+  color: #8b5cf6;
+}
+
+.suffixIcon:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.inputWrapper.hasSuffix .input {
+  padding-inline-end: 44px;
+}
+
+/* Helper text and validation messages */
+.helperText {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  margin-top: 2px;
+}
+
+.validationMessage {
+  font-size: 12px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.errorText {
+  color: #ef4444;
+}
+
+.successText {
+  color: #22c55e;
+}
+
+.warningText {
+  color: #f59e0b;
+}
+
+/* Disabled and readonly states */
+.inputWrapper.disabled {
+  opacity: 0.5;
+}
+
+.inputWrapper.readOnly .input {
+  background: var(--bg-secondary, rgba(241, 245, 249, 0.8));
+  cursor: default;
+}
+
+/* RTL support */
+[dir="rtl"] .required {
+  margin-inline-start: 4px;
+  margin-inline-end: 0;
+}
+
+[dir="rtl"] .prefixIcon {
+  inset-inline-start: auto;
+  inset-inline-end: 12px;
+}
+
+[dir="rtl"] .suffixIcon {
+  inset-inline-end: auto;
+  inset-inline-start: 12px;
+}
+
+[dir="rtl"] .inputWrapper.hasPrefix .input {
+  padding-inline-start: 16px;
+  padding-inline-end: 44px;
+}
+
+[dir="rtl"] .inputWrapper.hasSuffix .input {
+  padding-inline-end: 16px;
+  padding-inline-start: 44px;
+}
+
+/* Touch target size for accessibility */
+@media (pointer: coarse) {
+  .input {
+    min-height: 44px;
+  }
+  
+  .suffixIcon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

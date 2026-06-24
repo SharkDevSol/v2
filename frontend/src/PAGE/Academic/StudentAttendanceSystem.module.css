@@ -1,0 +1,491 @@
+/* Student Attendance — V2 redesign (design system, light/dark, responsive) */
+
+.container {
+  padding: var(--spacing-lg);
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.pageSubtitle {
+  margin: 6px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.todayBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.error {
+  padding: var(--spacing-md);
+  background: color-mix(in srgb, var(--color-error) 12%, transparent);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-md);
+}
+
+.timeCard {
+  background: linear-gradient(135deg, var(--color-primary) 0%, color-mix(in srgb, var(--color-primary) 70%, #312e81) 100%);
+  color: #fff;
+  border: none;
+}
+
+.timeCardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.9;
+  margin-bottom: var(--spacing-sm);
+}
+
+.timeCardIcon {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.timeCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.liveClock {
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.liveDate {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.filtersCard {
+  width: 100%;
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  align-items: end;
+}
+
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.filterLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.filterActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.assignedClassBadge {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  text-align: center;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.reportSection {
+  width: 100%;
+}
+
+.reportContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+.reportFilters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--spacing-md);
+  align-items: end;
+}
+
+.reportSummary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.reportSummaryTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+}
+
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.schoolDaysInfo {
+  padding: var(--spacing-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.hint {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.markTodayCard {
+  width: 100%;
+}
+
+.markTodayList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.markTodayRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+}
+
+.studentMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
+}
+
+.studentMetaSub {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.statusToggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.weeklyCard {
+  width: 100%;
+  overflow: hidden;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  padding: var(--spacing-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th,
+.table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  text-align: start;
+}
+
+.table th {
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.table tbody tr:hover {
+  background: var(--color-surface-hover, var(--color-surface));
+}
+
+.studentName {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.classId,
+.machineId {
+  color: var(--color-text-secondary);
+}
+
+.statusCell {
+  text-align: center;
+  min-width: 72px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  background: var(--color-primary-light);
+}
+
+.statusContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.present {
+  background: color-mix(in srgb, var(--color-success) 18%, transparent);
+  color: var(--color-success);
+}
+
+.absent {
+  background: color-mix(in srgb, var(--color-error) 18%, transparent);
+  color: var(--color-error);
+}
+
+.late {
+  background: color-mix(in srgb, var(--color-warning) 18%, transparent);
+  color: var(--color-warning);
+}
+
+.leave {
+  background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+  color: var(--color-primary);
+}
+
+.checkInTime {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+}
+
+.noData {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.loading {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.infoSection {
+  width: 100%;
+}
+
+.infoTitle {
+  margin: 0 0 var(--spacing-sm);
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.infoList {
+  margin: 0 0 var(--spacing-md);
+  padding-inline-start: 1.25rem;
+  color: var(--color-text-secondary);
+}
+
+.note {
+  margin: 0 0 var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.modalInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+}
+
+.modalInfo p {
+  margin: 0;
+}
+
+.currentWeekInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.weekModalToday {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.weekModalToday h4 {
+  margin: 0 0 4px;
+  color: var(--color-text);
+}
+
+.todayDateText {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.warningBox {
+  padding: var(--spacing-md);
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+}
+
+.warningBox ul {
+  margin: var(--spacing-sm) 0 0;
+  padding-inline-start: 1.25rem;
+}
+
+.weekDetailsBox h4 {
+  margin: 0 0 var(--spacing-sm);
+  color: var(--color-text);
+}
+
+.weekRange {
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 var(--spacing-sm);
+}
+
+.weekDaysList ul {
+  margin: var(--spacing-sm) 0;
+  padding-inline-start: 1.25rem;
+}
+
+.todayHighlight {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.weekNote {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: var(--spacing-sm) 0 0;
+}
+
+.reportTable {
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .markTodayRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .statusToggles {
+    justify-content: stretch;
+  }
+
+  .statusToggles button {
+    flex: 1 1 calc(50% - var(--spacing-xs));
+  }
+
+  .liveClock {
+    font-size: 1.75rem;
+  }
+}
+
+@media print {
+  .filtersCard,
+  .markTodayCard,
+  .reportSection,
+  .timeCard,
+  .buttonGroup {
+    display: none !important;
+  }
+}
