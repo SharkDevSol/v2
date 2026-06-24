@@ -508,7 +508,7 @@ router.get('/list-tests', async (req, res) => {
               subject: subject.charAt(0).toUpperCase() + subject.slice(1),
               className: t.table_name.split('_term')[0],
               termNumber: t.table_name.match(/term(\d+)/)?.[1] || '1',
-              componentName: t.table_name.split('_').pop(),
+              componentName: t.table_name.replace(/^[^_]+_term\d+_/, ''),
               questionCount: parseInt(count.rows[0].c)
             });
           }
