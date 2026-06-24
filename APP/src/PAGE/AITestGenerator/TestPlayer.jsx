@@ -23,8 +23,12 @@ const TestPlayer = () => {
     fetch(`${API_BASE_URL}/ai/get-test?subject=${encodeURIComponent(subject)}&className=${encodeURIComponent(className)}&termNumber=${termNumber}&componentName=${encodeURIComponent(componentName)}`, { headers: branchHeaders() })
       .then(r => r.json())
       .then(data => {
-        if (data.success) setTest(data.data);
-        else navigate('/ai-tests');
+        if (data.success) {
+          const decode = (s) => s.replace(/&#x2[fF];/g,'/').replace(/&#x27;/g,"'");
+          const typeMap = { 'true/false':'true_false','true or false':'true_false','multiple choice':'mcq','mcq':'mcq','fill in the blank':'fill_blank','short answer':'short_answer','essay / open-ended':'essay','essay':'essay','matching':'matching','multiple true/false':'multiple_true_false','numeric':'numeric','transformation / error correction':'transformation','transformation':'transformation' };
+          data.data.questions = data.data.questions.map(q => ({ ...q, type: typeMap[decode(q.type?.toLowerCase())] || q.type }));
+          setTest(data.data);
+        } else navigate('/ai-tests');
       })
       .catch(() => navigate('/ai-tests'))
       .finally(() => setLoading(false));
@@ -34,7 +38,7 @@ const TestPlayer = () => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
-  const isAutoGraded = (type) => ['mcq', 'true_false', 'fill_blank', 'short_answer', 'transformation'].includes(type);
+  const isAutoGraded = (type) => ['mcq', 'true_false', 'fill_blank', 'short_answer', 'transformation', 'matching'].includes(type);
 
   const handleSubmit = () => {
     let correct = 0;
@@ -49,6 +53,11 @@ const TestPlayer = () => {
       totalAuto += q.marks;
       if (q.type === 'mcq' || q.type === 'true_false') {
         if (userAnswer && userAnswer.toLowerCase() === (q.answer || '').toLowerCase()) correct += q.marks;
+      } else if (q.type === 'matching' && q.correctMatches) {
+        let matchScore = 0;
+        q.correctMatches.forEach(m => { if (userAnswer?.[m.left] === m.right) matchScore++; });
+        const perMatch = q.marks / q.correctMatches.length;
+        correct += Math.round(matchScore * perMatch);
       } else {
         if (userAnswer && userAnswer.toLowerCase().trim() === (q.answer || '').toLowerCase().trim()) correct += q.marks;
       }
@@ -114,6 +123,38 @@ const TestPlayer = () => {
                   <span>{opt}</span>
                 </label>
               ))}
+            </div>
+          )}
+
+          {q.type === 'matching' && q.leftColumn && q.rightColumn && (
+            <div style={{ marginTop: '0.5rem' }}>
+              {(() => {
+                const shuffled = [...q.rightColumn].sort(() => Math.random() - 0.5);
+                const userMatches = answers[q.id] || {};
+                return q.leftColumn.map((item, i) => {
+                  const isCorrect = submitted && q.correctMatches && userMatches[item] === q.correctMatches.find(m => m.left === item)?.right;
+                  const isWrong = submitted && userMatches[item] && !isCorrect;
+                  return (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.75rem', marginBottom: '0.5rem', borderRadius: '8px', background: submitted ? (isCorrect ? '#f0fdf4' : isWrong ? '#fef2f2' : 'white') : '#f9fafb', border: `1.5px solid ${submitted ? (isCorrect ? '#22c55e' : isWrong ? '#ef4444' : '#e5e7eb') : '#e5e7eb'}` }}>
+                      <span style={{ minWidth: '40%', fontWeight: 500, fontSize: '0.9rem' }}>{item}</span>
+                      <span style={{ color: '#9ca3af' }}>→</span>
+                      {submitted ? (
+                        <span style={{ fontSize: '0.9rem', color: isCorrect ? '#16a34a' : isWrong ? '#dc2626' : '#6b7280', fontWeight: isCorrect || isWrong ? 600 : 400 }}>
+                          {userMatches[item] || '(no answer)'}
+                          {isCorrect && ' ✓'}
+                          {isWrong && ` ✗ (correct: ${q.correctMatches.find(m => m.left === item)?.right})`}
+                        </span>
+                      ) : (
+                        <select value={userMatches[item] || ''} onChange={e => handleAnswer(q.id, { ...userMatches, [item]: e.target.value })}
+                          disabled={submitted} style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.85rem', background: 'white', cursor: submitted ? 'default' : 'pointer' }}>
+                          <option value="">— Select —</option>
+                          {shuffled.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                      )}
+                    </div>
+                  );
+                });
+              })()}
             </div>
           )}
 

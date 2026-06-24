@@ -5,7 +5,7 @@ const db = require('../config/db');
 const { authenticateWithBranch } = require('../middleware/branchAuth');
 
 // ─── Type Normalization ───────────────────────────────────────────────────────
-const typeNormalize = (t) => ({ 'true/false':'true_false','true or false':'true_false','multiple choice':'mcq','mcq':'mcq','fill in the blank':'fill_blank','short answer':'short_answer','essay / open-ended':'essay','essay':'essay','matching':'matching','multiple true/false':'multiple_true_false','numeric':'numeric','transformation / error correction':'transformation','transformation':'transformation' })[(t || '').toLowerCase()] || t;
+const typeNormalize = (t) => { const s = (t||'').replace(/&#x2[fF];/g,'/').replace(/&#x27;/g,"'").toLowerCase(); return ({ 'true/false':'true_false','true or false':'true_false','multiple choice':'mcq','mcq':'mcq','fill in the blank':'fill_blank','short answer':'short_answer','essay / open-ended':'essay','essay':'essay','matching':'matching','multiple true/false':'multiple_true_false','numeric':'numeric','transformation / error correction':'transformation','transformation':'transformation' })[s] || t; };
 
 // ─── In-Memory Cache ──────────────────────────────────────────────────────────
 const cache = new Map();
@@ -99,6 +99,31 @@ function validateQuestions(questions, expectedTypes) {
     if ((q.type === 'short_answer' || q.type === 'essay') && (!q.answer || q.answer.length < 2)) {
       errors.push(`Question ${i + 1} (${q.type}): Answer too short or missing`);
     }
+
+    // Matching must have valid columns and matches
+    if (q.type === 'matching') {
+      if (!q.leftColumn || !Array.isArray(q.leftColumn) || q.leftColumn.length < 2) {
+        errors.push(`Question ${i + 1} (Matching): Must have at least 2 left column items`);
+      }
+      if (!q.rightColumn || !Array.isArray(q.rightColumn) || q.rightColumn.length < 2) {
+        errors.push(`Question ${i + 1} (Matching): Must have at least 2 right column items`);
+      }
+      if (q.leftColumn && q.rightColumn && q.leftColumn.length !== q.rightColumn.length) {
+        errors.push(`Question ${i + 1} (Matching): Left and right columns must have same number of items`);
+      }
+      if (!q.correctMatches || !Array.isArray(q.correctMatches) || q.correctMatches.length === 0) {
+        errors.push(`Question ${i + 1} (Matching): Missing correct matches`);
+      } else if (q.leftColumn) {
+        for (const m of q.correctMatches) {
+          if (!q.leftColumn.includes(m.left)) {
+            errors.push(`Question ${i + 1} (Matching): Match left "${m.left}" not found in left column`);
+          }
+          if (!q.rightColumn?.includes(m.right)) {
+            errors.push(`Question ${i + 1} (Matching): Match right "${m.right}" not found in right column`);
+          }
+        }
+      }
+    }
   }
 
   return errors;
@@ -144,6 +169,18 @@ function buildPrompt({ subjectName, className, termNumber, componentName, totalM
   prompt += `\nANSWER: [correct answer - must be accurate]`;
   prompt += `\nEXPLANATION: [brief explanation of the correct answer]`;
   prompt += `\n[QUESTION_END]`;
+
+  prompt += `\n\nMATCHING QUESTIONS ONLY: Use this format instead:`;
+  prompt += `\n[QUESTION_START]`;
+  prompt += `\nTYPE: matching`;
+  prompt += `\nMARKS: [number - should equal number of pairs]`;
+  prompt += `\nQUESTION: [instructions like "Match each item in Column A with the correct item in Column B"]`;
+  prompt += `\nLEFT_COLUMN: ["item1", "item2", "item3"]`;
+  prompt += `\nRIGHT_COLUMN: ["optionA", "optionB", "optionC"]`;
+  prompt += `\nCORRECT_MATCHES: [{"left":"item1","right":"optionA"}, {"left":"item2","right":"optionB"}, {"left":"item3","right":"optionC"}]`;
+  prompt += `\nEXPLANATION: [brief explanation]`;
+  prompt += `\n[QUESTION_END]`;
+  prompt += `\nLEFT_COLUMN, RIGHT_COLUMN, and CORRECT_MATCHES must be valid JSON arrays. Same number of items in both columns. Each item in LEFT_COLUMN must appear exactly once in CORRECT_MATCHES.left.`;
 
   prompt += `\n\nCRITICAL RULES:`;
   prompt += `\n1. The answer MUST be definitively correct — no ambiguity`;
@@ -193,6 +230,11 @@ function parseGeneratedQuestions(text) {
     const answerMatch = content.match(/ANSWER:\s*(.+?)(?:\nEXPLANATION:|$)/is);
     const explanationMatch = content.match(/EXPLANATION:\s*(.+)/is);
     
+    // Matching-specific fields
+    const leftColMatch = content.match(/LEFT_COLUMN:\s*(\[.+?\])\s*(?:\nRIGHT_COLUMN:|\nCORRECT_MATCHES:|\nEXPLANATION:|\[QUESTION_END\]|$)/is);
+    const rightColMatch = content.match(/RIGHT_COLUMN:\s*(\[.+?\])\s*(?:\nCORRECT_MATCHES:|\nEXPLANATION:|\[QUESTION_END\]|$)/is);
+    const correctMatchMatch = content.match(/CORRECT_MATCHES:\s*(\[.+?\])\s*(?:\nEXPLANATION:|\[QUESTION_END\]|$)/is);
+    
     const type = (typeMatch?.[1] || 'mcq').trim().toLowerCase();
     const marks = parseInt(marksMatch?.[1]) || 1;
     
@@ -205,14 +247,24 @@ function parseGeneratedQuestions(text) {
     // Clean question text - remove markdown
     const questionText = questionMatch[1].trim().replace(/^\*\*|\*\*$/g, '');
     
-    questions.push({
+    // Parse matching fields
+    let leftColumn, rightColumn, correctMatches;
+    try { leftColumn = leftColMatch ? JSON.parse(leftColMatch[1]) : undefined; } catch(e) {}
+    try { rightColumn = rightColMatch ? JSON.parse(rightColMatch[1]) : undefined; } catch(e) {}
+    try { correctMatches = correctMatchMatch ? JSON.parse(correctMatchMatch[1]) : undefined; } catch(e) {}
+    
+    const q = {
       type,
       marks,
       question: questionText,
       options,
       answer: answerMatch?.[1]?.trim() || '',
       explanation: explanationMatch?.[1]?.trim() || '',
-    });
+    };
+    if (leftColumn) q.leftColumn = leftColumn;
+    if (rightColumn) q.rightColumn = rightColumn;
+    if (correctMatches) q.correctMatches = correctMatches;
+    questions.push(q);
   }
   
   return questions;
