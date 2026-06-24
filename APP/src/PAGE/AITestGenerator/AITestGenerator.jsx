@@ -221,6 +221,7 @@ const AITestGenerator = () => {
                   <th style={{ padding: '10px 12px', textAlign: 'left' }}>Term</th>
                   <th style={{ padding: '10px 12px', textAlign: 'left' }}>Component</th>
                   <th style={{ padding: '10px 12px', textAlign: 'center' }}>Questions</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,6 +232,12 @@ const AITestGenerator = () => {
                     <td style={{ padding: '10px 12px' }}>Term {test.termNumber}</td>
                     <td style={{ padding: '10px 12px' }}>{test.componentName}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>{test.questionCount}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                      <button onClick={() => window.location.href = `/ai-test-player?subject=${encodeURIComponent(test.subject)}&class=${encodeURIComponent(test.className)}&term=${test.termNumber}&component=${encodeURIComponent(test.componentName)}`}
+                        style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', background: '#2563eb', color: 'white', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>
+                        Take Test
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
