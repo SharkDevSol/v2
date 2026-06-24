@@ -558,28 +558,42 @@ const TeacherAssignment = () => {
 
   const fetchData = async () => {
     try {
-      const [teachersResponse, combinationsResponse, assignmentsResponse] = await Promise.all([
+      const [teachersResponse, combinationsResponse, assignmentsResponse, autoConnectResponse] = await Promise.all([
         fetch(`${API_BASE_URL}/mark-list/teachers`),
         fetch(`${API_BASE_URL}/mark-list/subject-class-combinations`),
-        fetch(`${API_BASE_URL}/mark-list/teacher-assignments`)
+        fetch(`${API_BASE_URL}/mark-list/teacher-assignments`),
+        fetch(`${API_BASE_URL}/mark-list/auto-connect-teachers`)
       ]);
 
-      const [teachersData, combinationsData, assignmentsData] = await Promise.all([
+      const [teachersData, combinationsData, assignmentsData, autoConnectData] = await Promise.all([
         teachersResponse.json(),
         combinationsResponse.json(),
-        assignmentsResponse.json()
+        assignmentsResponse.json(),
+        autoConnectResponse.ok ? autoConnectResponse.json() : []
       ]);
 
       setTeachers(teachersData);
       setSubjectClassCombinations(combinationsData);
       setExistingAssignments(assignmentsData);
 
+      // Start with saved assignments
       const assignmentState = {};
       assignmentsData.forEach(assignment => {
         const key = `${assignment.teacher_name}|||${assignment.subject_class}`;
         assignmentState[key] = true;
       });
+
+      // Auto-connect from schedule (Task6) - merge without overwriting manual assignments
+      if (Array.isArray(autoConnectData)) {
+        autoConnectData.forEach(conn => {
+          const key = `${conn.teacher_name}|||${conn.subject_class}`;
+          if (!assignmentState[key]) {
+            assignmentState[key] = 'auto';
+          }
+        });
+      }
       setAssignments(assignmentState);
+      setMessage(`Loaded ${assignmentsData.length} saved + ${Array.isArray(autoConnectData) ? autoConnectData.filter(c => !assignmentState[`${c.teacher_name}|||${c.subject_class}`] && assignmentState[`${c.teacher_name}|||${c.subject_class}`] === 'auto').length : 0} auto-connected from schedule`);
     } catch (error) {
       console.error('Error fetching data:', error);
       setMessage('Error loading data: ' + error.message);
@@ -660,7 +674,7 @@ const TeacherAssignment = () => {
     <div className="teacher-assignment">
       <div className="assignment-header">
         <h2>Teacher-Subject Assignment</h2>
-        <p>Assign teachers to subject-class combinations</p>
+        <p>Assign teachers to subject-class combinations. Green checkboxes are auto-connected from schedule.</p>
       </div>
 
       {existingAssignments.length > 0 && (
@@ -704,10 +718,11 @@ const TeacherAssignment = () => {
                   </td>
                   {subjectClassCombinations.map(combination => (
                     <td key={`${combination.subject_name}-${combination.class_name}`} className="assignment-cell">
-                      <label className="checkbox-container">
+                      <label className="checkbox-container" title={assignments[`${teacher.name}|||${combination.subject_class}`] === 'auto' ? 'Auto-connected from schedule' : ''}>
                         <input
                           type="checkbox"
-                          checked={assignments[`${teacher.name}|||${combination.subject_class}`] || false}
+                          checked={assignments[`${teacher.name}|||${combination.subject_class}`] === true || assignments[`${teacher.name}|||${combination.subject_class}`] === 'auto'}
+                          className={assignments[`${teacher.name}|||${combination.subject_class}`] === 'auto' ? 'auto-checked' : ''}
                           onChange={(e) => handleAssignmentChange(
                             teacher.name, 
                             combination.subject_class,

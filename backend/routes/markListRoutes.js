@@ -1477,6 +1477,25 @@ router.get('/teacher-assignments', async (req, res) => {
   }
 });
 
+// Route to auto-populate teacher assignments from schedule config (Task6)
+router.get('/auto-connect-teachers', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT DISTINCT teacher_name, subject_class 
+      FROM schedule_schema.class_subject_configs 
+      WHERE teacher_name IS NOT NULL AND teacher_name != ''
+      ORDER BY teacher_name, subject_class
+    `);
+    res.json(result.rows.map(r => ({
+      teacher_name: r.teacher_name,
+      subject_class: r.subject_class
+    })));
+  } catch (error) {
+    console.error('Error fetching schedule teacher connections:', error);
+    res.status(500).json({ error: 'Failed to fetch schedule teacher connections', details: error.message });
+  }
+});
+
 // Route to get all marks for a specific student
 router.get('/student-marks/:schoolId/:className', async (req, res) => {
   const { schoolId } = req.params;

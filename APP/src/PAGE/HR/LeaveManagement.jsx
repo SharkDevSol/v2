@@ -28,6 +28,7 @@ const LeaveManagement = () => {
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [showLeaveRequestModal, setShowLeaveRequestModal] = useState(false);
   const [staffList, setStaffList] = useState([]);
+  const [message, setMessage] = useState({ type: '', text: '' });
 
   const ethiopianMonths = [
     'Meskerem', 'Tikimt', 'Hidar', 'Tahsas', 'Tir', 'Yekatit',
@@ -186,7 +187,7 @@ const LeaveManagement = () => {
 
   const submitPermission = async (type, reason) => {
     if (!reason || reason.trim() === '') {
-      alert('Please provide a reason');
+      setMessage({ type: 'error', text: 'Please provide a reason' });
       return;
     }
 
@@ -205,18 +206,18 @@ const LeaveManagement = () => {
 
       if (response.data.success) {
         if (type === 'approve') {
-          alert('✅ Permission approved! No deduction will be applied.');
+          setMessage({ type: 'success', text: 'Permission approved! No deduction will be applied.' });
         } else {
-          alert('❌ Permission rejected. Deduction will be applied.');
+          setMessage({ type: 'success', text: 'Permission rejected. Deduction will be applied.' });
         }
         setShowPermissionModal(false);
         setSelectedIssue(null);
         fetchAttendanceIssues();
-        fetchApprovalStats(); // Refresh approval stats
+        fetchApprovalStats();
       }
     } catch (error) {
       console.error('Error processing permission:', error);
-      alert('❌ Failed to process permission');
+      setMessage({ type: 'error', text: 'Failed to process permission' });
     }
   };
 
@@ -297,6 +298,14 @@ const LeaveManagement = () => {
           {t('hr.leave.grantLeave', 'Grant Leave')}
         </Button>
       </header>
+
+      {message.text && (
+        <div style={{ padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem', background: message.type === 'success' ? '#f0fdf4' : '#fef2f2', color: message.type === 'success' ? '#16a34a' : '#dc2626', border: `1px solid ${message.type === 'success' ? '#bbf7d0' : '#fecaca'}`, fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span>{message.type === 'success' ? '✅' : '❌'}</span>
+          <span>{message.text}</span>
+          <button onClick={() => setMessage({ type: '', text: '' })} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.125rem', color: message.type === 'success' ? '#16a34a' : '#dc2626' }}>×</button>
+        </div>
+      )}
 
       <Card className={styles.filtersCard}>
         <div className={styles.filters}>
@@ -847,10 +856,11 @@ const LeaveRequestModal = ({ staffList, onClose, onSuccess }) => {
   const [startMonth, setStartMonth] = useState(1);
   const [startDay, setStartDay] = useState(1);
   const [startYear, setStartYear] = useState(2018);
-  const [leaveDuration, setLeaveDuration] = useState('days'); // 'days', 'months', 'year'
+  const [leaveDuration, setLeaveDuration] = useState('days');
   const [numberOfDays, setNumberOfDays] = useState(1);
   const [numberOfMonths, setNumberOfMonths] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
 
   const ethiopianMonths = [
     'Meskerem', 'Tikimt', 'Hidar', 'Tahsas', 'Tir', 'Yekatit',
@@ -876,19 +886,19 @@ const LeaveRequestModal = ({ staffList, onClose, onSuccess }) => {
     e.preventDefault();
     
     if (!selectedStaff) {
-      alert('Please select a staff member');
+      setMessage({ type: 'error', text: 'Please select a staff member' });
       return;
     }
 
     if (!leaveReason || leaveReason.trim() === '') {
-      alert('Please provide a reason for leave');
+      setMessage({ type: 'error', text: 'Please provide a reason for leave' });
       return;
     }
 
     const totalDays = calculateTotalDays();
     
     if (totalDays > 365) {
-      alert('Leave duration cannot exceed 365 days (1 year)');
+      setMessage({ type: 'error', text: 'Leave duration cannot exceed 365 days (1 year)' });
       return;
     }
 
@@ -897,21 +907,13 @@ const LeaveRequestModal = ({ staffList, onClose, onSuccess }) => {
     try {
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
       
-      console.log('🔍 Looking for staff with ID:', selectedStaff);
-      console.log('📋 Staff list:', staffList);
-      
       const staff = staffList.find(s => String(s.id) === String(selectedStaff));
       
       if (!staff) {
-        console.error('❌ Staff not found!');
-        console.log('Selected ID:', selectedStaff);
-        console.log('Available IDs:', staffList.map(s => s.id));
-        alert('❌ Error: Selected staff not found. Please try selecting again.');
+        setMessage({ type: 'error', text: 'Selected staff not found. Please try selecting again.' });
         setLoading(false);
         return;
       }
-      
-      console.log('✅ Found staff:', staff);
 
       const response = await axios.post(
         `${API_URL}/hr/leave/grant-leave`,
@@ -938,12 +940,12 @@ const LeaveRequestModal = ({ staffList, onClose, onSuccess }) => {
           durationText = `1 year (${totalDays} days)`;
         }
         
-        alert(`✅ Leave granted successfully! ${durationText} marked as LEAVE for ${staff.name}`);
+        setMessage({ type: 'success', text: `Leave granted successfully! ${durationText} marked as LEAVE for ${staff.name}` });
         onSuccess();
       }
     } catch (error) {
       console.error('Error granting leave:', error);
-      alert('❌ Failed to grant leave: ' + (error.response?.data?.error || error.message));
+      setMessage({ type: 'error', text: 'Failed to grant leave: ' + (error.response?.data?.error || error.message) });
     } finally {
       setLoading(false);
     }
@@ -956,6 +958,14 @@ const LeaveRequestModal = ({ staffList, onClose, onSuccess }) => {
           <h2>🏖️ Grant Leave Permission</h2>
           <button className={styles.closeButton} onClick={onClose}>×</button>
         </div>
+
+        {message.text && (
+          <div style={{ padding: '0.75rem 1rem', margin: '0 1.5rem', borderRadius: '8px', background: message.type === 'success' ? '#f0fdf4' : '#fef2f2', color: message.type === 'success' ? '#16a34a' : '#dc2626', border: `1px solid ${message.type === 'success' ? '#bbf7d0' : '#fecaca'}`, fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>{message.type === 'success' ? '✅' : '❌'}</span>
+            <span>{message.text}</span>
+            <button onClick={() => setMessage({ type: '', text: '' })} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: message.type === 'success' ? '#16a34a' : '#dc2626' }}>×</button>
+          </div>
+        )}
 
         <div style={{ 
           padding: '16px', 

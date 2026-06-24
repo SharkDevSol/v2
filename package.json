@@ -11,7 +11,9 @@
     "packages/mobile-student",
     "packages/mobile-guardian",
     "packages/mobile-super-admin",
-    "packages/desktop-super-admin"
+    "packages/desktop-super-admin",
+    "packages/mobile-admin",
+    "packages/desktop-staff"
   ],
   "scripts": {
     "install:all": "npm install",
@@ -24,6 +26,11 @@
     "build:mobile-student": "npm run build --workspace=packages/mobile-student",
     "build:mobile-guardian": "npm run build --workspace=packages/mobile-guardian",
     "build:mobile-super-admin": "npm run build --workspace=packages/mobile-super-admin",
+    "build:mobile-admin": "npm run build --workspace=packages/mobile-admin",
+    "build:desktop-staff": "npm run build --workspace=packages/desktop-staff",
+    "dev:desktop": "npm run dev --workspace=packages/desktop",
+    "dev:mobile-admin": "npm run dev --workspace=packages/mobile-admin",
+    "dev:desktop-staff": "npm run dev --workspace=packages/desktop-staff",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",

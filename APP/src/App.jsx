@@ -53,7 +53,6 @@ const EvaluationFormDisplay = lazy(() => import("./PAGE/Evaluation/EvaluationFor
 const EvaluationDetailsView = lazy(() => import("./PAGE/Evaluation/EvaluationDetailsView"));
 const MarkListView = lazy(() => import("./PAGE/MarkListView/MarkListView"));
 const StudentAttendanceSystem = lazy(() => import("./PAGE/Academic/StudentAttendanceSystem"));
-const StudentAttendanceTimeSettings = lazy(() => import("./PAGE/Academic/StudentAttendanceTimeSettings"));
 const AITestGenerator = lazy(() => import("./PAGE/AITestGenerator/AITestGenerator"));
 const SavedTests = lazy(() => import("./PAGE/AITestGenerator/SavedTests"));
 const TestPlayer = lazy(() => import("./PAGE/AITestGenerator/TestPlayer"));
@@ -74,7 +73,6 @@ const Post = lazy(() => import("./PAGE/Post/Post"));
 const AdminChat = lazy(() => import("./PAGE/Communication/AdminChat"));
 const GuardianChat = lazy(() => import("./PAGE/Communication/GuardianChat"));
 const TeacherChat = lazy(() => import("./PAGE/Communication/TeacherChat"));
-const AdminCommunications = lazy(() => import("./PAGE/Communication/AdminCommunications"));
 
 // Schedule
 const ScheduleDashboard = lazy(() => import("./PAGE/Schedule/ScheduleDashboard"));
@@ -134,8 +132,22 @@ const EvaluationBookReports = lazy(() => import("./PAGE/EvaluationBook").then(mo
 
 // KG Module
 const KGEvaluation = lazy(() => import("./PAGE/KG/KGEvaluation"));
-const KGEvaluationBook = lazy(() => import("./PAGE/Finance/ComingSoon"));
-const KGAssignments = lazy(() => import("./PAGE/Finance/ComingSoon"));
+
+// KG coming-soon pages redirect to KG Evaluation
+const KGEvaluationBookPlaceholder = () => (
+  <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+    <h2>KG Evaluation Book</h2>
+    <p>Coming soon. Use the KG Evaluation page to manage evaluations.</p>
+    <a href="/kg/evaluation" style={{ color: '#6366f1' }}>Go to KG Evaluation</a>
+  </div>
+);
+const KGAssignmentsPlaceholder = () => (
+  <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+    <h2>KG Assignments</h2>
+    <p>Coming soon. Use the KG Evaluation page to manage evaluations.</p>
+    <a href="/kg/evaluation" style={{ color: '#6366f1' }}>Go to KG Evaluation</a>
+  </div>
+);
 
 // Guardian App
 const Guardian = lazy(() => import("./Guardian/Guardian"));
@@ -180,7 +192,6 @@ const SalaryManagement = lazy(() => import("./PAGE/HR/SalaryManagement"));
 const AttendanceSystem = lazy(() => import("./PAGE/HR/AttendanceSystem"));
 const AttendanceDeductionSettings = lazy(() => import("./PAGE/HR/AttendanceDeductionSettings"));
 const AttendanceTimeSettings = lazy(() => import("./PAGE/HR/AttendanceTimeSettingsCombined"));
-const StaffSpecificTiming = lazy(() => import("./PAGE/HR/StaffSpecificTiming"));
 const DeviceStatus = lazy(() => import("./PAGE/HR/DeviceStatus"));
 const LeaveManagement = lazy(() => import("./PAGE/HR/LeaveManagement"));
 const PayrollSystem = lazy(() => import("./PAGE/HR/PayrollSystem"));
@@ -281,11 +292,11 @@ function App() {
               <Route path="evaluation-book/guardian" element={<GuardianEvaluationInbox />} />
               <Route path="evaluation-book/guardian/feedback/:evaluationId" element={<GuardianFeedbackForm />} />
               <Route path="kg/evaluation" element={<KGEvaluation />} />
-              <Route path="kg/evaluation-book" element={<KGEvaluationBook />} />
-              <Route path="kg/assignments" element={<KGAssignments />} />
+              <Route path="kg/evaluation-book" element={<KGEvaluationBookPlaceholder />} />
+              <Route path="kg/assignments" element={<KGAssignmentsPlaceholder />} />
               <Route path="mark-list-view" element={<MarkListView />} />
               <Route path="student-attendance-system" element={<StudentAttendanceSystem />} />
-              <Route path="student-attendance-time-settings" element={<StudentAttendanceTimeSettings />} />
+              <Route path="student-attendance-time-settings" element={<Navigate to="/student-attendance-system" replace />} />
               {/* Legacy redirects for removed AI routes */}
               <Route path="ai-content" element={<Navigate to="/ai-lesson" replace />} />
               <Route path="ai-content/:mode" element={<Navigate to="/ai-lesson" replace />} />
@@ -337,6 +348,10 @@ function App() {
               <Route path="finance/payroll" element={<PayrollManagement />} />
               <Route path="finance/reports" element={<FinanceReports />} />
               <Route path="finance/inventory-integration" element={<ComingSoon title="Inventory Integration" description="Connect finance with inventory for automated expense tracking." />} />
+              {/* Redirects - moved from Finance to HR */}
+              <Route path="finance/expenses" element={<Navigate to="/hr/expenses" replace />} />
+              <Route path="finance/expense-approval" element={<Navigate to="/hr/expense-approval" replace />} />
+              <Route path="finance/budgets" element={<Navigate to="/hr/budgets" replace />} />
               
               {/* Inventory Module Routes - Coming Soon */}
               <Route path="inventory" element={<ComingSoon title="Inventory Dashboard" description="Manage your school's inventory and stock items." />} />
@@ -362,7 +377,8 @@ function App() {
               <Route path="hr/device-status" element={<DeviceStatus />} />
               <Route path="hr/attendance-deduction-settings" element={<AttendanceDeductionSettings />} />
               <Route path="hr/attendance-time-settings" element={<AttendanceTimeSettings />} />
-              <Route path="hr/staff-specific-timing" element={<StaffSpecificTiming />} />
+              {/* Staff-specific timing redirected to combined time settings */}
+              <Route path="hr/staff-specific-timing" element={<Navigate to="/hr/attendance-time-settings" replace />} />
               {/* Redirect old shift routes to combined time settings */}
               <Route path="hr/shift-time-settings" element={<Navigate to="/hr/attendance-time-settings" replace />} />
               <Route path="hr/staff-shift-assignment" element={<Navigate to="/hr/attendance-time-settings" replace />} />

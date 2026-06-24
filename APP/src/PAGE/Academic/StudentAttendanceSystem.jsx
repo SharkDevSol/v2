@@ -218,12 +218,20 @@ const StudentAttendanceSystem = ({ preSelectedClass = null }) => {
 
   const fetchSettings = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/academic/student-attendance/settings`);
-      if (response.data.success) {
-        setSettings(response.data.data);
+      // Use Task1 schedule config as single source of truth
+      const response = await axios.get(`${API_BASE_URL}/schedule/config`);
+      if (response.data) {
+        const config = response.data;
+        setSettings({
+          school_days: config.school_days || ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          shift_count: config.total_shifts || 1,
+          shift_rotation: config.shift_rotation || false,
+          periods_per_shift: config.periods_per_shift || 8,
+          period_duration: config.period_duration || 40
+        });
       }
     } catch (err) {
-      console.error('Error fetching settings:', err);
+      console.error('Error fetching schedule config:', err);
       setSettings({
         school_days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
       });

@@ -14,7 +14,7 @@ const ethiopianMonths = [
   'Megabit', 'Miazia', 'Ginbot', 'Sene', 'Hamle', 'Nehase', 'Pagume'
 ];
 
-const TeachersAttendance = () => {
+const TeacherAttendance = () => {
   const { t } = useTranslation();
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [staff, setStaff] = useState([]);
@@ -96,7 +96,7 @@ const TeachersAttendance = () => {
   const fetchStaff = async () => {
     try {
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      const types = ['Supportive Staff', 'Administrative Staff', 'Teachers'];
+      const types = ['Teachers'];
       let allStaff = [];
       
       for (const staffType of types) {
@@ -376,7 +376,7 @@ const TeachersAttendance = () => {
           <div className={styles.headerTitle}>
             <FiUsers className={styles.headerIcon} />
             <div>
-              <h1>Staff Attendance System</h1>
+              <h1>Teacher Attendance</h1>
               <p>Track and manage staff attendance with Ethiopian calendar</p>
             </div>
           </div>

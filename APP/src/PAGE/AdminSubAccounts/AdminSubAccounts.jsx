@@ -367,7 +367,7 @@ const AdminSubAccounts = () => {
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label>{t('email')} *</label>
+                    <label>{t('email')} ({t('optional', 'optional')})</label>
                     <input
                       type="email"
                       name="email"

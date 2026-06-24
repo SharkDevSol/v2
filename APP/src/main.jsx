@@ -46,6 +46,30 @@ EventTarget.prototype.addEventListener = function (type, listener, options) {
   return originalAddEventListener.call(this, type, listener, options);
 };
 
+// Global alert() patch — replaces browser alerts with in-app toast notifications
+const TOAST_DURATION = 4000;
+const globalToastContainer = document.createElement('div');
+globalToastContainer.id = 'global-toast-container';
+globalToastContainer.style.cssText = 'position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:8px;max-width:400px';
+document.body.appendChild(globalToastContainer);
+
+window.alert = function(msg) {
+  const toast = document.createElement('div');
+  const isSuccess = msg.includes('✅') || msg.includes('successfully');
+  const isError = msg.includes('❌') || msg.includes('Failed') || msg.includes('failed');
+  const bgColor = isSuccess ? '#22c55e' : isError ? '#ef4444' : '#3b82f6';
+  toast.style.cssText = `padding:12px 20px;border-radius:10px;background:${bgColor};color:white;font-size:14px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:slideIn 0.3s ease;cursor:pointer;word-break:break-word;max-width:400px`;
+  toast.textContent = msg.replace(/[✅❌]/g, '').trim();
+  toast.onclick = () => toast.remove();
+  globalToastContainer.appendChild(toast);
+  setTimeout(() => toast.remove(), TOAST_DURATION);
+};
+
+// Inject slide animation
+const style = document.createElement('style');
+style.textContent = '@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}';
+document.head.appendChild(style);
+
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <AppProvider>

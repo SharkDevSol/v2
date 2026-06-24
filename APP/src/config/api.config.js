@@ -697,14 +697,14 @@ export const API_ENDPOINTS = {
     SYNC: '/api/device-users/sync',
   },
 
-  // AI Content Generation
+  // AI Content Generation - uses DeepSeek via /api/ai
   AI_CONTENT: {
-    BASE: '/api/ai-content',
-    GENERATE: '/api/ai-content/generate',
-    SAVE: '/api/ai-content/save',
-    LIST: '/api/ai-content',
-    BY_ID: (id) => `/api/ai-content/${id}`,
-    DELETE: (id) => `/api/ai-content/${id}`
+    BASE: '/api/ai',
+    GENERATE: '/api/ai/generate-test',
+    SAVE: '/api/ai/save-test',
+    LIST: '/api/ai/list-classes',
+    BY_ID: (id) => `/api/ai/${id}`,
+    DELETE: (id) => `/api/ai/${id}`
   }
 };
 

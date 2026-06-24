@@ -294,7 +294,7 @@ app.use('/Uploads/posts', express.static(path.join(__dirname, 'Uploads/posts')))
 app.use('/uploads/posts', express.static(path.join(__dirname, 'Uploads/posts')));
 app.use('/uploads/branding', express.static(path.join(__dirname, 'uploads/branding')));
 
-// Test route to check if server is running
+// Test route to check if server is running (delegates to healthRoutes for full checks)
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
@@ -395,7 +395,8 @@ app.use('/api/super-admin', superAdminRoutes); // Super Admin aggregation routes
 app.use('/api/ai', aiTestGeneratorRoutes); // AI Test Generator (DeepSeek)
 app.use('/api/books', require('./routes/bookUploadRoutes')); // Book upload for AI context
 app.use('/api/year-rollover', yearRolloverRoutes); // Year Rollover
-// app.use('/api/ai-content', aiContentRoutes); // Gemini AI removed - using DeepSeek only
+// Legacy AI content redirect - mount DeepSeek routes at old path too
+app.use('/api/ai-content', aiTestGeneratorRoutes);
 
 // ===========================================
 // FRONTEND SPA - Serve built React app
@@ -452,27 +453,25 @@ app.use((req, res, next) => {
 // ===========================================
 // AI06 WEBSOCKET SERVICE
 // ===========================================
-// TEMPORARILY DISABLED TO FIX PORT CONFLICT
-// const AI06_ENABLED = process.env.AI06_WEBSOCKET_ENABLED !== 'false';
-// const AI06_PORT = process.env.AI06_WEBSOCKET_PORT || 7788;
+const AI06_ENABLED = process.env.AI06_WEBSOCKET_ENABLED !== 'false';
+const AI06_PORT = process.env.AI06_WEBSOCKET_PORT || 7788;
 
-// if (AI06_ENABLED) {
-//   const AI06WebSocketService = require('./services/ai06WebSocketService');
-//   const ai06Service = new AI06WebSocketService(AI06_PORT);
+if (AI06_ENABLED) {
+  const AI06WebSocketService = require('./services/ai06WebSocketService');
+  const ai06Service = new AI06WebSocketService(AI06_PORT);
 
-//   // Start AI06 service with Socket.IO for real-time updates
-//   ai06Service.start(io);
+  // Start AI06 service with Socket.IO for real-time updates
+  ai06Service.start(io);
 
-//   // Make AI06 service accessible to routes
-//   app.set('ai06Service', ai06Service);
-  
-//   console.log(`✅ AI06 WebSocket Service enabled on port ${AI06_PORT}`);
-// } else {
-//   console.log('⚠️  AI06 WebSocket Service is DISABLED in .env');
-//   console.log('   Set AI06_WEBSOCKET_ENABLED=true to enable device connections');
-// }
+  // Make AI06 service accessible to routes
+  app.set('ai06Service', ai06Service);
 
-console.log('⚠️  AI06 WebSocket Service is TEMPORARILY DISABLED');
+  console.log(`✅ AI06 WebSocket Service enabled on port ${AI06_PORT}`);
+} else {
+  console.log('⚠️  AI06 WebSocket Service is DISABLED in .env');
+  console.log('   Set AI06_WEBSOCKET_ENABLED=true to enable device connections');
+}
+
 
 
 // ===========================================
@@ -491,15 +490,15 @@ const guardianNotificationService = require('./services/guardianNotificationServ
 guardianNotificationService.start();
 console.log('✅ Guardian Notification Service started');
 
-// DATABASE MIGRATIONS - Temporarily disabled
+// DATABASE MIGRATIONS
 // ===========================================
-// const { Pool } = require('pg');
-// const MigrationRunner = require('./migrations/migrationRunner');
+const { Pool } = require('pg');
+const DatabaseMigrationRunner = require('./database/MigrationRunner');
 
-// // Initialize database pool for migrations
-// const migrationPool = new Pool({
-//   connectionString: process.env.DATABASE_URL
-// });
+// Initialize database pool for migrations
+const migrationPool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
 
 // Import auto-setup utility
 const { autoSetup } = require('./utils/autoSetup');
@@ -509,13 +508,13 @@ const attendanceSystemInitializer = require('./services/attendanceSystemInitiali
 
 // Run migrations and auto-setup on startup, then start server
 (async () => {
-  // try {
-  //   const migrationRunner = new MigrationRunner(migrationPool);
-  //   await migrationRunner.runPendingMigrations();
-  // } catch (error) {
-  //   console.error('❌ Failed to run migrations:', error.message);
-  //   console.error('⚠️ Server will continue, but some features may not work correctly');
-  // }
+  try {
+    const migrationRunner = new DatabaseMigrationRunner({ connectionString: process.env.DATABASE_URL });
+    await migrationRunner.runPendingMigrations();
+  } catch (error) {
+    console.error('❌ Failed to run migrations:', error.message);
+    console.error('⚠️ Server will continue, but some features may not work correctly');
+  }
 
   // Run auto-setup (creates default accounts, checks migrations, etc.)
   await autoSetup();

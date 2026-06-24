@@ -193,21 +193,6 @@ const Home = () => {
           label: 'Payment Settings',
         },
         {
-          path: "/finance/expenses",
-          icon: <FiTrendingUp />,
-          label: 'Expenses',
-        },
-        {
-          path: "/finance/expense-approval",
-          icon: <FiCheckCircle />,
-          label: 'Expense Approval',
-        },
-        {
-          path: "/finance/budgets",
-          icon: <FiPieChart />,
-          label: 'Budgets',
-        },
-        {
           path: "/finance/reports",
           icon: <FiFileText />,
           label: 'Financial Reports',
@@ -316,7 +301,7 @@ const Home = () => {
         {
           path: "/hr/attendance",
           icon: <FiCalendar />,
-          label: 'Attendance System',
+          label: 'Teacher Attendance',
         },
         {
           path: "/hr/device-status",
@@ -327,11 +312,6 @@ const Home = () => {
           path: "/hr/attendance-time-settings",
           icon: <FiClock />,
           label: '⏰ Time & Shift Settings',
-        },
-        {
-          path: "/hr/staff-specific-timing",
-          icon: <FiClock />,
-          label: '👤 Staff-Specific Timing',
         },
         {
           path: "/hr/attendance-deduction-settings",
@@ -349,14 +329,24 @@ const Home = () => {
           label: 'Payroll System',
         },
         {
-          path: "/hr/performance",
-          icon: <FiTrendingUp />,
-          label: 'Performance',
-        },
-        {
           path: "/hr/reports",
           icon: <FiPieChart />,
           label: 'HR Reports',
+        },
+        {
+          path: "/hr/expenses",
+          icon: <FiTrendingUp />,
+          label: 'Expenses',
+        },
+        {
+          path: "/hr/expense-approval",
+          icon: <FiCheckCircle />,
+          label: 'Expense Approval',
+        },
+        {
+          path: "/hr/budgets",
+          icon: <FiPieChart />,
+          label: 'Budgets',
         },
       ],
     },
@@ -375,11 +365,6 @@ const Home = () => {
           icon: <FiBook />,
           label: t('evaluationBook'),
         },
-        {
-          path: "/evaluation-book/reports",
-          icon: <FiFileText />,
-          label: t('evalBookReports'),
-        },
         // ===========================================
         // ACADEMIC
         // ===========================================
@@ -392,11 +377,6 @@ const Home = () => {
           path: "/student-attendance-system",
           icon: <FiCheckCircle />,
           label: '📋 Student Attendance (Weekly)',
-        },
-        {
-          path: "/student-attendance-time-settings",
-          icon: <FiClock />,
-          label: '⏰ Student Attendance Settings',
         },
         {
           path: "/create-mark-list",

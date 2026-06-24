@@ -7,11 +7,6 @@ import AddSalaryCompleteModal from './components/AddSalaryCompleteModal';
 import Card from '../../COMPONENTS/Card/Card';
 import Button from '../../COMPONENTS/Button/Button';
 import EditSalaryModal from './components/EditSalaryModal';
-import AddDeductionModal from './components/AddDeductionModal';
-import AddAllowanceModal from './components/AddAllowanceModal';
-import AddRetentionModal from './components/AddRetentionModal';
-import StaffDeductionsAllowancesModal from './components/StaffDeductionsAllowancesModal';
-import CalculateAttendanceDeductionsModal from './components/CalculateAttendanceDeductionsModal';
 import { getCurrentEthiopianMonth } from '../../utils/ethiopianCalendar';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://v2.skoolific.com';
@@ -20,10 +15,7 @@ const SalaryManagement = () => {
   const { t } = useTranslation();
   const [allStaff, setAllStaff] = useState([]);
   const [salaries, setSalaries] = useState([]);
-  const [deductions, setDeductions] = useState([]);
-  const [allowances, setAllowances] = useState([]);
-  const [retentions, setRetentions] = useState([]);
-  const [activeTab, setActiveTab] = useState('staff'); // staff, deductions, allowances, retentions
+  const [activeTab, setActiveTab] = useState('staff');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedStaffForSalary, setSelectedStaffForSalary] = useState(null);
@@ -31,11 +23,6 @@ const SalaryManagement = () => {
   // Modals
   const [showAddSalaryModal, setShowAddSalaryModal] = useState(false);
   const [showEditSalaryModal, setShowEditSalaryModal] = useState(false);
-  const [showAddDeductionModal, setShowAddDeductionModal] = useState(false);
-  const [showCalculateAttendanceDeductions, setShowCalculateAttendanceDeductions] = useState(false);
-  const [showAddAllowanceModal, setShowAddAllowanceModal] = useState(false);
-  const [showAddRetentionModal, setShowAddRetentionModal] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [currentEthiopianDate, setCurrentEthiopianDate] = useState(() => {
     return getCurrentEthiopianMonth();
   });
@@ -43,9 +30,6 @@ const SalaryManagement = () => {
   useEffect(() => {
     fetchAllStaff();
     fetchSalaries();
-    fetchDeductions();
-    fetchAllowances();
-    fetchRetentions();
     
     // Update Ethiopian date every minute
     const interval = setInterval(() => {
@@ -124,87 +108,6 @@ const SalaryManagement = () => {
     }
   };
 
-  const fetchDeductions = async () => {
-    try {
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/hr/salary/deductions`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.data.success) {
-        setDeductions(response.data.data);
-      }
-    } catch (err) {
-      console.error('Error fetching deductions:', err);
-    }
-  };
-
-  const fetchAllowances = async () => {
-    try {
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/hr/salary/allowances`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.data.success) {
-        setAllowances(response.data.data);
-      }
-    } catch (err) {
-      console.error('Error fetching allowances:', err);
-    }
-  };
-
-  const fetchRetentions = async () => {
-    try {
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/hr/salary/retentions`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.data.success) {
-        setRetentions(response.data.data);
-      }
-    } catch (err) {
-      console.error('Error fetching retentions:', err);
-    }
-  };
-
-  const handleDeleteDeduction = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this deduction?')) return;
-    try {
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      await axios.delete(`${API_URL}/hr/salary/deductions/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchDeductions();
-    } catch (err) {
-      alert('Failed to delete deduction');
-    }
-  };
-
-  const handleDeleteAllowance = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this allowance?')) return;
-    try {
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      await axios.delete(`${API_URL}/hr/salary/allowances/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchAllowances();
-    } catch (err) {
-      alert('Failed to delete allowance');
-    }
-  };
-
-  const handleDeleteRetention = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this retention benefit?')) return;
-    try {
-      const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      await axios.delete(`${API_URL}/hr/salary/retentions/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchRetentions();
-    } catch (err) {
-      alert('Failed to delete retention benefit');
-    }
-  };
-
   // Check if staff has salary
   const staffHasSalary = (staffId) => {
     // Convert both to strings for comparison
@@ -273,29 +176,9 @@ const SalaryManagement = () => {
     setShowEditSalaryModal(true);
   };
 
-  // Handle add deduction for specific staff
-  const handleAddDeductionForStaff = (staff) => {
-    setSelectedStaffForSalary(staff);
-    setShowAddDeductionModal(true);
-  };
-
-  // Handle add allowance for specific staff
-  const handleAddAllowanceForStaff = (staff) => {
-    setSelectedStaffForSalary(staff);
-    setShowAddAllowanceModal(true);
-  };
-
-  // Handle view details for specific staff
-  const handleViewDetails = (staff) => {
-    setSelectedStaffForSalary(staff);
-    setShowDetailsModal(true);
-  };
 
   const tabs = [
-    { id: 'staff', label: t('hr.salary.tabs.staff', 'All Staff') },
-    { id: 'deductions', label: t('hr.salary.tabs.deductions', 'Deductions') },
-    { id: 'allowances', label: t('hr.salary.tabs.allowances', 'Allowances') },
-    { id: 'retentions', label: t('hr.salary.tabs.retentions', 'Staff Retention') }
+    { id: 'staff', label: t('hr.salary.tabs.staff', 'All Staff') }
   ];
 
   return (
@@ -303,7 +186,7 @@ const SalaryManagement = () => {
       <header className={styles.header}>
         <div>
           <h1>{t('hr.salary.title', 'Salary Management')}</h1>
-          <p>{t('hr.salary.subtitle', 'Manage staff salaries, deductions, allowances, and retention benefits')}</p>
+          <p>{t('hr.salary.subtitle', 'Manage staff salaries and payroll')}</p>
           <div className={styles.dateBadge} role="status">
             {t('hr.salary.currentDate', 'Current Ethiopian Date')}: {currentEthiopianDate.day} {currentEthiopianDate.monthName} {currentEthiopianDate.year}
           </div>
@@ -323,31 +206,6 @@ const SalaryManagement = () => {
           </button>
         ))}
       </nav>
-
-      {activeTab !== 'staff' && (
-        <div className={styles.actionBar}>
-          {activeTab === 'deductions' && (
-            <>
-              <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowAddDeductionModal(true)}>
-                {t('hr.salary.addDeduction', 'Add Deduction')}
-              </Button>
-              <Button variant="secondary" icon={<RefreshCw size={16} />} onClick={() => setShowCalculateAttendanceDeductions(true)}>
-                Calculate from Attendance
-              </Button>
-            </>
-          )}
-          {activeTab === 'allowances' && (
-            <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowAddAllowanceModal(true)}>
-              {t('hr.salary.addAllowance', 'Add Allowance')}
-            </Button>
-          )}
-          {activeTab === 'retentions' && (
-            <Button variant="primary" icon={<Plus size={16} />} onClick={() => setShowAddRetentionModal(true)}>
-              {t('hr.salary.addRetention', 'Add Retention Benefit')}
-            </Button>
-          )}
-        </div>
-      )}
 
       {activeTab === 'staff' && (
         <div className={styles.actionBar}>
@@ -456,15 +314,6 @@ const SalaryManagement = () => {
                               <div className={styles.actionButtonsGroup}>
                                 <Button size="sm" variant="secondary" onClick={() => handleEditSalaryForStaff(staff)}>
                                   {t('common.edit', 'Edit')}
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={() => handleAddDeductionForStaff(staff)}>
-                                  {t('hr.salary.tabs.deductions', 'Deductions')}
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={() => handleAddAllowanceForStaff(staff)}>
-                                  {t('hr.salary.tabs.allowances', 'Allowances')}
-                                </Button>
-                                <Button size="sm" variant="ghost" onClick={() => handleViewDetails(staff)}>
-                                  {t('common.view', 'View')}
                                 </Button>
                               </div>
                             )}
@@ -638,7 +487,6 @@ const SalaryManagement = () => {
           onClose={() => {
             setShowAddSalaryModal(false);
             setSelectedStaffForSalary(null);
-            // Refresh both salaries and staff list
             fetchSalaries().then(() => {
               fetchAllStaff();
             });
@@ -658,56 +506,6 @@ const SalaryManagement = () => {
             fetchSalaries().then(() => {
               fetchAllStaff();
             });
-          }}
-        />
-      )}
-
-      {showAddDeductionModal && (
-        <AddDeductionModal
-          preSelectedStaff={selectedStaffForSalary}
-          onClose={() => {
-            setShowAddDeductionModal(false);
-            setSelectedStaffForSalary(null);
-            fetchDeductions();
-          }}
-        />
-      )}
-
-      {showCalculateAttendanceDeductions && (
-        <CalculateAttendanceDeductionsModal
-          onClose={() => {
-            setShowCalculateAttendanceDeductions(false);
-            fetchDeductions();
-          }}
-        />
-      )}
-
-      {showAddAllowanceModal && (
-        <AddAllowanceModal
-          preSelectedStaff={selectedStaffForSalary}
-          onClose={() => {
-            setShowAddAllowanceModal(false);
-            setSelectedStaffForSalary(null);
-            fetchAllowances();
-          }}
-        />
-      )}
-
-      {showAddRetentionModal && (
-        <AddRetentionModal
-          onClose={() => {
-            setShowAddRetentionModal(false);
-            fetchRetentions();
-          }}
-        />
-      )}
-
-      {showDetailsModal && selectedStaffForSalary && (
-        <StaffDeductionsAllowancesModal
-          staff={selectedStaffForSalary}
-          onClose={() => {
-            setShowDetailsModal(false);
-            setSelectedStaffForSalary(null);
           }}
         />
       )}

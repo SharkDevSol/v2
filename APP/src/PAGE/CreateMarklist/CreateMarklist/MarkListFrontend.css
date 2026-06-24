@@ -597,6 +597,13 @@
   color: white;
 }
 
+.checkbox-container input.auto-checked + .checkmark {
+  background: #22c55e;
+  border-color: #16a34a;
+  color: white;
+  opacity: 0.85;
+}
+
 .submit-btn {
   width: 100%;
   padding: 16px;

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n/config';
 import api from '../../utils/api';
 import styles from './Setting.module.css';
 import yearRolloverStyles from './YearRollover.module.css';
@@ -369,6 +370,7 @@ const Setting = () => {
   // Language handler
   const handleLanguageChange = (langCode) => {
     updateLanguage(langCode);
+    i18n.changeLanguage(langCode);
     showMessage('success', `Language changed to ${languages.find(l => l.code === langCode)?.name}`);
   };
 
