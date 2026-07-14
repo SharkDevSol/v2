@@ -531,6 +531,25 @@
   background: #a7f3d0;
 }
 
+/* Delete Button Styles */
+.actionBtn.deleteBtn {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.actionBtn.deleteBtn:hover {
+  background: #fee2e2;
+}
+
+.tableActions button.deleteBtn {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.tableActions button.deleteBtn:hover {
+  background: #fee2e2;
+}
+
 /* Toggle Inactive Staff Button */
 .toggleInactiveBtn {
   display: flex;

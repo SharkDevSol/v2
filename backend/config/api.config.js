@@ -62,7 +62,7 @@ const API_ENDPOINTS = {
   // Authentication & Authorization (V2 - Multi-branch)
   AUTH: {
     // V2 Endpoints (with branch code)
-    LOGIN: '/api/v2/auth/login',
+    LOGIN: '/api/v2/branches/login',
     VALIDATE_BRANCH: '/api/v2/branches/validate',
     REFRESH_TOKEN: '/api/v2/auth/refresh',
     LOGOUT: '/api/v2/auth/logout',

@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs').promises;
+const pool = require('../config/db');
 const { getEndpointPath, API_ENDPOINTS } = require('../config/api.config');
 require('dotenv').config();
 
@@ -54,7 +55,7 @@ const upload = multer({
 const initializeFaultsSchema = async () => {
   try {
     console.log('Initializing faults schema: class_students_fault');
-    await getPool(req).query(`
+    await pool.query(`
       CREATE SCHEMA IF NOT EXISTS class_students_fault
     `);
     console.log('Schema class_students_fault created or already exists');

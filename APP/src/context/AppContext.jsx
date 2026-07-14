@@ -2092,7 +2092,7 @@ export const AppProvider = ({ children }) => {
 
       // Then load branding from database (this overrides localStorage)
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/settings/branding`);
+        const response = await axios.get('/api/settings/branding');
         const data = response.data;
         
         // Update website name from database

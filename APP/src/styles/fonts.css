@@ -3,8 +3,6 @@
  * Google Fonts serves subsets; Amharic uses Noto Sans Ethiopic with unicode-range.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap');
-
 /* System fallbacks when offline */
 @font-face {
   font-family: 'Inter';

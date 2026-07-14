@@ -88,7 +88,7 @@ const StaffLogin = () => {
     setIsLoading(true);
     
     try {
-      const response = await axios.post('/api/v2/auth/login', {
+      const response = await axios.post('/api/v2/branches/login', {
         ...credentials,
         userType: 'staff'
       });

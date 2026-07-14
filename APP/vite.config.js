@@ -23,8 +23,13 @@ export default defineConfig({
     }
   },
   server: {
-    host: '0.0.0.0', // Listen on all network interfaces
+    host: '0.0.0.0',
     port: 5053,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5053,
+    },
     https: fs.existsSync('./certs/cert.pem') ? {
       key: fs.readFileSync('./certs/key.pem'),
       cert: fs.readFileSync('./certs/cert.pem'),

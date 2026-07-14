@@ -13,11 +13,12 @@ import {
   FiFilePlus, 
   FiChevronDown, FiChevronRight, FiMenu, 
   FiLogOut, FiUser as FiProfile, 
-  FiSearch, FiAward, FiZap,
+  FiSearch, FiAward,
   FiPieChart, FiDatabase,
   FiCheckCircle, FiDollarSign, FiTrendingUp,
-  FiShoppingCart, FiPackage, FiTool, FiClock, FiBell, FiRefreshCw, FiAlertCircle, FiMoon, FiSun, FiSmile, FiClipboard, FiEdit3,
-  FiCpu, FiBookOpen, FiGrid, FiShuffle, FiUpload
+  FiShoppingCart, FiPackage, FiTool, FiClock, FiBell, FiRefreshCw, FiAlertCircle, FiMoon, FiSun, FiSmile,
+  FiClipboard, FiEdit3,
+  FiCpu, FiUpload, FiBookOpen, FiGrid, FiShuffle, FiHelpCircle
 } from "react-icons/fi";
 import { FaGraduationCap, FaChalkboardTeacher, FaRegCalendarAlt } from "react-icons/fa";
 import { Home as HomeIcon, Users, BookOpen, DollarSign, Package, Briefcase, Settings } from 'lucide-react';
@@ -411,50 +412,20 @@ const Home = () => {
       ],
     },
     {
-      section: '🤖 Skoolific AI',
+      section: '🤖 SKOOLIFIC AI',
       sectionKey: 'ai',
       icon: <FiCpu />,
       items: [
-        {
-          path: "/ai-lesson",
-          icon: <FiCpu />,
-          label: 'AI Dashboard',
-        },
-        {
-          path: "/lesson-plan",
-          icon: <FiFileText />,
-          label: '📝 Lesson Plan',
-        },
-        {
-          path: "/lesson-note",
-          icon: <FiBookOpen />,
-          label: '📖 Lesson Note',
-        },
-        {
-          path: "/homework",
-          icon: <FiClipboard />,
-          label: '📚 Homework',
-        },
-        {
-          path: "/worksheet",
-          icon: <FiGrid />,
-          label: '📄 Worksheet',
-        },
-        {
-          path: "/scramble-exam",
-          icon: <FiShuffle />,
-          label: '🔀 Scramble Exam',
-        },
-        {
-          path: "/ai-test-generator",
-          icon: <FiZap />,
-          label: '🧪 Test Generator',
-        },
-        {
-          path: "/book-upload",
-          icon: <FiUpload />,
-          label: '📤 Book Upload',
-        },
+        { path: "/ai/dashboard", icon: <FiCpu />, label: 'AI Dashboard' },
+        { path: "/ai/books/upload", icon: <FiUpload />, label: 'Upload Books' },
+        { path: "/ai/books", icon: <FiBook />, label: 'My Books' },
+        { path: "/ai/generate/lesson-plan", icon: <FiFileText />, label: 'Lesson Plan' },
+        { path: "/ai/generate/lesson-note", icon: <FiBookOpen />, label: 'Lesson Note' },
+        { path: "/ai/generate/homework", icon: <FiClipboard />, label: 'Homework' },
+        { path: "/ai/generate/worksheet", icon: <FiGrid />, label: 'Worksheet' },
+        { path: "/ai/generate/quiz", icon: <FiHelpCircle />, label: 'Quiz' },
+        { path: "/ai/generate/exam", icon: <FiEdit3 />, label: 'Exam' },
+        { path: "/ai/generate/scramble-exam", icon: <FiShuffle />, label: 'Scramble' },
       ],
     },
     {

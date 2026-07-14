@@ -39,6 +39,9 @@ const CreateRegisterStaff = () => {
   const [staffType, setStaffType] = useState('');
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedForm, setSelectedForm] = useState(null);
+  const [staffData, setStaffData] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const staffTypes = useMemo(
@@ -74,10 +77,24 @@ const CreateRegisterStaff = () => {
     }
   };
 
+  const fetchStaff = async (type, className) => {
+    setStaffLoading(true);
+    try {
+      const res = await axios.get(`${API_BASE_URL}/staff/data/${encodeURIComponent(type)}/${encodeURIComponent(className)}`);
+      setStaffData(res.data?.data || []);
+    } catch (error) {
+      setStaffData([]);
+    } finally {
+      setStaffLoading(false);
+    }
+  };
+
   const handleStaffTypeChange = (type) => {
     setStaffType(type);
     setSelectedClass(null);
+    setSelectedForm(null);
     setClasses([]);
+    setStaffData([]);
   };
 
   const handleDelete = async (cls, e) => {
@@ -120,10 +137,34 @@ const CreateRegisterStaff = () => {
         toast.success(t('staff.registration.staffAdded', 'Staff member added successfully'));
       }
       setSelectedClass(null);
-      fetchClasses();
+      if (selectedForm) fetchStaff(staffType, selectedForm);
     },
-    [t, toast, staffType]
+    [t, toast, staffType, selectedForm]
   );
+
+  const handleDeleteStaff = async (staffId, name) => {
+    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/staff/delete-staff`, {
+        data: { globalStaffId: staffId, staffType, className: selectedForm }
+      });
+      toast.success(`"${name}" deleted successfully`);
+      fetchStaff(staffType, selectedForm);
+    } catch (error) {
+      toast.error(`Delete failed: ${error.response?.data?.error || error.message}`);
+    }
+  };
+
+  const handleToggleActive = async (staffId, name, currentStatus) => {
+    try {
+      const res = await axios.put(`${API_BASE_URL}/staff/toggle-active/${staffId}`);
+      const activated = res.data.isActive;
+      toast.success(`"${name}" ${activated ? 'activated' : 'deactivated'}`);
+      fetchStaff(staffType, selectedForm);
+    } catch (error) {
+      toast.error(`Toggle failed: ${error.response?.data?.error || error.message}`);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -182,7 +223,77 @@ const CreateRegisterStaff = () => {
           }
           className={styles.formsCard}
         >
-          {loading ? (
+          {selectedForm ? (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div>
+                  <button onClick={() => { setSelectedForm(null); setStaffData([]); }}
+                    style={{ background: 'none', border: 'none', color: '#7c3aed', cursor: 'pointer', fontSize: 14, padding: 0, marginBottom: 4 }}>
+                    ← {t('staff.registration.backToForms', 'Back to Forms')}
+                  </button>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>
+                    {selectedForm.replace(/_/g, ' ')}
+                    <span style={{ fontSize: 14, fontWeight: 400, color: '#6b7280', marginLeft: 8 }}>({staffData.length} staff)</span>
+                  </h3>
+                </div>
+                <Button variant="primary" size="sm" icon={<Plus size={16} />} onClick={() => setSelectedClass(selectedForm)}>
+                  {t('staff.addStaff', 'Add Staff')}
+                </Button>
+              </div>
+
+              {staffLoading ? (
+                <p style={{ textAlign: 'center', padding: 40, color: '#9ca3af' }}>{t('common.loading', 'Loading...')}</p>
+              ) : staffData.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40, color: '#9ca3af' }}>
+                  <Users size={40} style={{ marginBottom: 12 }} />
+                  <p>{t('staff.registration.noStaff', 'No staff members yet. Click "Add Staff" to begin.')}</p>
+                </div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                    <thead>
+                      <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>#</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>{t('staff.name', 'Name')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>{t('staff.gender', 'Gender')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>{t('staff.role', 'Role')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>{t('staff.workTime', 'Work Time')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>{t('staff.phone', 'Phone')}</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>Active</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: '#374151' }}>Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {staffData.map((s, i) => (
+                        <tr key={s.id || i} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                          <td style={{ padding: '10px 12px', color: '#6b7280' }}>{i + 1}</td>
+                          <td style={{ padding: '10px 12px', fontWeight: 500 }}>{s.name || s.staff_name || '—'}</td>
+                          <td style={{ padding: '10px 12px' }}>{s.gender || '—'}</td>
+                          <td style={{ padding: '10px 12px' }}>{s.role || '—'}</td>
+                          <td style={{ padding: '10px 12px' }}>{s.staff_work_time || '—'}</td>
+                          <td style={{ padding: '10px 12px', color: '#6b7280' }}>{s.phone || '—'}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                            <span onClick={() => handleToggleActive(s.global_staff_id, s.name || s.staff_name, s.is_active)}
+                              style={{ cursor: 'pointer', padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap',
+                                background: s.is_active ? '#d1fae5' : '#fef3c7', color: s.is_active ? '#065f46' : '#92400e' }}>
+                              {s.is_active ? '🟢 Active' : '🔴 Inactive'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                            <button onClick={() => handleDeleteStaff(s.global_staff_id, s.name || s.staff_name)}
+                              style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 15, padding: '2px 6px' }}
+                              title="Delete staff">
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ) : loading ? (
             <p className={styles.emptyMessage}>{t('common.loading', 'Loading...')}</p>
           ) : classes.length === 0 ? (
             <div className={styles.emptyState}>
@@ -193,11 +304,13 @@ const CreateRegisterStaff = () => {
           ) : (
             <div className={styles.formsGrid}>
               {classes.map((cls) => (
-                <button
+                <div
                   key={cls}
-                  type="button"
                   className={styles.formCard}
-                  onClick={() => setSelectedClass(cls)}
+                  onClick={() => { setSelectedForm(cls); fetchStaff(staffType, cls); }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && (setSelectedForm(cls), fetchStaff(staffType, cls))}
                 >
                   <div className={styles.formCardTop}>
                     <span className={styles.formIconWrap}>
@@ -231,7 +344,7 @@ const CreateRegisterStaff = () => {
                       aria-label={t('common.delete', 'Delete')}
                     />
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           )}

@@ -1,7 +1,7 @@
 // PAGE/Task6.jsx - UPDATED WITH AUTOMATIC CONFLICT RESOLUTION
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import styles from './Task7.module.css';
+import styles from './Task6.module.css';
 import ScheduleEditor from './ScheduleEditor';
 
 const Task7 = ({ onComplete, onScheduleGenerated }) => {

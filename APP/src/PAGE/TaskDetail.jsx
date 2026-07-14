@@ -27,11 +27,16 @@ function TaskDetail() {
   // V2 Enhancement: Additional Task 1 configuration options
   const [shiftCount, setShiftCount] = useState(1);
   const [shiftRotation, setShiftRotation] = useState(false);
+  const [rotationFrequency, setRotationFrequency] = useState('weekly');
+  const [periodsPerDay, setPeriodsPerDay] = useState({0:4,1:6,2:6,3:6,4:6,5:6,6:4});
   const [periodsPerShift, setPeriodsPerShift] = useState(7);
   const [periodDuration, setPeriodDuration] = useState(45);
   const [hasKG, setHasKG] = useState(false);
-  const [hasEveningClass, setHasEveningClass] = useState(false);
   const [schoolDays, setSchoolDays] = useState([1, 2, 3, 4, 5]); // Monday-Friday by default
+  const [shiftTimes, setShiftTimes] = useState({
+    1: { start: '02:00', end: '06:00', label: 'Shift 1 (Morning)' },
+    2: { start: '07:00', end: '12:00', label: 'Shift 2 (Afternoon)' },
+  });
 
   // Schedule status state for Task 7
   const [scheduleStatus, setScheduleStatus] = useState({
@@ -89,35 +94,20 @@ function TaskDetail() {
     try {
       // Mark task as completed in database
       console.log(`📡 Calling API: POST /tasks/complete/${id}`);
-      const response = await api.post(`/tasks/complete/${id}`);
-      console.log(`✅ API Response:`, response.data);
+      await api.post(`/tasks/complete/${id}`).catch(e => console.error('Complete API error:', e));
       
       // Also update localStorage for backward compatibility
       const stored = JSON.parse(localStorage.getItem('completedTasks') || '[]');
       if (!stored.includes(id)) {
         stored.push(id);
         localStorage.setItem('completedTasks', JSON.stringify(stored));
-        console.log(`💾 Updated localStorage:`, stored);
       }
-      
-      // Check if all tasks are now completed
-      console.log(`📡 Fetching task status...`);
-      const statusResponse = await api.get('/tasks/status');
-      console.log(`📊 Task status:`, statusResponse.data);
-      const completedCount = statusResponse.data.completedTasks.length;
       
       setIsCompleted(true);
       setIsEditing(false);
       
-      if (completedCount >= TOTAL_TASKS) {
-        console.log(`🎉 All tasks completed!`);
-      } else {
-        console.log(`📋 ${completedCount}/${TOTAL_TASKS} tasks completed.`);
-      }
-      // Stay on page to show read-only view instead of navigating away
     } catch (error) {
       console.error('❌ Error completing task:', error);
-      console.error('Error details:', error.response?.data);
       setError(formatAPIError(error, 'Failed to mark task as complete'));
     }
   };
@@ -160,22 +150,17 @@ function TaskDetail() {
         body: JSON.stringify({ 
           terms,
           periods_per_shift: periodsPerShift,
+          periods_per_day: periodsPerDay,
           period_duration: periodDuration,
           short_break_duration: 10,
           total_shifts: shiftCount,
           shift_rotation: shiftRotation,
+          rotation_frequency: rotationFrequency,
           teaching_days_per_week: schoolDays.length,
           school_days: schoolDays,
           has_kg: hasKG,
-          has_evening_class: hasEveningClass,
-          shift1_morning_start: '07:00',
-          shift1_morning_end: '12:30',
-          shift1_afternoon_start: '12:30',
-          shift1_afternoon_end: '17:30',
-          shift2_morning_start: '07:00',
-          shift2_morning_end: '12:30',
-          shift2_afternoon_start: '12:30',
-          shift2_afternoon_end: '17:30'
+          shift1_start: shiftTimes[1].start, shift1_end: shiftTimes[1].end,
+          shift2_start: shiftTimes[2].start, shift2_end: shiftTimes[2].end,
         }),
       });
       
@@ -342,12 +327,13 @@ function TaskDetail() {
             // Populate local state from saved server data
             if (data.periods_per_shift) setPeriodsPerShift(data.periods_per_shift);
             if (data.period_duration) setPeriodDuration(data.period_duration);
+            if (data.periods_per_day) setPeriodsPerDay(data.periods_per_day);
             if (data.total_shifts) setShiftCount(data.total_shifts);
             if (data.school_days) setSchoolDays(data.school_days);
             if (data.terms) setTerms(data.terms);
             if (data.shift_rotation !== undefined) setShiftRotation(data.shift_rotation);
+            if (data.rotation_frequency) setRotationFrequency(data.rotation_frequency);
             if (data.has_kg !== undefined) setHasKG(data.has_kg);
-            if (data.has_evening_class !== undefined) setHasEveningClass(data.has_evening_class);
           }
         } catch (e) {
           console.error('Error loading saved config:', e);
@@ -445,10 +431,6 @@ function TaskDetail() {
               <div className={styles.dataItem}>
                 <span className={styles.dataLabel}>KG Classes</span>
                 <span className={styles.dataValue}>{hasKG ? 'Yes' : 'No'}</span>
-              </div>
-              <div className={styles.dataItem}>
-                <span className={styles.dataLabel}>Evening Classes</span>
-                <span className={styles.dataValue}>{hasEveningClass ? 'Yes' : 'No'}</span>
               </div>
               {savedConfig && (
                 <>
@@ -580,15 +562,40 @@ function TaskDetail() {
               <option value={1}>1 Shift (All classes same time)</option>
               <option value={2}>2 Shifts (Morning & Afternoon)</option>
             </select>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
-              {shiftCount === 1 
-                ? 'All classes will attend at the same time' 
-                : 'Classes will be divided into morning and afternoon shifts'}
-            </p>
+
+            {/* Edit Shift Times */}
+            {shiftCount >= 2 && (
+              <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#374151' }}>Shift Schedule:</div>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  {[1,2].map(s => {
+                    const t = shiftTimes[s];
+                    const bg = s === 1 ? '#ede9fe' : '#dbeafe';
+                    return (
+                      <div key={s} style={{ padding: '10px 14px', background: bg, borderRadius: 8, fontSize: '0.85rem', minWidth: 180 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 6 }}>{t.label}</div>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <input type="time" value={t.start}
+                            onChange={e => setShiftTimes(prev => ({ ...prev, [s]: { ...prev[s], start: e.target.value } }))}
+                            style={{ padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '0.8rem', width: 80 }}
+                          />
+                          <span>–</span>
+                          <input type="time" value={t.end}
+                            onChange={e => setShiftTimes(prev => ({ ...prev, [s]: { ...prev[s], end: e.target.value } }))}
+                            style={{ padding: '4px 8px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: '0.8rem', width: 80 }}
+                          />
+                          <span style={{ fontSize: '0.7rem', color: '#6b7280' }}>ET</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* V2 Enhancement: Shift Rotation (only show if 2 shifts) */}
-          {shiftCount === 2 && (
+          {/* Shift Rotation */}
+          {shiftCount >= 2 && (
             <div className={styles.formGroup}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
                 <input
@@ -602,26 +609,53 @@ function TaskDetail() {
                 </span>
               </label>
               <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
-                When enabled, classes will alternate between morning and afternoon shifts weekly
+                Classes alternate between morning and afternoon shifts on a schedule
               </p>
+
+              {shiftRotation && (
+                <div style={{ marginTop: 10 }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 500, color: '#6b7280', marginBottom: 4 }}>
+                    Rotation Frequency
+                  </label>
+                  <select value={rotationFrequency} onChange={(e) => setRotationFrequency(e.target.value)}
+                    style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #d1d5db', fontSize: '0.85rem', background: 'white' }}>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+              )}
             </div>
           )}
 
-          {/* V2 Enhancement: Periods Per Shift */}
+          {/* Per-Day Periods */}
           <div className={styles.formGroup}>
-            <label htmlFor="periodsPerShift" className={styles.label}>Periods Per Shift:</label>
-            <input
-              type="number"
-              id="periodsPerShift"
-              value={periodsPerShift}
-              onChange={(e) => setPeriodsPerShift(parseInt(e.target.value))}
-              min="4"
-              max="10"
-              className={styles.select}
-            />
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
-              Number of teaching periods in each shift (typically 6-8)
+            <label className={styles.label}>Periods Per Day:</label>
+            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px', marginBottom: '12px' }}>
+              Set periods for each school day
             </p>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {[{k:0,l:'Sun'},{k:1,l:'Mon'},{k:2,l:'Tue'},{k:3,l:'Wed'},{k:4,l:'Thu'},{k:5,l:'Fri'},{k:6,l:'Sat'}].map(d => {
+                const isSchoolDay = schoolDays.includes(d.k);
+                return (
+                  <div key={d.k} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                    padding: '10px 14px', background: isSchoolDay ? '#f0fdf4' : '#f9fafb',
+                    borderRadius: 8, border: isSchoolDay ? '2px solid #86efac' : '2px solid #e5e7eb',
+                    opacity: isSchoolDay ? 1 : 0.5,
+                  }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: isSchoolDay ? '#166534' : '#9ca3af' }}>{d.l}</span>
+                    <input type="number" min={1} max={12} value={periodsPerDay[d.k] ?? 6}
+                      onChange={e => setPeriodsPerDay(prev => ({ ...prev, [d.k]: parseInt(e.target.value) || 1 }))}
+                      disabled={!isSchoolDay}
+                      style={{ width: 48, textAlign: 'center', padding: '4px 0',
+                        border: isSchoolDay ? '1px solid #86efac' : '1px solid #e5e7eb',
+                        borderRadius: 6, fontSize: 14, fontWeight: 600,
+                        background: isSchoolDay ? 'white' : '#f3f4f6' }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* V2 Enhancement: Period Duration */}
@@ -660,23 +694,6 @@ function TaskDetail() {
             </p>
           </div>
 
-          {/* V2 Enhancement: Evening Class Checkbox */}
-          <div className={styles.formGroup}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={hasEveningClass}
-                onChange={(e) => setHasEveningClass(e.target.checked)}
-                style={{ width: '18px', height: '18px' }}
-              />
-              <span className={styles.label} style={{ marginBottom: 0 }}>
-                School has Evening classes
-              </span>
-            </label>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>
-              Enable this if your school offers evening classes for adult education or special programs
-            </p>
-          </div>
 
           {/* Language Selection Section */}
           <div className={styles.formGroup}>
@@ -805,7 +822,6 @@ function TaskDetail() {
                     <div style={{display:'flex', gap:'0.5rem', fontSize:'0.8rem'}}>
                       {cfg.shift ? <span style={{padding:'2px 6px', background:'#dbeafe', borderRadius:'4px'}}>Shift {cfg.shift}</span> : ''}
                       {cfg.isKG ? <span style={{padding:'2px 6px', background:'#d1fae5', borderRadius:'4px'}}>KG</span> : ''}
-                      {cfg.isEvening ? <span style={{padding:'2px 6px', background:'#fef3c7', borderRadius:'4px'}}>Evening</span> : ''}
                     </div>
                   </div>
                 );
@@ -1081,46 +1097,66 @@ function TaskDetail() {
             </p>
 
             {classSubjects.length > 0 && teachers.length > 0 ? (
-              <div className={styles.assignmentGrid}>
-                <div className={styles.assignmentHeader}>
-                  <span>Class-Subject Combination</span>
-                  <span>Assigned Teacher (Work Time)</span>
-                </div>
-                {classSubjects.map((item, index) => {
-                  const classSubjectKey = `${item.class_name}|${item.subject_name}`;
-                  const assignedTeacher = assignments[classSubjectKey];
-                  const workTime = assignedTeacher ? teacherWorkTimes[assignedTeacher] : '';
-                  
-                  return (
-                    <div key={index} className={styles.assignmentRow}>
-                      <div className={styles.classSubjectInfo}>
-                        <span className={styles.className}>{item.class_name}</span>
-                        <span className={styles.subjectName}>{item.subject_name}</span>
-                      </div>
-                      <div className={styles.teacherSelection}>
-                        <select
-                          value={assignedTeacher || ''}
-                          onChange={(e) => handleTeacherAssignment(classSubjectKey, e.target.value)}
-                          className={styles.teacherSelect}
-                        >
-                          <option value="">Select Teacher</option>
-                          {teachers.map((teacher, idx) => (
-                            <option key={idx} value={teacher.name}>
-                              {teacher.name} ({teacher.role}) - {teacher.staff_work_time || 'Full Time'}
-                            </option>
-                          ))}
-                        </select>
-                        {assignedTeacher && workTime && (
-                          <span className={`${styles.workTimeBadge} ${
-                            workTime === 'Part Time' ? styles.partTime : styles.fullTime
-                          }`}>
-                            {workTime}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {Object.entries(
+                  classSubjects.reduce((acc, item) => {
+                    (acc[item.class_name] = acc[item.class_name] || []).push(item);
+                    return acc;
+                  }, {})
+                ).map(([cls, items]) => (
+                  <div key={cls} style={{
+                    background: '#fff', borderRadius: 12, padding: 16,
+                    border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                  }}>
+                    <h3 style={{ margin: '0 0 12px 0', fontSize: 15, fontWeight: 600 }}>
+                      {cls}
+                      <span style={{ fontSize: 12, color: '#6b7280', fontWeight: 400, marginLeft: 8 }}>
+                        ({items.length} subject{items.length > 1 ? 's' : ''})
+                      </span>
+                    </h3>
+                    {items.map((item, idx) => {
+                      const classSubjectKey = `${item.class_name}|${item.subject_name}`;
+                      const assignedTeacher = assignments[classSubjectKey];
+                      const workTime = assignedTeacher ? teacherWorkTimes[assignedTeacher] : '';
+                      return (
+                        <div key={idx} style={{
+                          display: 'flex', alignItems: 'center', gap: 12,
+                          padding: '8px 0',
+                          borderTop: idx === 0 ? 'none' : '1px solid #f3f4f6'
+                        }}>
+                          <span style={{ minWidth: 80, fontWeight: 500, fontSize: 14, color: '#374151' }}>
+                            {item.subject_name}
                           </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+                          <select
+                            value={assignedTeacher || ''}
+                            onChange={(e) => handleTeacherAssignment(classSubjectKey, e.target.value)}
+                            style={{
+                              flex: 1, padding: '6px 10px', borderRadius: 6,
+                              border: '1px solid #d1d5db', fontSize: 13, background: '#fff'
+                            }}
+                          >
+                            <option value="">Select Teacher</option>
+                            {teachers.map((teacher, i) => (
+                              <option key={i} value={teacher.name}>
+                                {teacher.name} ({teacher.role})
+                              </option>
+                            ))}
+                          </select>
+                          {assignedTeacher && workTime && (
+                            <span style={{
+                              padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 500,
+                              whiteSpace: 'nowrap',
+                              background: workTime === 'Part Time' ? '#fef3c7' : '#d1fae5',
+                              color: workTime === 'Part Time' ? '#92400e' : '#065f46'
+                            }}>
+                              {workTime}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             ) : (
               <div className={styles.emptyState}>

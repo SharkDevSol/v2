@@ -13,11 +13,10 @@ import {
   FiFilePlus, 
   FiChevronDown, FiChevronRight, FiMenu, 
   FiLogOut, FiUser as FiProfile, 
-  FiSearch, FiAward, FiZap,
+  FiSearch, FiAward,
   FiPieChart, FiDatabase,
   FiCheckCircle, FiDollarSign, FiTrendingUp,
   FiShoppingCart, FiPackage, FiTool, FiClock, FiBell, FiRefreshCw, FiAlertCircle, FiMoon, FiSun, FiSmile, FiClipboard, FiEdit3,
-  FiCpu, FiBookOpen, FiGrid, FiShuffle, FiUpload
 } from "react-icons/fi";
 import { FaGraduationCap, FaChalkboardTeacher, FaRegCalendarAlt } from "react-icons/fa";
 import { Home as HomeIcon, Users, BookOpen, DollarSign, Package, Briefcase, Settings } from 'lucide-react';
@@ -366,53 +365,6 @@ const Home = () => {
           path: "/faults",
           icon: <FiAlertCircle />,
           label: 'Student Faults',
-        },
-      ],
-    },
-    {
-      section: '🤖 Skoolific AI',
-      sectionKey: 'ai',
-      icon: <FiCpu />,
-      items: [
-        {
-          path: "/ai-lesson",
-          icon: <FiCpu />,
-          label: 'AI Dashboard',
-        },
-        {
-          path: "/lesson-plan",
-          icon: <FiFileText />,
-          label: '📝 Lesson Plan',
-        },
-        {
-          path: "/lesson-note",
-          icon: <FiBookOpen />,
-          label: '📖 Lesson Note',
-        },
-        {
-          path: "/homework",
-          icon: <FiClipboard />,
-          label: '📚 Homework',
-        },
-        {
-          path: "/worksheet",
-          icon: <FiGrid />,
-          label: '📄 Worksheet',
-        },
-        {
-          path: "/scramble-exam",
-          icon: <FiShuffle />,
-          label: '🔀 Scramble Exam',
-        },
-        {
-          path: "/ai-test-generator",
-          icon: <FiZap />,
-          label: '🧪 Test Generator',
-        },
-        {
-          path: "/book-upload",
-          icon: <FiUpload />,
-          label: '📤 Book Upload',
         },
       ],
     },

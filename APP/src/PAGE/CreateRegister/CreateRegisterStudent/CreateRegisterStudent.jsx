@@ -274,8 +274,7 @@ const AddStudentS = () => {
         console.error('Error fetching Task1 config:', error);
         // Set default config if fetch fails
         setTask1Config({
-          has_kg: false,
-          has_evening_class: false
+          has_kg: false
         });
       });
   }, [setValue]);
@@ -1070,38 +1069,22 @@ const AddStudentS = () => {
                 />
               </div>
 
-              {task1Config && (task1Config.has_kg || task1Config.has_evening_class) && (
+              {task1Config?.has_kg && (
                 <div className={styles.studentType}>
                   <div className={styles.studentTypeTitle}>{t('students.registration.studentType', 'Student type')}</div>
                   <div className={styles.studentTypeOptions}>
-                    {task1Config.has_kg && (
-                      <Controller
-                        name="is_kg"
-                        control={control}
-                        render={({ field }) => (
-                          <Checkbox
-                            label={t('students.registration.isKg', 'Kindergarten (KG) student')}
-                            checked={!!field.value}
-                            onChange={(checked) => field.onChange(checked)}
-                            disabled={isLoading}
-                          />
-                        )}
-                      />
-                    )}
-                    {task1Config.has_evening_class && (
-                      <Controller
-                        name="is_evening_class"
-                        control={control}
-                        render={({ field }) => (
-                          <Checkbox
-                            label={t('students.registration.isEvening', 'Evening class student')}
-                            checked={!!field.value}
-                            onChange={(checked) => field.onChange(checked)}
-                            disabled={isLoading}
-                          />
-                        )}
-                      />
-                    )}
+                    <Controller
+                      name="is_kg"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          label={t('students.registration.isKg', 'Kindergarten (KG) student')}
+                          checked={!!field.value}
+                          onChange={(checked) => field.onChange(checked)}
+                          disabled={isLoading}
+                        />
+                      )}
+                    />
                   </div>
                 </div>
               )}

@@ -257,7 +257,7 @@ const MonthlyPaymentsNew = () => {
 
   const fetchSchoolInfo = async () => {
     try {
-      const response = await api.get('/settings/branding');
+      const response = await api.get('/api/settings/branding');
       const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://v2.skoolific.com';
       setSchoolInfo({
         logo: response.data.logo ? `${API_BASE}${response.data.logo}` : null,

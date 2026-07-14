@@ -218,6 +218,8 @@ const ClassSubjectMapping = ({ onMappingCompleted }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [existingMappings, setExistingMappings] = useState([]);
+  const [addSubjectsForClass, setAddSubjectsForClass] = useState(null);
+  const [selectedSubjects, setSelectedSubjects] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -248,8 +250,7 @@ const ClassSubjectMapping = ({ onMappingCompleted }) => {
     setMappings(prev => ({ ...prev, [`${className}-${subjectName}`]: isChecked }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
     setMessage('');
     try {
@@ -295,49 +296,93 @@ const ClassSubjectMapping = ({ onMappingCompleted }) => {
       <div className={styles.stepHeader}>
         <div className={styles.stepIcon}>🔄</div>
         <h2>Class-Subject Mapping</h2>
-        <p>Select which subjects are taught in each class</p>
+        <p>Click subjects to assign them to each class</p>
       </div>
-      <form onSubmit={handleSubmit}>
-        <div className={styles.tableContainer}>
-          <div className={styles.tableScroll}>
-            <table className={styles.modernTable}>
-              <thead>
-                <tr>
-                  <th className={styles.classHeader}>Classes / Subjects</th>
-                  {subjects.map(s => <th key={s.id} className={styles.subjectHeader}>{s.subject_name}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {classes.map(className => (
-                  <tr key={className}>
-                    <td className={styles.classCell}>{className}</td>
-                    {subjects.map(s => (
-                      <td key={s.id} className={styles.subjectCell}>
-                        <label className={styles.radioContainer}>
-                          <input
-                            type="checkbox"
-                            checked={mappings[`${className}-${s.subject_name}`] || false}
-                            onChange={(e) => handleMappingChange(className, s.subject_name, e.target.checked)}
-                          />
-                          <span className={styles.radioCheckmark}></span>
-                        </label>
-                      </td>
-                    ))}
-                  </tr>
+      {message && (
+        <div className={`${styles.message} ${message.includes('!') ? styles.success : styles.error}`}>{message}</div>
+      )}
+      <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {classes.map(className => {
+          const mappedSubjects = subjects.filter(s => mappings[`${className}-${s.subject_name}`]);
+          return (
+            <div key={className} style={{
+              background: '#fff', borderRadius: 12, padding: 16,
+              border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            }}>
+              <div style={{ fontWeight: 600, fontSize: 15, color: '#111827', marginBottom: 10 }}>
+                {className}
+                <span style={{ fontSize: 12, color: '#6b7280', marginLeft: 8, fontWeight: 400 }}>
+                  ({mappedSubjects.length} subject{mappedSubjects.length !== 1 ? 's' : ''})
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+                {subjects.filter(s => mappings[`${className}-${s.subject_name}`]).map(s => (
+                  <span key={s.id} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                    padding: '4px 10px', background: '#ede9fe', color: '#6d28d9',
+                    borderRadius: 20, fontSize: 13, fontWeight: 500
+                  }}>
+                    {s.subject_name}
+                    <span onClick={() => handleMappingChange(className, s.subject_name, false)}
+                      style={{ cursor: 'pointer', marginLeft: 2, fontSize: 14, lineHeight: 1 }}>✕</span>
+                  </span>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        {message && (
-          <div className={`${styles.message} ${message.includes('!') ? styles.success : styles.error}`}>{message}</div>
-        )}
+                {addSubjectsForClass === className ? (
+                  <div style={{ width: '100%', marginTop: 8, padding: 12, background: '#f9fafb', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+                      {subjects.filter(s => !mappings[`${className}-${s.subject_name}`]).map(s => (
+                        <label key={s.id} onClick={() => setSelectedSubjects(prev => ({ ...prev, [s.subject_name]: !prev[s.subject_name] }))}
+                          style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, padding: '4px 8px', borderRadius: 6, background: selectedSubjects[s.subject_name] ? '#ede9fe' : 'transparent' }}>
+                          <div style={{
+                            width: 18, height: 18, borderRadius: 4,
+                            background: selectedSubjects[s.subject_name] ? '#7c3aed' : '#fff',
+                            border: selectedSubjects[s.subject_name] ? 'none' : '2px solid #d1d5db',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                          }}>
+                            {selectedSubjects[s.subject_name] && <span style={{ color: '#fff', fontSize: 12 }}>✓</span>}
+                          </div>
+                          {s.subject_name}
+                        </label>
+                      ))}
+                      {subjects.filter(s => !mappings[`${className}-${s.subject_name}`]).length === 0 && (
+                        <div style={{ fontSize: 13, color: '#9ca3af', padding: 8 }}>All subjects already assigned</div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => {
+                        const toAdd = Object.keys(selectedSubjects).filter(k => selectedSubjects[k]);
+                        toAdd.forEach(name => handleMappingChange(className, name, true));
+                        setSelectedSubjects({});
+                        setAddSubjectsForClass(null);
+                      }}
+                        disabled={Object.keys(selectedSubjects).filter(k => selectedSubjects[k]).length === 0}
+                        style={{ padding: '6px 16px', background: Object.keys(selectedSubjects).filter(k => selectedSubjects[k]).length === 0 ? '#d1d5db' : '#7c3aed', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 500, cursor: Object.keys(selectedSubjects).filter(k => selectedSubjects[k]).length === 0 ? 'default' : 'pointer' }}>
+                        Add Selected ({Object.keys(selectedSubjects).filter(k => selectedSubjects[k]).length})
+                      </button>
+                      <button onClick={() => { setAddSubjectsForClass(null); setSelectedSubjects({}); }}
+                        style={{ padding: '6px 16px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <span onClick={() => { setAddSubjectsForClass(className); setSelectedSubjects({}); }}
+                    style={{ padding: '4px 12px', background: '#f9fafb', border: '1px dashed #d1d5db', borderRadius: 20, fontSize: 13, color: '#6b7280', cursor: 'pointer' }}>
+                    + Add Subjects
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {classes.length > 0 && (
         <div className={styles.buttonGroup}>
-          <button type="submit" disabled={loading} className={styles.primaryButton}>
+          <button onClick={handleSubmit} disabled={loading} className={styles.primaryButton}>
             {loading ? 'Saving...' : 'Save Mappings'}
           </button>
         </div>
-      </form>
+      )}
     </div>
   );
 };

@@ -76,7 +76,7 @@ const storage = multer.diskStorage({
 // Create dynamic multer configuration that accepts any field with file validation
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max (reduced for security)
+  limits: { fileSize: 30 * 1024 * 1024 }, // 30 MB max (matches frontend)
   fileFilter: multerFileFilter // Add file type validation
 }).any(); // Use .any() to accept any field names
 
@@ -356,6 +356,26 @@ const updateStaffIds = async (schemaName, className, client = null) => {
       [i + 1, rows[i].id]
     );
   }
+};
+
+const getNextMachineId = async (client) => {
+  const schemas = ['staff_teachers', 'staff_administrative_staff', 'staff_supportive_staff'];
+  const used = new Set();
+  for (const schema of schemas) {
+    try {
+      const tables = await client.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = $1`, [schema]);
+      for (const t of tables.rows) {
+        const res = await client.query(`SELECT machine_id FROM "${schema}"."${t.table_name}" WHERE machine_id IS NOT NULL AND machine_id != ''`);
+        for (const r of res.rows) {
+          const num = parseInt(r.machine_id, 10);
+          if (!isNaN(num)) used.add(num);
+        }
+      }
+    } catch (e) { /* schema may not exist */ }
+  }
+  let next = 100001;
+  while (used.has(next)) next++;
+  return String(next);
 };
 
 // FIXED: Completely rewritten to handle day conversion properly
@@ -977,7 +997,15 @@ router.delete('/delete-form', async (req, res) => {
 });
 
 // 7.7 ADD SINGLE STAFF (with files, user account, schedule) - FIXED MULTER
-router.post('/add-staff', upload, async (req, res) => {
+router.post('/add-staff', (req, res, next) => {
+  upload(req, res, (err) => {
+    if (err) {
+      console.error('Multer error:', err.message);
+      return res.status(400).json({ error: 'File upload error', details: err.message });
+    }
+    next();
+  });
+}, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -1013,15 +1041,33 @@ router.post('/add-staff', upload, async (req, res) => {
     });
 
     // ---- Verify table exists & fetch columns ----
+    let tableCols = [];
     const colRes = await client.query(
       `SELECT column_name FROM information_schema.columns
        WHERE table_schema = $1 AND table_name = $2`,
       [schema, className]
     );
-    if (colRes.rowCount === 0)
-      throw new Error('Target table does not exist');
-
-    const tableCols = colRes.rows.map((r) => r.column_name);
+    if (colRes.rowCount > 0) {
+      tableCols = colRes.rows.map((r) => r.column_name);
+    } else {
+      // Auto-create table if it doesn't exist
+      const baseColDefs = [
+        '"global_staff_id" INTEGER NOT NULL',
+        '"staff_id" INTEGER NOT NULL',
+        '"image_staff" VARCHAR(255)',
+        '"name" VARCHAR(255) NOT NULL',
+        '"gender" VARCHAR(50) NOT NULL',
+        '"role" VARCHAR(100) NOT NULL',
+        '"staff_enrollment_type" VARCHAR(100) NOT NULL',
+        '"staff_work_time" VARCHAR(50) NOT NULL',
+        '"machine_id" VARCHAR(100) NOT NULL',
+        '"phone" VARCHAR(50) NOT NULL'
+      ].join(', ');
+      await client.query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
+      await client.query(`CREATE TABLE IF NOT EXISTS "${schema}"."${className}" (id SERIAL PRIMARY KEY, ${baseColDefs})`);
+      tableCols = [...BASE_COLUMNS];
+      console.log(`✅ Auto-created table "${schema}"."${className}"`);
+    }
     const insertData = {};
     for (const c of tableCols) {
       if (formData.hasOwnProperty(c)) insertData[c] = formData[c];
@@ -1031,6 +1077,22 @@ router.post('/add-staff', upload, async (req, res) => {
     if (tableCols.includes('shift_assignment')) {
       if (!insertData.shift_assignment || insertData.shift_assignment === '') {
         insertData.shift_assignment = 'shift1';
+      }
+    }
+
+    // ---- Auto-generate MachineID (6-digit, unique) ----
+    if (!insertData.machine_id || insertData.machine_id === '') {
+      insertData.machine_id = await getNextMachineId(client);
+    }
+
+    // ---- Phone uniqueness check ----
+    if (insertData.phone) {
+      const phoneCheck = await client.query(
+        `SELECT id FROM "${schema}"."${className}" WHERE phone = $1 LIMIT 1`,
+        [insertData.phone]
+      );
+      if (phoneCheck.rows.length > 0) {
+        throw new Error('Phone number already exists for another staff member');
       }
     }
 
@@ -2279,7 +2341,22 @@ router.post('/bulk-import', async (req, res) => {
     );
     
     if (!tableCheck.rows[0].exists) {
-      throw new Error(`Table ${schema}.${sanitizedClassName} does not exist`);
+      // Auto-create table if it doesn't exist
+      const baseColDefs = [
+        '"global_staff_id" INTEGER NOT NULL',
+        '"staff_id" INTEGER NOT NULL',
+        '"image_staff" VARCHAR(255)',
+        '"name" VARCHAR(255) NOT NULL',
+        '"gender" VARCHAR(50) NOT NULL',
+        '"role" VARCHAR(100) NOT NULL',
+        '"staff_enrollment_type" VARCHAR(100) NOT NULL',
+        '"staff_work_time" VARCHAR(50) NOT NULL',
+        '"machine_id" VARCHAR(100) NOT NULL',
+        '"phone" VARCHAR(50) NOT NULL'
+      ].join(', ');
+      await client.query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
+      await client.query(`CREATE TABLE IF NOT EXISTS "${schema}"."${sanitizedClassName}" (id SERIAL PRIMARY KEY, ${baseColDefs})`);
+      console.log(`✅ Bulk-import: auto-created table "${schema}"."${sanitizedClassName}"`);
     }
     
     // Get columns
@@ -2307,15 +2384,52 @@ router.post('/bulk-import', async (req, res) => {
       credentials: []
     };
     
+    // Column name mapping from common Excel headers
+    const columnAliases = {
+      'full name': 'name',
+      'full_name': 'name',
+      'employee name': 'name',
+      'staff name': 'name',
+      'teacher name': 'name',
+      'name': 'name',
+      'teacher id': 'machine_id',
+      'machine id': 'machine_id',
+      'machine_id': 'machine_id',
+      'enrollment type': 'staff_enrollment_type',
+      'staff_enrollment_type': 'staff_enrollment_type',
+      'work time': 'staff_work_time',
+      'staff_work_time': 'staff_work_time',
+      'work_time': 'staff_work_time',
+      'phone': 'phone',
+      'phone number': 'phone',
+      'telephone': 'phone',
+      'email': 'email',
+      'gender': 'gender',
+      'role': 'role',
+      'position': 'role',
+    };
+
     // Process each staff member - SIMPLIFIED VERSION
     for (let i = 0; i < staff.length; i++) {
       const staffData = staff[i];
       
       try {
+        // Normalize keys: map common Excel headers to database column names
+        const normalized = {};
+        for (const [key, value] of Object.entries(staffData)) {
+          const alias = columnAliases[key.toLowerCase().trim()];
+          if (alias) {
+            normalized[alias] = value;
+          } else if (validColumns.includes(key) || key === 'image_staff') {
+            normalized[key] = value;
+          }
+        }
+
         // Validate required fields
-        if (!staffData.name) {
+        if (!normalized.name) {
+          const keys = Object.keys(staffData).join(', ');
           results.failedCount++;
-          results.errors.push({ row: i + 2, error: 'Missing name' });
+          results.errors.push({ row: i + 2, error: `Missing name. Found columns: ${keys || '(none)'}` });
           continue;
         }
         
@@ -2327,13 +2441,14 @@ router.post('/bulk-import', async (req, res) => {
         const insertData = {
           global_staff_id: globalStaffId,
           staff_id: currentStaffId,
-          name: staffData.name
+          name: normalized.name
         };
         
         // Process other fields
-        Object.keys(staffData).forEach(key => {
+        Object.keys(normalized).forEach(key => {
+          if (key === 'name') return; // already added
           if (validColumns.includes(key) && !insertData[key]) {
-            const value = staffData[key];
+            const value = normalized[key];
             const dataType = columnTypes[key];
             
             switch (dataType) {
@@ -2356,6 +2471,24 @@ router.post('/bulk-import', async (req, res) => {
         // Ensure staff_work_time
         if (!insertData.staff_work_time) {
           insertData.staff_work_time = 'Full Time';
+        }
+        
+        // Auto-generate MachineID if missing
+        if (!insertData.machine_id) {
+          insertData.machine_id = await getNextMachineId(client);
+        }
+        
+        // Check phone uniqueness
+        if (insertData.phone) {
+          const phoneCheck = await client.query(
+            `SELECT id FROM "${schema}"."${sanitizedClassName}" WHERE phone = $1 LIMIT 1`,
+            [insertData.phone]
+          );
+          if (phoneCheck.rows.length > 0) {
+            results.errors.push({ row: i + 2, error: `Phone "${insertData.phone}" already exists` });
+            results.failedCount++;
+            continue;
+          }
         }
         
         // Insert into main table

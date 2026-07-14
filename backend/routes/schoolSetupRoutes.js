@@ -757,8 +757,9 @@ router.get('/config', async (req, res) => {
       teaching_days_per_week: 5,
       school_days: [1,2,3,4,5],
       has_kg: false,
-      has_evening_class: false,
       shift_rotation: false,
+      rotation_frequency: 'weekly',
+      periods_per_day: {1:6,2:6,3:6,4:6,5:6},
       terms: 1
     });
   }
@@ -785,12 +786,13 @@ router.put('/config', async (req, res) => {
     `);
     // Add new columns for existing tables
     await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS has_kg BOOLEAN DEFAULT false');
-    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS has_evening_class BOOLEAN DEFAULT false');
     await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS shift_rotation BOOLEAN DEFAULT false');
+    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS rotation_frequency VARCHAR(20) DEFAULT \'weekly\'');
+    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS periods_per_day JSONB DEFAULT \'{"1":6,"2":6,"3":6,"4":6,"5":6}\'');
     await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS terms INTEGER DEFAULT 1');
     const result = await pool.query(`
-      INSERT INTO schedule_schema.school_config (id, periods_per_shift, period_duration, short_break_duration, total_shifts, teaching_days_per_week, school_days, has_kg, has_evening_class, shift_rotation, terms)
-      VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      INSERT INTO schedule_schema.school_config (id, periods_per_shift, period_duration, short_break_duration, total_shifts, teaching_days_per_week, school_days, has_kg, shift_rotation, rotation_frequency, periods_per_day, terms)
+      VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       ON CONFLICT (id) DO UPDATE SET
         periods_per_shift = EXCLUDED.periods_per_shift,
         period_duration = EXCLUDED.period_duration,
@@ -799,11 +801,12 @@ router.put('/config', async (req, res) => {
         teaching_days_per_week = EXCLUDED.teaching_days_per_week,
         school_days = EXCLUDED.school_days,
         has_kg = EXCLUDED.has_kg,
-        has_evening_class = EXCLUDED.has_evening_class,
         shift_rotation = EXCLUDED.shift_rotation,
+        rotation_frequency = EXCLUDED.rotation_frequency,
+        periods_per_day = EXCLUDED.periods_per_day,
         terms = EXCLUDED.terms,
         updated_at = CURRENT_TIMESTAMP
-      RETURNING id, terms, has_kg, has_evening_class, shift_rotation, total_shifts
+      RETURNING id, terms, has_kg, shift_rotation, rotation_frequency, periods_per_day, total_shifts
     `, [
       config.periods_per_shift,
       config.period_duration,
@@ -812,8 +815,9 @@ router.put('/config', async (req, res) => {
       config.teaching_days_per_week,
       config.school_days,
       config.has_kg,
-      config.has_evening_class,
       config.shift_rotation,
+      config.rotation_frequency || 'weekly',
+      JSON.stringify(config.periods_per_day || {1:6,2:6,3:6,4:6,5:6}),
       config.terms
     ]);
     res.json({ message: 'Configuration updated successfully' });
@@ -985,7 +989,7 @@ router.post('/sync-teacher-assignments', async (req, res) => {
 // Get teachers with work time
 router.get('/teachers-with-worktime', async (req, res) => {
   try {
-    // Try school_schema_points.teachers first, fall back to staff_teachers.teachers
+    // Try school_schema_points.teachers first
     let result;
     try {
       result = await pool.query(`
@@ -995,16 +999,26 @@ router.get('/teachers-with-worktime', async (req, res) => {
         ORDER BY teacher_name
       `);
     } catch (e) {
-      // Fall back to staff_teachers.teachers
-      result = await pool.query(`
-        SELECT name as teacher_name, name as name, 'Teacher' as role, staff_work_time
-        FROM staff_teachers.teachers 
-        ORDER BY name
-      `);
+      // Fall back to staff_teachers tables
+      result = { rows: [] };
     }
     
     if (result.rows.length === 0) {
-      return res.json([]);
+      // Fallback: query all staff_* schemas for teachers
+      const schemas = ['staff_teachers', 'staff_administrative_staff', 'staff_supportive_staff'];
+      for (const schema of schemas) {
+        try {
+          const tables = await pool.query(
+            `SELECT table_name FROM information_schema.tables WHERE table_schema = $1`, [schema]
+          );
+          for (const t of tables.rows) {
+            const r = await pool.query(
+              `SELECT name, COALESCE(role, 'Teacher') as role, staff_work_time FROM "${schema}"."${t.table_name}" WHERE role = 'Teacher' OR role IS NULL ORDER BY name`
+            );
+            result.rows.push(...r.rows);
+          }
+        } catch (e) { /* schema may not exist */ }
+      }
     }
     
     res.json(result.rows);

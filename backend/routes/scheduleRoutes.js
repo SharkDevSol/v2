@@ -24,6 +24,7 @@ const initializeScheduleSchema = async () => {
         total_shifts INTEGER DEFAULT 2,
         teaching_days_per_week INTEGER DEFAULT 5,
         school_days INTEGER[] DEFAULT '{1,2,3,4,5}',
+        has_kg BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -1597,17 +1598,19 @@ router.put('/config', async (req, res) => {
         total_shifts INTEGER DEFAULT 2,
         teaching_days_per_week INTEGER DEFAULT 5,
         school_days INTEGER[] DEFAULT '{1,2,3,4,5}',
+        has_kg BOOLEAN DEFAULT false,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
     await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS has_kg BOOLEAN DEFAULT false');
-    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS has_evening_class BOOLEAN DEFAULT false');
     await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS shift_rotation BOOLEAN DEFAULT false');
+    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS rotation_frequency VARCHAR(20) DEFAULT \'weekly\'');
+    await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS periods_per_day JSONB DEFAULT \'{"1":6,"2":6,"3":6,"4":6,"5":6}\'');
     await pool.query('ALTER TABLE schedule_schema.school_config ADD COLUMN IF NOT EXISTS terms INTEGER DEFAULT 1');
     await pool.query(`
-      INSERT INTO schedule_schema.school_config (id, periods_per_shift, period_duration, short_break_duration, total_shifts, teaching_days_per_week, school_days, has_kg, has_evening_class, shift_rotation, terms)
-      VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      INSERT INTO schedule_schema.school_config (id, periods_per_shift, period_duration, short_break_duration, total_shifts, teaching_days_per_week, school_days, has_kg, shift_rotation, rotation_frequency, periods_per_day, terms)
+      VALUES (1, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       ON CONFLICT (id) DO UPDATE SET
         periods_per_shift = EXCLUDED.periods_per_shift,
         period_duration = EXCLUDED.period_duration,
@@ -1616,8 +1619,9 @@ router.put('/config', async (req, res) => {
         teaching_days_per_week = EXCLUDED.teaching_days_per_week,
         school_days = EXCLUDED.school_days,
         has_kg = EXCLUDED.has_kg,
-        has_evening_class = EXCLUDED.has_evening_class,
         shift_rotation = EXCLUDED.shift_rotation,
+        rotation_frequency = EXCLUDED.rotation_frequency,
+        periods_per_day = EXCLUDED.periods_per_day,
         terms = EXCLUDED.terms,
         updated_at = CURRENT_TIMESTAMP
     `, [
@@ -1628,8 +1632,9 @@ router.put('/config', async (req, res) => {
       config.teaching_days_per_week,
       config.school_days,
       config.has_kg,
-      config.has_evening_class,
       config.shift_rotation,
+      config.rotation_frequency || 'weekly',
+      JSON.stringify(config.periods_per_day || {1:6,2:6,3:6,4:6,5:6}),
       config.terms
     ]);
     res.json({ message: 'Configuration updated successfully' });

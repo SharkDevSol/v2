@@ -59,12 +59,6 @@ export const ADMIN_PERMISSIONS = {
       { key: 'kg_assignments', label: 'KG Assignments', path: '/kg/assignments' },
     ],
   },
-  ai_test: {
-    label: 'AI Test Generator',
-    permissions: [
-      { key: 'ai_test_generator', label: 'Generate Tests', path: '/ai-test-generator' },
-    ],
-  },
   academic: {
     label: 'Academic',
     permissions: [
@@ -75,13 +69,6 @@ export const ADMIN_PERMISSIONS = {
       { key: 'report_card', label: 'Report Card', path: '/report-card' },
       { key: 'schedule', label: 'Schedule', path: '/schedule' },
       { key: 'class_teacher_assignment', label: 'Class Teachers', path: '/class-teacher-assignment' },
-    ],
-  },
-  ai_test: {
-    label: 'AI Test Generator',
-    permissions: [
-      { key: 'ai_test_generator', label: 'Generate Tests', path: '/ai-test-generator' },
-      { key: 'saved_tests', label: 'Saved Tests', path: '/ai-tests' },
     ],
   },
   evaluation: {

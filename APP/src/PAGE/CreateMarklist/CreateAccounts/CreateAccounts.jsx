@@ -25,7 +25,7 @@ const CreateAccounts = () => {
 
   const roles = ['Teacher', 'Admin', 'Librarian', 'Principal', 'Counselor'];
   const departments = ['Science', 'English', 'Mathematics', 'History', 'IT', 'HR', 'Administration'];
-  const genders = ['Male', 'Female', 'Other'];
+  const genders = ['Male', 'Female'];
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;

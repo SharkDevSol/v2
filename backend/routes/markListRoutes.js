@@ -268,12 +268,30 @@ router.get('/config', async (req, res) => {
 // Route to get all classes
 router.get('/classes', async (req, res) => {
   try {
-    const result = await pool.query(`
+    // Get classes from actual tables (classes_schema)
+    const tableResult = await pool.query(`
       SELECT table_name AS class_name FROM information_schema.tables 
       WHERE table_schema = 'classes_schema'
     `);
-    const classes = result.rows.map(row => row.class_name);
-    res.json(classes);
+    const tableClasses = tableResult.rows.map(row => row.class_name);
+
+    // Also get classes from metadata (school_schema_points.classes)
+    try {
+      const metaResult = await pool.query(`SELECT class_names FROM school_schema_points.classes WHERE id = 1`);
+      if (metaResult.rows.length > 0 && metaResult.rows[0].class_names) {
+        const metaClasses = metaResult.rows[0].class_names;
+        // Merge: add classes from metadata that aren't already in tableClasses
+        for (const cls of metaClasses) {
+          if (!tableClasses.includes(cls)) {
+            tableClasses.push(cls);
+          }
+        }
+      }
+    } catch (e) {
+      // school_schema_points.classes may not exist yet — ignore
+    }
+
+    res.json(tableClasses);
   } catch (error) {
     console.error('Error fetching classes:', error);
     res.status(500).json({ error: 'Failed to fetch classes', details: error.message });

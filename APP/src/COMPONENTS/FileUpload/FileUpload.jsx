@@ -34,6 +34,8 @@ const FileUpload = ({
   preview = true,
   className = '',
   value = [],
+  helperText,
+  required,
   ...props
 }) => {
   const [files, setFiles] = useState(value);

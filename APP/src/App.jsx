@@ -53,16 +53,17 @@ const EvaluationFormDisplay = lazy(() => import("./PAGE/Evaluation/EvaluationFor
 const EvaluationDetailsView = lazy(() => import("./PAGE/Evaluation/EvaluationDetailsView"));
 const MarkListView = lazy(() => import("./PAGE/MarkListView/MarkListView"));
 const StudentAttendanceSystem = lazy(() => import("./PAGE/Academic/StudentAttendanceSystem"));
-const AITestGenerator = lazy(() => import("./PAGE/AITestGenerator/AITestGenerator"));
-const SavedTests = lazy(() => import("./PAGE/AITestGenerator/SavedTests"));
-const TestPlayer = lazy(() => import("./PAGE/AITestGenerator/TestPlayer"));
-const AILessonLanding = lazy(() => import("./PAGE/Academic/AILessonGenerator"));
-const LessonPlan = lazy(() => import("./PAGE/Academic/AILessonGenerator/LessonPlan"));
-const LessonNote = lazy(() => import("./PAGE/Academic/AILessonGenerator/LessonNote"));
-const Homework = lazy(() => import("./PAGE/Academic/AILessonGenerator/Homework"));
-const Worksheet = lazy(() => import("./PAGE/Academic/AILessonGenerator/Worksheet"));
-const ScrambleExam = lazy(() => import("./PAGE/Academic/AILessonGenerator/ScrambleExam"));
-const BookUpload = lazy(() => import("./PAGE/Academic/AILessonGenerator/BookUpload"));
+// AI Module
+const AIDashboard = lazy(() => import("./PAGE/AI/AIDashboard"));
+const AIBookUpload = lazy(() => import("./PAGE/AI/BookUpload"));
+const AIBookList = lazy(() => import("./PAGE/AI/BookList"));
+const AILessonPlan = lazy(() => import("./PAGE/AI/Generators/LessonPlan"));
+const AILessonNote = lazy(() => import("./PAGE/AI/Generators/LessonNote"));
+const AIHomework = lazy(() => import("./PAGE/AI/Generators/Homework"));
+const AIWorksheet = lazy(() => import("./PAGE/AI/Generators/Worksheet"));
+const AIQuiz = lazy(() => import("./PAGE/AI/Generators/Quiz"));
+const AIExam = lazy(() => import("./PAGE/AI/Generators/Exam"));
+const AIScrambleExam = lazy(() => import("./PAGE/AI/Generators/ScrambleExam"));
 const MarkListSystem = lazy(() => import("./PAGE/CreateMarklist/CreateMarklist/CreateMarklist"));
 const MarkListManagement = lazy(() => import("./PAGE/CreateMarklist/MarkListManagement"));
 const SubjectMappingSetup = lazy(() => import("./PAGE/CreateMarklist/SubjectMappingSetup"));
@@ -297,20 +298,16 @@ function App() {
               <Route path="mark-list-view" element={<MarkListView />} />
               <Route path="student-attendance-system" element={<StudentAttendanceSystem />} />
               <Route path="student-attendance-time-settings" element={<Navigate to="/student-attendance-system" replace />} />
-              {/* Legacy redirects for removed AI routes */}
-              <Route path="ai-content" element={<Navigate to="/ai-lesson" replace />} />
-              <Route path="ai-content/:mode" element={<Navigate to="/ai-lesson" replace />} />
-              <Route path="ai-content/saved" element={<Navigate to="/ai-lesson" replace />} />
-              <Route path="ai-lesson" element={<AILessonLanding />} />
-              <Route path="lesson-plan" element={<LessonPlan />} />
-              <Route path="lesson-note" element={<LessonNote />} />
-              <Route path="homework" element={<Homework />} />
-              <Route path="worksheet" element={<Worksheet />} />
-              <Route path="scramble-exam" element={<ScrambleExam />} />
-              <Route path="book-upload" element={<BookUpload />} />
-              <Route path="ai-test-generator" element={<AITestGenerator />} />
-              <Route path="ai-tests" element={<SavedTests />} />
-              <Route path="ai-test-player" element={<TestPlayer />} />
+              <Route path="ai/dashboard" element={<AIDashboard />} />
+              <Route path="ai/books/upload" element={<AIBookUpload />} />
+              <Route path="ai/books" element={<AIBookList />} />
+              <Route path="ai/generate/lesson-plan" element={<AILessonPlan />} />
+              <Route path="ai/generate/lesson-note" element={<AILessonNote />} />
+              <Route path="ai/generate/homework" element={<AIHomework />} />
+              <Route path="ai/generate/worksheet" element={<AIWorksheet />} />
+              <Route path="ai/generate/quiz" element={<AIQuiz />} />
+              <Route path="ai/generate/exam" element={<AIExam />} />
+              <Route path="ai/generate/scramble-exam" element={<AIScrambleExam />} />
               <Route path="class-teacher-assignment" element={<ClassTeacherAssignment />} />
               <Route path="live-attendance" element={<LiveAttendanceMonitor />} />
               <Route path="communication" element={<AdminChat />} />

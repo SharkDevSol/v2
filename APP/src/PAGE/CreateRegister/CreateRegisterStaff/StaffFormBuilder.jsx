@@ -227,11 +227,6 @@ const StaffFormBuilder = ({ onSuccess }) => {
       return;
     }
 
-    if (customFields.length === 0) {
-      setErrorMessage('Please add at least one custom field to the form.');
-      return;
-    }
-
     // Validate all field names again before submission
     for (const field of customFields) {
       const validationError = validateFieldName(field.name);
@@ -845,7 +840,7 @@ const StaffFormBuilder = ({ onSuccess }) => {
       {/* Create Form Button */}
       <motion.button 
         onClick={handleCreateForm} 
-        disabled={isLoading || !staffType || !className || customFields.length === 0} 
+        disabled={isLoading || !staffType || !className} 
         style={{
           ...styles.button, 
           backgroundColor: isLoading ? '#6c757d' : '#28a745',
@@ -853,7 +848,7 @@ const StaffFormBuilder = ({ onSuccess }) => {
           justifyContent: 'center',
           fontSize: '18px',
           padding: '18px',
-          opacity: (isLoading || !staffType || !className || customFields.length === 0) ? 0.6 : 1
+          opacity: (isLoading || !staffType || !className) ? 0.6 : 1
         }}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}

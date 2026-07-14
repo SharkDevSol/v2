@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FiClock, FiSave, FiAlertCircle, FiCheckCircle, FiInfo } from 'react-icons/fi';
 import styles from './StudentAttendanceTimeSettings.module.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5052/api';
 
 const StudentAttendanceTimeSettings = () => {
   const [autoAbsentEnabled, setAutoAbsentEnabled] = useState(true);
@@ -114,10 +114,6 @@ const StudentAttendanceTimeSettings = () => {
               <span className={styles.referenceLabel}>KG Section</span>
               <span className={styles.referenceValue}>{task1Config.has_kg ? 'Enabled' : 'Disabled'}</span>
             </div>
-            <div className={styles.referenceItem}>
-              <span className={styles.referenceLabel}>Evening Classes</span>
-              <span className={styles.referenceValue}>{task1Config.has_evening_class ? 'Enabled' : 'Disabled'}</span>
-            </div>
           </div>
         </div>
       )}
@@ -131,7 +127,7 @@ const StudentAttendanceTimeSettings = () => {
               <div key={className} className={styles.classShiftItem}>
                 <span className={styles.classLabel}>{className}</span>
                 <span className={styles.shiftBadge}>
-                  {cfg.isKG ? 'KG' : cfg.isEvening ? 'Evening' : `Shift ${cfg.shift_number || 1}`}
+                  {cfg.isKG ? 'KG' : `Shift ${cfg.shift_number || 1}`}
                 </span>
               </div>
             ))}

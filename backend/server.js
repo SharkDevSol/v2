@@ -98,7 +98,7 @@ const taskStatusRoutes = require('./routes/taskStatusRoutes');
 const deviceUserManagementRoutes = require('./routes/deviceUserManagement');
 const studentActivitiesRoutes = require('./routes/studentActivitiesRoutes');
 const superAdminRoutes = require('./routes/superAdminRoutes');
-const aiTestGeneratorRoutes = require('./routes/aiTestGenerator');
+const aiRoutes = require('./routes/aiRoutes');
 const yearRolloverRoutes = require('./routes/yearRolloverRoutes');
 // const aiContentRoutes = require('./routes/aiContentRoutes'); // Gemini AI removed
 
@@ -392,11 +392,9 @@ app.use('/api/tasks', taskStatusRoutes);
 app.use('/api/device-users', deviceUserManagementRoutes); // Device user persistence management
 app.use('/api/v2/branches', branchRoutes); // Multi-branch architecture routes
 app.use('/api/super-admin', superAdminRoutes); // Super Admin aggregation routes
-app.use('/api/ai', aiTestGeneratorRoutes); // AI Test Generator (DeepSeek)
-app.use('/api/books', require('./routes/bookUploadRoutes')); // Book upload for AI context
+app.use('/api/v2/auth', require('./routes/authRoutes')); // Auth refresh + logout
+app.use('/api/ai', aiRoutes); // SKOOLIFIC AI Module
 app.use('/api/year-rollover', yearRolloverRoutes); // Year Rollover
-// Legacy AI content redirect - mount DeepSeek routes at old path too
-app.use('/api/ai-content', aiTestGeneratorRoutes);
 
 // ===========================================
 // FRONTEND SPA - Serve built React app

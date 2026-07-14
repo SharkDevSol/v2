@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, Calendar, BookOpen, Users, FileText } from 'lucide-react';
+import { Calendar, BookOpen, Users, FileText } from 'lucide-react';
 import axios from 'axios';
-import AITestGenerator from '../../PAGE/Academic/AITestGenerator';
 import Card from '../../COMPONENTS/Card/Card';
 import Button from '../../COMPONENTS/Button/Button';
 import Input from '../../COMPONENTS/Input/Input';
@@ -21,7 +20,6 @@ const EXAM_TYPES = [
 
 const ExamCreationStaff = () => {
   const { t } = useTranslation();
-  const [showAiGenerator, setShowAiGenerator] = useState(false);
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [examConfig, setExamConfig] = useState({
@@ -174,32 +172,8 @@ const ExamCreationStaff = () => {
           </div>
         </Card>
 
-        <Card className={styles.aiCard} title={t('academic.examCreation.aiSectionTitle', 'AI question generator')}>
-          <p className={styles.aiDescription}>
-            {t(
-              'academic.examCreation.aiDescription',
-              'Use AI to generate questions based on your exam configuration above.'
-            )}
-          </p>
-          <Button
-            variant={showAiGenerator ? 'secondary' : 'primary'}
-            onClick={() => setShowAiGenerator((prev) => !prev)}
-            icon={<Sparkles size={18} />}
-          >
-            {showAiGenerator
-              ? t('academic.examCreation.hideAi', 'Hide AI generator')
-              : t('academic.examCreation.openAi', 'Open AI generator')}
-          </Button>
-        </Card>
       </div>
-
-      {showAiGenerator && (
-        <div className={styles.aiGeneratorWrap}>
-          <AITestGenerator />
-        </div>
-      )}
     </div>
   );
 };
-
 export default ExamCreationStaff;

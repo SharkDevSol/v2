@@ -52,9 +52,6 @@ const EvaluationDetailsView = lazy(() => import("./PAGE/Evaluation/EvaluationDet
 const MarkListView = lazy(() => import("./PAGE/MarkListView/MarkListView"));
 const StudentAttendanceSystem = lazy(() => import("./PAGE/Academic/StudentAttendanceSystem"));
 const StudentAttendanceTimeSettings = lazy(() => import("./PAGE/Academic/StudentAttendanceTimeSettings"));
-const AITestGenerator = lazy(() => import("./PAGE/AITestGenerator/AITestGenerator"));
-const SavedTests = lazy(() => import("./PAGE/AITestGenerator/SavedTests"));
-const TestPlayer = lazy(() => import("./PAGE/AITestGenerator/TestPlayer"));
 const MarkListSystem = lazy(() => import("./PAGE/CreateMarklist/CreateMarklist/CreateMarklist"));
 const MarkListManagement = lazy(() => import("./PAGE/CreateMarklist/MarkListManagement"));
 const SubjectMappingSetup = lazy(() => import("./PAGE/CreateMarklist/SubjectMappingSetup"));
@@ -264,9 +261,6 @@ function App() {
               <Route path="mark-list-view" element={<MarkListView />} />
               <Route path="student-attendance-system" element={<StudentAttendanceSystem />} />
               <Route path="student-attendance-time-settings" element={<StudentAttendanceTimeSettings />} />
-              <Route path="ai-test-generator" element={<AITestGenerator />} />
-              <Route path="ai-tests" element={<SavedTests />} />
-              <Route path="ai-test-player" element={<TestPlayer />} />
               <Route path="class-teacher-assignment" element={<ClassTeacherAssignment />} />
               <Route path="live-attendance" element={<LiveAttendanceMonitor />} />
               <Route path="communication" element={<AdminChat />} />

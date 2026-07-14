@@ -7,7 +7,7 @@ import {
   FiUsers, FiSearch, FiFilter, FiEye, FiEyeOff, FiUserX, FiUserCheck,
   FiDownload, FiFile, FiX, FiRefreshCw, FiLock, FiCopy,
   FiPhone, FiMail, FiUser, FiBriefcase, FiGrid, FiList,
-  FiChevronLeft, FiChevronRight, FiEdit
+  FiChevronLeft, FiChevronRight, FiEdit, FiTrash2
 } from 'react-icons/fi';
 import { getFileType, getFileIcon, isFileField, getFileUrl, formatLabel, getFileName, looksLikeFile } from '../utils/fileUtils';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,7 @@ import Input from '../../../COMPONENTS/Input/Input';
 import Select from '../../../COMPONENTS/Select/Select';
 import Button from '../../../COMPONENTS/Button/Button';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://v2.skoolific.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5052/api';
 const ListStaff = () => {
   const { t: tApp } = useApp();
   const { t: ti18n } = useTranslation();
@@ -153,6 +153,20 @@ const ListStaff = () => {
       } catch (error) {
         alert(`Failed to deactivate staff: ${error.response?.data?.error || error.message}`);
       }
+    }
+  };
+
+  const handleDelete = async (staff) => {
+    const name = staff.full_name || staff.name || 'this staff member';
+    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/staff/delete-staff`, {
+        data: { globalStaffId: staff.global_staff_id || staff.id, staffType: staff.staffType, className: staff.className }
+      });
+      alert(`"${name}" deleted successfully`);
+      fetchAllStaff();
+    } catch (error) {
+      alert(`Delete failed: ${error.response?.data?.error || error.message}`);
     }
   };
 
@@ -463,6 +477,13 @@ const ListStaff = () => {
             >
               {isInactive ? <FiUserCheck /> : <FiUserX />}
             </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleDelete(staff); }}
+              title="Delete staff"
+              className={styles.deleteBtn}
+            >
+              <FiTrash2 />
+            </button>
           </div>
         );
       }
@@ -658,6 +679,13 @@ const ListStaff = () => {
                       title={isInactive ? 'Activate staff' : 'Deactivate staff'}
                     >
                       {isInactive ? <FiUserCheck /> : <FiUserX />}
+                    </button>
+                    <button 
+                      className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(staff); }}
+                      title="Delete staff"
+                    >
+                      <FiTrash2 />
                     </button>
                   </div>
                 </motion.div>

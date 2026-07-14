@@ -697,15 +697,28 @@ export const API_ENDPOINTS = {
     SYNC: '/api/device-users/sync',
   },
 
-  // AI Content Generation - uses DeepSeek via /api/ai
-  AI_CONTENT: {
+  // SKOOLIFIC AI Module
+  AI: {
     BASE: '/api/ai',
-    GENERATE: '/api/ai/generate-test',
-    SAVE: '/api/ai/save-test',
-    LIST: '/api/ai/list-classes',
-    BY_ID: (id) => `/api/ai/${id}`,
-    DELETE: (id) => `/api/ai/${id}`
-  }
+    HEALTH: '/api/ai/health',
+    BOOKS: {
+      UPLOAD: '/api/ai/books/upload',
+      LIST: '/api/ai/books',
+      DETAIL: (id) => `/api/ai/books/${id}`,
+      DELETE: (id) => `/api/ai/books/${id}`,
+      REINDEX: (id) => `/api/ai/books/${id}/reindex`,
+      CHUNKS: (id) => `/api/ai/books/${id}/chunks`,
+    },
+    GENERATE: {
+      LESSON_PLAN: '/api/ai/generate/lesson-plan',
+      LESSON_NOTE: '/api/ai/generate/lesson-note',
+      HOMEWORK: '/api/ai/generate/homework',
+      WORKSHEET: '/api/ai/generate/worksheet',
+      QUIZ: '/api/ai/generate/quiz',
+      EXAM: '/api/ai/generate/exam',
+      SCRAMBLE_EXAM: '/api/ai/generate/scramble-exam',
+    },
+  },
 };
 
 // ===========================================
