@@ -19,7 +19,7 @@ import {
   FiCheckCircle, FiDollarSign, FiTrendingUp,
   FiShoppingCart, FiPackage, FiTool, FiClock, FiBell, FiRefreshCw, FiAlertCircle, FiMoon, FiSun, FiSmile,
   FiClipboard, FiEdit3,
-  FiCpu, FiUpload, FiBookOpen, FiGrid, FiShuffle, FiHelpCircle, FiPlay, FiArchive, FiBarChart2
+  FiCpu, FiUpload, FiBookOpen, FiGrid, FiShuffle, FiHelpCircle, FiPlay, FiArchive, FiBarChart2, FiList
 } from "react-icons/fi";
 import { FaGraduationCap, FaChalkboardTeacher, FaRegCalendarAlt } from "react-icons/fa";
 import { Home as HomeIcon, Users, BookOpen, DollarSign, Package, Briefcase, Settings } from 'lucide-react';

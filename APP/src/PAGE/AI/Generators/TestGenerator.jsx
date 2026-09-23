@@ -232,9 +232,9 @@ const TestGenerator = () => {
             </div>
             <div className={styles.field}>
               <label>Class <span className={styles.req}>*</span></label>
-              <select value={form.className} onChange={e => setField('className', e.target.value)}>
+              <select value={form.className} onChange={e => setField('className', e.target.value)} disabled={!form.subjectName}>
                 <option value="">Select Class</option>
-                {classes.map(c => <option key={c} value={c}>{c}</option>)}
+                {getAvailableClasses().map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className={styles.field}>
@@ -246,12 +246,34 @@ const TestGenerator = () => {
             <div className={styles.field}>
               <label>Component <span className={styles.req}>*</span></label>
               <select value={form.componentName} onChange={e => setField('componentName', e.target.value)}>
-                {COMPONENTS.map(c => <option key={c} value={c}>{c}</option>)}
+                <option value="">Select Component</option>
+                {Object.keys(markComponents).length > 0
+                  ? Object.keys(markComponents).map(c => (
+                      <option key={c} value={c}>{c.replace(/_/g, ' ').toUpperCase()} ({markComponents[c]} marks)</option>
+                    ))
+                  : COMPONENTS.map(c => <option key={c} value={c}>{c}</option>)
+                }
               </select>
+              {Object.keys(markComponents).length === 0 && form.subjectName && form.className && (
+                <small style={{ color: '#9ca3af', fontSize: '0.8rem', display: 'block', marginTop: '4px' }}>
+                  No mark list found for this subject/class/term — showing default components
+                </small>
+              )}
             </div>
             <div className={styles.field}>
               <label>Total Marks</label>
-              <input type="number" value={totalMarks} readOnly className={styles.readonly} />
+              <input
+                type="number"
+                value={componentMarkValue != null ? componentMarkValue : distTotal}
+                readOnly={componentMarkValue != null}
+                className={componentMarkValue != null ? styles.readonly : ''}
+                title={componentMarkValue != null ? `Set from mark list (${form.componentName})` : 'Sum of your question distribution'}
+              />
+              {componentMarkValue != null && (
+                <small style={{ color: '#6b7280', fontSize: '0.8rem', display: 'block', marginTop: '4px' }}>
+                  Set from mark list{bonusTotal > 0 ? ` + ${bonusTotal} bonus = ${componentMarkValue + bonusTotal} total` : ''} — distribute below: e.g. {componentMarkValue} questions × 1 mark, or 5 × 2 marks, any mix you want
+                </small>
+              )}
             </div>
             <div className={styles.field}>
               <label>Difficulty (select one or more)</label>
@@ -286,13 +308,13 @@ const TestGenerator = () => {
           </div>
 
           <div className={styles.field}>
-            <label>Teacher Notes (optional)</label>
+            <label>Teacher Notes (optional — write in ANY language)</label>
             <textarea
               className={styles.textarea}
               rows={4}
               value={form.teacherNotes}
               onChange={e => setField('teacherNotes', e.target.value)}
-              placeholder="Any specific instructions for the AI..."
+              placeholder="Write in any language (Somali, Amharic, Arabic, English...). Tell the AI where to generate the test from — e.g. 'I want the test from unit 2' or be more specific: 'unit 2, the second topic'. The test will be written in the Language you selected, not the language you write here."
             />
           </div>
 
