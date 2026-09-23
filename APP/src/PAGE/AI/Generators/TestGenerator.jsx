@@ -24,8 +24,12 @@ const TestGenerator = () => {
 
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [mappings, setMappings] = useState([]);
+  const [markComponents, setMarkComponents] = useState({});
+  const [componentMarkValue, setComponentMarkValue] = useState(null);
+  const [bonusTypes, setBonusTypes] = useState([]);
   const [form, setForm] = useState({
-    subjectName: '', className: '', termNumber: 1, componentName: 'Monthly Exam',
+    subjectName: '', className: '', termNumber: 1, componentName: '',
     difficulty: ['Medium'], language: 'English', topic: '', timeLimit: 40, teacherNotes: ''
   });
   const [questionTypes, setQuestionTypes] = useState(
@@ -47,7 +51,54 @@ const TestGenerator = () => {
         }
       })
       .catch(e => console.error('Error fetching classes:', e));
+    // Mark-list system: subjects + subject-class mappings
+    axios.get('/api/mark-list/subjects')
+      .then(r => {
+        if (Array.isArray(r.data) && r.data.length) {
+          setSubjects(r.data.map(s => (typeof s === 'string' ? s : s.subject_name)).filter(Boolean));
+        }
+      })
+      .catch(() => {});
+    axios.get('/api/mark-list/subjects-classes')
+      .then(r => { if (Array.isArray(r.data)) setMappings(r.data); })
+      .catch(() => {});
   }, []);
+
+  // Mark-list: components (with marks) for the selected subject/class/term
+  useEffect(() => {
+    if (!form.subjectName || !form.className || !form.termNumber) return;
+    axios.get(`/api/mark-list/mark-list/${encodeURIComponent(form.subjectName)}/${encodeURIComponent(form.className)}/${form.termNumber}`)
+      .then(r => {
+        const config = r.data.config || r.data;
+        const comps = config.mark_components || [];
+        const map = {};
+        comps.forEach(c => { if (c && c.name) map[c.name] = c.percentage; });
+        setMarkComponents(map);
+      })
+      .catch(() => setMarkComponents({}));
+  }, [form.subjectName, form.className, form.termNumber]);
+
+  // Total marks auto-set from the selected component
+  useEffect(() => {
+    if (form.componentName && markComponents[form.componentName] != null) {
+      setComponentMarkValue(markComponents[form.componentName]);
+    } else {
+      setComponentMarkValue(null);
+    }
+  }, [form.componentName, markComponents]);
+
+  const getAvailableClasses = () => {
+    if (!form.subjectName) return classes;
+    const fromMappings = mappings
+      .filter(m => m.subject_name === form.subjectName)
+      .map(m => m.class_name);
+    return [...new Set(fromMappings.length > 0 ? fromMappings : classes)];
+  };
+
+  const componentMarks = componentMarkValue || 0;
+  const distTotal = questionTypes.reduce((s, q) => s + q.count * q.marksPerQuestion, 0);
+  const bonusTotal = bonusTypes.reduce((s, b) => s + b.count * b.marksPerQuestion, 0);
+  const effectiveTotal = distTotal > 0 ? distTotal : componentMarks;
 
   const totalMarks = questionTypes.reduce((s, q) => s + q.count * q.marksPerQuestion, 0);
 
@@ -63,6 +114,13 @@ const TestGenerator = () => {
   const setQt = (type, field, val) => {
     setQuestionTypes(qs => qs.map(q => q.type === type ? { ...q, [field]: Math.max(0, parseInt(val) || 0) } : q));
   };
+
+  const setBonus = (index, field, val) => {
+    setBonusTypes(bs => bs.map((b, i) => i === index ? { ...b, [field]: field === 'type' ? val : Math.max(0, parseInt(val) || 0) } : b));
+  };
+
+  const addBonusType = () => setBonusTypes(bs => [...bs, { type: 'mcq', label: 'Multiple Choice', count: 1, marksPerQuestion: 1 }]);
+  const removeBonusType = (index) => setBonusTypes(bs => bs.filter((_, i) => i !== index));
 
   const handleUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -90,17 +148,20 @@ const TestGenerator = () => {
       setError('Please select Subject, Class, and Component'); return;
     }
     const activeTypes = questionTypes.filter(q => q.count > 0);
-    if (activeTypes.length === 0) {
-      setError('Set at least one question type with a count above 0'); return;
+    if (activeTypes.length === 0 && effectiveTotal === 0) {
+      setError('Select a Component from the mark list, or set at least one question type with a count above 0'); return;
+    }
+    if (bonusTotal > 5) {
+      setError('Bonus marks cannot exceed 5'); return;
     }
     setLoading(true); setError(''); setGenerated(null); setSaved(false);
     try {
       const payload = {
         ...form,
-        totalMarks,
+        totalMarks: effectiveTotal || distTotal,
         difficulty: form.difficulty.length ? form.difficulty.map(d => d.toLowerCase()).join(', ') : 'medium',
         questionTypes: activeTypes.map(q => ({ type: q.type, count: q.count, marksPerQuestion: q.marksPerQuestion })),
-        bonusQuestions: null,
+        bonusQuestions: bonusTotal > 0 ? bonusTypes.map(b => ({ type: b.type, count: b.count, marksPerQuestion: b.marksPerQuestion })) : null,
       };
       const res = await axios.post('/api/ai/generate-test', payload);
       if (res.data.success) setGenerated(res.data);

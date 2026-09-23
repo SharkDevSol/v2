@@ -466,7 +466,7 @@ const ModernDashboard = () => {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1>{t('dashboard') || 'Dashboard Overview'}</h1>
+          <h1>{t('dashboard.title') || 'Dashboard Overview'}</h1>
           <p className={styles.subtitle}>
             <Clock size={16} />
             Last updated: {lastUpdated.toLocaleTimeString()}

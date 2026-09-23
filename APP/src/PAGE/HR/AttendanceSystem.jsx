@@ -96,7 +96,7 @@ const TeacherAttendance = () => {
   const fetchStaff = async () => {
     try {
       const token = localStorage.getItem('authToken') || localStorage.getItem('token');
-      const types = ['Teachers'];
+      const types = ['Teachers', 'Administrative Staff', 'Supportive Staff', 'Finance'];
       let allStaff = [];
       
       for (const staffType of types) {

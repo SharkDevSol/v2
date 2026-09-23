@@ -104,6 +104,9 @@ const initializePostsSchema = async () => {
       ON posts_schema.posts FOR EACH ROW EXECUTE FUNCTION posts_schema.update_updated_at_column();
     `);
 
+    // Clean up any legacy "Current User" posts
+    await client.query(`UPDATE posts_schema.posts SET author_name = 'Administrator' WHERE author_name = 'Current User';`);
+
     console.log('Posts schema and tables initialized successfully in postRoutes.js.');
   } catch (error) {
     console.error('Error initializing posts schema:', error);
@@ -154,10 +157,14 @@ const getAudienceArrayForRole = (role) => {
 
 // POST /api/posts - Create post (protected route with upload rate limiting)
 router.post('/', authenticateWithBranch, uploadLimiter, upload, async (req, res) => {
-  const { title, body, link, author_type, author_id, audiences } = req.body;
-  const author_name = req.body.author_name || 'Anonymous User';
-  if (!title || !body || !author_type || !author_id) {
-    return res.status(400).json({ error: 'Missing required fields: title, body, author_type, author_id' });
+  const { title, link, audiences } = req.body;
+  const body = req.body.body || title || '';
+  const author_type = req.body.author_type || req.user?.role || req.user?.userType || 'staff';
+  const author_id = parseInt(req.body.author_id) || (req.user?.id && !isNaN(parseInt(req.user.id)) ? parseInt(req.user.id) : 1);
+  const author_name = req.body.author_name || req.user?.name || req.user?.username || 'Administrator';
+
+  if (!title || !title.trim()) {
+    return res.status(400).json({ error: 'Title is required' });
   }
 
   const validAudiences = ['students', 'guardians', 'supportive_staff', 'teachers', 'admin_staff', 'staff', 'all'];

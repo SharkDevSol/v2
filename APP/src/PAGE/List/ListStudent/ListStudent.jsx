@@ -83,12 +83,25 @@ const ListStudent = () => {
       const params = new URLSearchParams();
       if (showInactive) params.append('includeInactive', 'only');
       if (filterStudentType !== 'all') params.append('studentType', filterStudentType);
-      
       const queryString = params.toString();
-      const url = `${API_BASE_URL}/student-list/students/${className}${queryString ? `?${queryString}` : ''}`;
-      
-      const response = await axios.get(url);
-      const studentsWithIds = response.data.map((student, index) => ({
+
+      let allStudentsData = [];
+
+      if (className === 'ALL') {
+        // Fetch students from ALL classes
+        const promises = classes.map(cls => {
+          const url = `${API_BASE_URL}/student-list/students/${cls}${queryString ? `?${queryString}` : ''}`;
+          return axios.get(url).then(res => res.data.map(s => ({ ...s, class: s.class || cls }))).catch(() => []);
+        });
+        const results = await Promise.all(promises);
+        allStudentsData = results.flat();
+      } else {
+        const url = `${API_BASE_URL}/student-list/students/${className}${queryString ? `?${queryString}` : ''}`;
+        const response = await axios.get(url);
+        allStudentsData = response.data;
+      }
+
+      const studentsWithIds = allStudentsData.map((student, index) => ({
         ...student, uniqueId: `${student.student_name}-${index}-${Date.now()}`, displayId: index + 1
       }));
       setStudents(studentsWithIds);
@@ -153,12 +166,13 @@ const ListStudent = () => {
   };
 
   const getFieldOptions = (col) => {
-    const cf = customFields.find(f => f.name === col.key);
+    const cf = customFields.find(f => f.name.toLowerCase() === (col.key || '').toLowerCase());
     if (cf && Array.isArray(cf.options) && cf.options.length > 0) return cf.options;
-    const lower = col.key.toLowerCase();
+    const lower = (col.key || '').toLowerCase();
     if (lower.includes('gender')) return ['Male', 'Female'];
     if (lower.includes('relation')) return ['Father', 'Mother', 'Guardian', 'Other'];
     if (lower.includes('blood')) return ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+    if (lower.includes('old') && lower.includes('new')) return ['New', 'Old'];
     return null;
   };
 
@@ -202,7 +216,7 @@ const ListStudent = () => {
       
       try {
         await axios.put(
-          `${API_BASE_URL}/student-list/toggle-active/${selectedClass}/${student.school_id}/${student.class_id}`,
+          `${API_BASE_URL}/student-list/toggle-active/${student.class || selectedClass}/${student.school_id}/${student.class_id}`,
           { is_active: true }
         );
         alert('Student activated successfully! They are now visible in all system lists.');
@@ -217,7 +231,7 @@ const ListStudent = () => {
       
       try {
         await axios.put(
-          `${API_BASE_URL}/student-list/toggle-active/${selectedClass}/${student.school_id}/${student.class_id}`,
+          `${API_BASE_URL}/student-list/toggle-active/${student.class || selectedClass}/${student.school_id}/${student.class_id}`,
           { is_active: false }
         );
         alert('Student deactivated successfully! They are now hidden from all system lists.');
@@ -232,7 +246,7 @@ const ListStudent = () => {
     if (!window.confirm(`Delete ${student.student_name}?`)) return;
     try {
       if (student.school_id && student.class_id) {
-        await axios.delete(`${API_BASE_URL}/student-list/student/${selectedClass}/${student.school_id}/${student.class_id}`);
+        await axios.delete(`${API_BASE_URL}/student-list/student/${student.class || selectedClass}/${student.school_id}/${student.class_id}`);
       }
       setStudents(prev => prev.filter(s => s.uniqueId !== student.uniqueId));
     } catch (error) { alert('Failed to delete'); }
@@ -285,7 +299,7 @@ const ListStudent = () => {
         if (editFileField && Object.keys(editFileField).length > 0) {
           Object.entries(editFileField).forEach(([key, file]) => formData.append(key, file));
         }
-        await axios.put(`${API_BASE_URL}/student-list/student/${selectedClass}/${selectedStudent.school_id}/${selectedStudent.class_id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await axios.put(`${API_BASE_URL}/student-list/student/${selectedStudent.class || selectedClass}/${selectedStudent.school_id}/${selectedStudent.class_id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         // Refetch the students list to get the correct server-side image path
         if (editFormData.class && editFormData.class !== selectedClass) {
           // Student was transferred to a new class — switch to that class view
@@ -439,17 +453,23 @@ const ListStudent = () => {
         <div className={styles.headerStats}>
           <div className={styles.statBox}>
             <span className={styles.statNum}>{filteredStudents.length}</span>
-            <span className={styles.statLabel}>{showInactive ? 'Deactivated' : t('students')}</span>
+            <span className={styles.statLabel}>{showInactive ? 'Deactivated' : t('students.title', 'Students')}</span>
           </div>
           <div className={styles.statBox}>
             <span className={styles.statNum}>{classes.length}</span>
-            <span className={styles.statLabel}>{t('classes')}</span>
+            <span className={styles.statLabel}>{t('classes.title', t('classes', 'Classes'))}</span>
           </div>
         </div>
       </motion.div>
 
       {/* Class Tabs */}
       <motion.div className={styles.classTabs} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <button 
+          className={`${styles.classTab} ${selectedClass === 'ALL' ? styles.active : ''}`} 
+          onClick={() => { setSelectedClass('ALL'); setCurrentPage(1); }}
+        >
+          <FiUsers /> All Students
+        </button>
         {classes.map(cls => (
           <button 
             key={cls} 
@@ -675,6 +695,59 @@ const ListStudent = () => {
             emptyMessage={t('noStudentsFound') || 'No students found matching your criteria.'}
           />
         </motion.div>
+      )}
+
+      {/* Pagination Controls (for grid view) */}
+      {viewMode === 'grid' && totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button 
+            className={styles.pageBtn} 
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+            disabled={currentPage === 1}
+          >
+            <FiChevronLeft /> Previous
+          </button>
+          <div className={styles.pageNumbers}>
+            {(() => {
+              const pages = [];
+              const maxVisible = 5;
+              let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+              let end = Math.min(totalPages, start + maxVisible - 1);
+              if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+              
+              if (start > 1) {
+                pages.push(<button key={1} className={styles.pageNum} onClick={() => setCurrentPage(1)}>1</button>);
+                if (start > 2) pages.push(<span key="dots1" className={styles.pageDots}>...</span>);
+              }
+              for (let i = start; i <= end; i++) {
+                pages.push(
+                  <button 
+                    key={i} 
+                    className={`${styles.pageNum} ${currentPage === i ? styles.pageActive : ''}`}
+                    onClick={() => setCurrentPage(i)}
+                  >
+                    {i}
+                  </button>
+                );
+              }
+              if (end < totalPages) {
+                if (end < totalPages - 1) pages.push(<span key="dots2" className={styles.pageDots}>...</span>);
+                pages.push(<button key={totalPages} className={styles.pageNum} onClick={() => setCurrentPage(totalPages)}>{totalPages}</button>);
+              }
+              return pages;
+            })()}
+          </div>
+          <button 
+            className={styles.pageBtn} 
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+            disabled={currentPage === totalPages}
+          >
+            Next <FiChevronRight />
+          </button>
+          <span className={styles.pageInfo}>
+            {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, filteredStudents.length)} of {filteredStudents.length}
+          </span>
+        </div>
       )}
 
 

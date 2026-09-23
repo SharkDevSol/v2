@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useApp } from "../context/AppContext";
 import { filterNavByPermissions } from "../utils/permissionUtils";
 import Sidebar from "../COMPONENTS/Sidebar/Sidebar";
@@ -26,7 +27,8 @@ import { Home as HomeIcon, Users, BookOpen, DollarSign, Package, Briefcase, Sett
 const Home = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { theme, profile, t, updateTheme } = useApp();
+  const { t } = useTranslation();
+  const { theme, profile, updateTheme } = useApp();
   
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -121,303 +123,300 @@ const Home = () => {
     {
       path: "/",
       icon: <FiHome />,
-      label: t('dashboard'),
+      label: t('nav.dashboard', 'Dashboard'),
       section: null,
     },
     {
-      section: t('registration'),
+      section: t('nav.registration', 'Registration'),
       sectionKey: 'registration',
       icon: <FiUser />,
       items: [
         {
           path: "/create-register-student",
           icon: <FaGraduationCap />,
-          label: t('registerStudent'),
+          label: t('nav.registerStudent', 'Register Student'),
         },
         {
           path: "/create-register-staff",
           icon: <FaChalkboardTeacher />,
-          label: t('registerStaff'),
+          label: t('nav.registerStaff', 'Register Staff'),
         },
       ],
     },
     {
-      section: t('lists'),
+      section: t('nav.lists', 'Lists'),
       sectionKey: 'lists',
-      icon: <FiDatabase />,
+      icon: <FiList />,
       items: [
         {
           path: "/list-student",
           icon: <FiUsers />,
-          label: t('students'),
+          label: t('nav.students', 'Students'),
         },
         {
           path: "/list-staff",
-          icon: <FiUsers />,
-          label: t('staff'),
+          icon: <FiUserCheck />,
+          label: t('nav.staff', 'Staff'),
         },
         {
           path: "/list-guardian",
           icon: <FiUsers />,
-          label: t('guardians'),
+          label: t('nav.guardians', 'Guardians'),
         },
       ],
     },
     {
-      section: 'Finance Management',
+      section: t('nav.finance', 'Finance Management'),
       sectionKey: 'finance',
       icon: <FiDollarSign />,
       items: [
         {
           path: "/finance",
           icon: <FiPieChart />,
-          label: 'Finance Dashboard',
+          label: t('nav.financeDashboard', 'Finance Dashboard'),
         },
         {
           path: "/finance/fee-management",
           icon: <FiDollarSign />,
-          label: 'Fee Management',
+          label: t('nav.feeManagement', 'Fee Management'),
         },
         {
           path: "/finance/fee-types",
           icon: <FiDollarSign />,
-          label: 'Fee Types',
+          label: t('nav.feeTypes', 'Fee Types'),
         },
         {
           path: "/finance/monthly-payments",
           icon: <FiCalendar />,
-          label: 'Monthly Payments',
+          label: t('nav.monthlyPayments', 'Monthly Payments'),
         },
         {
           path: "/finance/student-exemption",
           icon: <FiAward />,
-          label: 'Student Exemption',
+          label: t('nav.studentExemption', 'Student Exemption'),
         },
         {
           path: "/finance/monthly-payment-settings",
           icon: <FiSettings />,
-          label: 'Payment Settings',
+          label: t('nav.paymentSettings', 'Payment Settings'),
         },
         {
           path: "/finance/reports",
           icon: <FiFileText />,
-          label: 'Financial Reports',
+          label: t('nav.financialReports', 'Financial Reports'),
         },
         {
           path: "/finance/inventory-integration",
           icon: <FiPackage />,
-          label: '🔗 Inventory Integration',
+          label: t('nav.inventoryIntegration', '🔗 Inventory Integration'),
         },
       ],
     },
     {
-      section: 'Inventory & Stock',
+      section: t('nav.inventory', 'Inventory & Stock'),
       sectionKey: 'inventory',
       icon: <FiPackage />,
       items: [
         {
           path: "/inventory",
           icon: <FiShoppingCart />,
-          label: 'Inventory Dashboard',
+          label: t('nav.inventoryDashboard', 'Inventory Dashboard'),
         },
         {
           path: "/inventory/items",
           icon: <FiPackage />,
-          label: 'Items',
+          label: t('nav.items', 'Items'),
         },
         {
           path: "/inventory/purchase-orders",
           icon: <FiFileText />,
-          label: 'Purchase Orders',
+          label: t('nav.purchaseOrders', 'Purchase Orders'),
         },
         {
           path: "/inventory/movements",
           icon: <FiTool />,
-          label: 'Stock Movements',
+          label: t('nav.movements', 'Stock Movements'),
         },
         {
           path: "/inventory/suppliers",
           icon: <FiUsers />,
-          label: 'Suppliers',
+          label: t('nav.suppliers', 'Suppliers'),
         },
         {
           path: "/inventory/reports",
           icon: <FiPieChart />,
-          label: 'Inventory Reports',
+          label: t('nav.inventoryReports', 'Inventory Reports'),
         },
       ],
     },
     {
-      section: 'Asset Management',
+      section: t('nav.assets', 'Asset Management'),
       sectionKey: 'assets',
       icon: <FiTool />,
       items: [
         {
           path: "/assets",
           icon: <FiPieChart />,
-          label: 'Asset Dashboard',
+          label: t('nav.assetDashboard', 'Asset Dashboard'),
         },
         {
           path: "/assets/registry",
           icon: <FiFileText />,
-          label: 'Asset Registry',
+          label: t('nav.assetRegistry', 'Asset Registry'),
         },
         {
           path: "/assets/assignments",
           icon: <FiUsers />,
-          label: 'Assignments',
+          label: t('nav.assignments', 'Assignments'),
         },
         {
           path: "/assets/maintenance",
           icon: <FiTool />,
-          label: 'Maintenance',
+          label: t('nav.maintenance', 'Maintenance'),
         },
         {
           path: "/assets/depreciation",
           icon: <FiTrendingUp />,
-          label: 'Depreciation',
+          label: t('nav.depreciation', 'Depreciation'),
         },
         {
           path: "/assets/disposal",
           icon: <FiFileText />,
-          label: 'Disposal',
+          label: t('nav.disposal', 'Disposal'),
         },
         {
           path: "/assets/reports",
           icon: <FiPieChart />,
-          label: 'Asset Reports',
+          label: t('nav.assetReports', 'Asset Reports'),
         },
       ],
     },
     {
-      section: 'HR & Staff Management',
+      section: t('nav.hr', 'HR & Staff Management'),
       sectionKey: 'hr',
       icon: <FiUsers />,
       items: [
         {
           path: "/hr",
           icon: <FiPieChart />,
-          label: 'HR Dashboard',
+          label: t('nav.hrDashboard', 'HR Dashboard'),
         },
         {
           path: "/hr/salary",
           icon: <FiDollarSign />,
-          label: '💰 Salary Management',
+          label: t('nav.salary', '💰 Salary Management'),
         },
         {
           path: "/hr/attendance",
           icon: <FiCalendar />,
-          label: 'Teacher Attendance',
+          label: t('nav.teacherAttendance', 'Teacher Attendance'),
         },
         {
           path: "/hr/attendance-time-settings",
           icon: <FiClock />,
-          label: '⏰ Time & Shift Settings',
+          label: t('nav.timeShiftSettings', '⏰ Time & Shift Settings'),
         },
         {
           path: "/hr/attendance-deduction-settings",
           icon: <FiSettings />,
-          label: '⚙️ Attendance Deductions',
+          label: t('nav.attendanceDeductions', '⚙️ Attendance Deductions'),
         },
         {
           path: "/hr/leave",
           icon: <FiCalendar />,
-          label: 'Leave Management',
+          label: t('nav.leaveManagement', 'Leave Management'),
         },
         {
           path: "/hr/payroll",
           icon: <FiDollarSign />,
-          label: 'Payroll System',
+          label: t('nav.payroll', 'Payroll System'),
         },
         {
           path: "/hr/reports",
           icon: <FiPieChart />,
-          label: 'HR Reports',
+          label: t('nav.hrReports', 'HR Reports'),
         },
         {
           path: "/hr/expenses",
           icon: <FiTrendingUp />,
-          label: 'Expenses',
+          label: t('nav.expenses', 'Expenses'),
         },
         {
           path: "/hr/expense-approval",
           icon: <FiCheckCircle />,
-          label: 'Expense Approval',
+          label: t('nav.expenseApproval', 'Expense Approval'),
         },
         {
           path: "/hr/budgets",
           icon: <FiPieChart />,
-          label: 'Budgets',
+          label: t('nav.budgets', 'Budgets'),
         },
       ],
     },
     {
-      section: t('academic'),
+      section: t('nav.academic', 'Academic'),
       sectionKey: 'academic',
       icon: <FiBook />,
       items: [
         {
           path: "/evaluation",
           icon: <FiPieChart />,
-          label: t('evaluation'),
+          label: t('nav.evaluation', 'Evaluation'),
         },
         {
           path: "/evaluation-book",
           icon: <FiBook />,
-          label: t('evaluationBook'),
+          label: t('nav.evaluationBook', 'Evaluation Book'),
         },
-        // ===========================================
-        // ACADEMIC
-        // ===========================================
         {
           path: "/mark-list-view",
           icon: <FiFileText />,
-          label: t('markLists'),
+          label: t('nav.markLists', 'Mark Lists'),
         },
         {
           path: "/student-attendance-system",
           icon: <FiCheckCircle />,
-          label: '📋 Student Attendance (Weekly)',
+          label: t('nav.studentAttendanceWeekly', '📋 Student Attendance (Weekly)'),
         },
         {
           path: "/student-attendance-time-settings",
           icon: <FiClock />,
-          label: '⚙️ Student Attendance Settings',
+          label: t('nav.studentAttendanceSettings', '⚙️ Student Attendance Settings'),
         },
         {
           path: "/reports/registrations",
           icon: <FiUsers />,
-          label: '📊 Registration Report (New/Old + Today)',
+          label: t('nav.registrationReport', '📊 Registration Report'),
         },
         {
           path: "/create-mark-list",
           icon: <FiFilePlus />,
-          label: t('createMarklist'),
+          label: t('nav.createMarklist', 'Create Marklist'),
         },
         {
           path: "/report-card",
           icon: <FiAward />,
-          label: t('reportCard'),
+          label: t('nav.reportCard', 'Report Card'),
         },
         {
           path: "/schedule",
           icon: <FiCalendar />,
-          label: t('schedule'),
+          label: t('nav.schedule', 'Schedule'),
         },
         {
           path: "/faults",
           icon: <FiAlertCircle />,
-          label: 'Student Faults',
+          label: t('nav.studentFaults', 'Student Faults'),
         },
         {
           path: "/class-teacher-assignment",
           icon: <FaChalkboardTeacher />,
-          label: t('classTeachers'),
+          label: t('nav.classTeachers', 'Class Teachers'),
         },
         {
           path: "/evaluation-book/assignments",
           icon: <FiUsers />,
-          label: t('evalBookAssignments'),
+          label: t('nav.evalBookAssignments', 'Evaluation Assignments'),
         },
       ],
     },
@@ -442,76 +441,76 @@ const Home = () => {
       ],
     },
     {
-      section: t('administration'),
+      section: t('nav.administration', 'Administration'),
       sectionKey: 'administration',
       icon: <FiSettings />,
       items: [
         {
           path: "/tasks",
           icon: <FiCheckCircle />,
-          label: t('tasks'),
+          label: t('nav.tasks', 'Tasks'),
         },
         {
           path: "/post",
           icon: <FiMessageSquare />,
-          label: t('post'),
+          label: t('nav.post', 'Post'),
         },
         {
           path: "/communication",
           icon: <FiMessageSquare />,
-          label: t('communication'),
+          label: t('nav.communication', 'Communication'),
         },
         {
           path: "/settings",
           icon: <FiSettings />,
-          label: t('settings'),
+          label: t('nav.settings', 'Settings'),
         },
         {
           path: "/sms",
           icon: <FiMessageSquare />,
-          label: 'SMS Templates',
+          label: t('nav.smsTemplates', 'SMS Templates'),
         },
         {
           path: "/sms-counter",
           icon: <FiBarChart2 />,
-          label: 'SMS Counter',
+          label: t('nav.smsCounter', 'SMS Counter'),
         },
         {
           path: "/device-status",
           icon: <FiClock />,
-          label: '🔌 Device Status',
+          label: t('nav.deviceStatus', '🔌 Device Status'),
         },
         {
           path: "/backup",
           icon: <FiArchive />,
-          label: 'Data Backup',
+          label: t('nav.dataBackup', 'Data Backup'),
         },
         {
           path: "/admin-sub-accounts",
           icon: <FiUsers />,
-          label: t('subAccounts'),
+          label: t('nav.subAccounts', 'Admin Sub-Accounts'),
         },
       ],
     },
     {
-      section: 'KG Management',
+      section: t('nav.kgManagement', 'KG Management'),
       sectionKey: 'kg',
       icon: <FiSmile />,
       items: [
         {
           path: "/kg/evaluation",
           icon: <FiClipboard />,
-          label: 'KG Evaluation',
+          label: t('nav.kgEvaluation', 'KG Evaluation'),
         },
         {
           path: "/kg/evaluation-book",
           icon: <FiBook />,
-          label: 'KG Evaluation Book',
+          label: t('nav.kgEvaluationBook', 'KG Evaluation Book'),
         },
         {
           path: "/kg/assignments",
           icon: <FiEdit3 />,
-          label: 'KG Assignments',
+          label: t('nav.kgAssignments', 'KG Assignments'),
         },
       ],
     },
@@ -520,14 +519,14 @@ const Home = () => {
   // Get user type and permissions for filtering navigation
   // Use useState to make these reactive
   const [userType, setUserType] = useState(() => {
-    const stored = localStorage.getItem('userType');
+    const stored = (localStorage.getItem('branch_' + (typeof getBranchCode === 'function' ? getBranchCode() : '') + '_userType') || localStorage.getItem('userType'));
     console.log('🔐 Initial userType from localStorage:', stored);
     // If no userType is stored, default to 'admin' for backward compatibility
     return stored || 'admin';
   });
   const [userPermissions, setUserPermissions] = useState(() => {
     try {
-      const storedPermissions = localStorage.getItem('userPermissions');
+      const storedPermissions = (localStorage.getItem('branch_' + (typeof getBranchCode === 'function' ? getBranchCode() : '') + '_userPermissions') || localStorage.getItem('userPermissions'));
       const parsed = storedPermissions ? JSON.parse(storedPermissions) : [];
       console.log('🔑 Initial permissions from localStorage:', parsed.length, 'permissions', parsed);
       return parsed;
@@ -540,12 +539,12 @@ const Home = () => {
   // Update user type and permissions when localStorage changes
   useEffect(() => {
     const handleStorageChange = () => {
-      const newUserType = localStorage.getItem('userType') || 'admin';
+      const newUserType = (localStorage.getItem('branch_' + (typeof getBranchCode === 'function' ? getBranchCode() : '') + '_userType') || localStorage.getItem('userType')) || 'admin';
       console.log('🔄 Storage changed - userType:', newUserType);
       setUserType(newUserType);
       
       try {
-        const storedPermissions = localStorage.getItem('userPermissions');
+        const storedPermissions = (localStorage.getItem('branch_' + (typeof getBranchCode === 'function' ? getBranchCode() : '') + '_userPermissions') || localStorage.getItem('userPermissions'));
         const parsed = storedPermissions ? JSON.parse(storedPermissions) : [];
         console.log('🔄 Storage changed - permissions:', parsed.length, 'permissions');
         setUserPermissions(parsed);
@@ -634,17 +633,40 @@ const Home = () => {
 
   // Get page title based on current route
   const pageTitle = useMemo(() => {
-    const item = menuItems.find(item => item.path === location.pathname);
-    return item?.label || 'Dashboard';
-  }, [location.pathname, menuItems]);
+    const path = location.pathname;
+    // Check top-level items first
+    for (const item of menuItems) {
+      if (item.path === path) return item.label;
+      // Check children
+      if (item.children) {
+        const child = item.children.find(c => path.endsWith(c.path));
+        if (child) return child.label;
+      }
+    }
+    return t('nav.dashboard', 'Dashboard');
+  }, [location.pathname, menuItems, t]);
 
   const handleNavigate = (path) => {
     navigate(path);
   };
 
   const handleSearch = (query) => {
-    console.log('Search:', query);
-    // Implement search functionality
+    if (!query || !query.trim()) return;
+    const q = query.toLowerCase().trim();
+    // Search through all menu items (top-level + children)
+    for (const item of menuItems) {
+      if (item.path && item.path !== '#' && item.label?.toLowerCase().includes(q)) {
+        navigate(item.path);
+        return;
+      }
+      if (item.children) {
+        const match = item.children.find(c => c.label?.toLowerCase().includes(q));
+        if (match) {
+          navigate(match.path);
+          return;
+        }
+      }
+    }
   };
 
   const handleNotificationClick = () => {
@@ -678,7 +700,7 @@ const Home = () => {
         {/* New Header Component */}
         <Header
           pageTitle={pageTitle}
-          pageSubtitle={`Welcome back, ${profile?.name || 'User'}! Here's what's happening today.`}
+          pageSubtitle={`${t('header.welcomeBack', 'Welcome back')}, ${profile?.name || 'User'}! ${t('header.happeningToday', "Here's what's happening today.")}`}
           onSearch={handleSearch}
           notifications={notifications}
           onNotificationClick={handleNotificationClick}

@@ -22,11 +22,7 @@ const LazyImage = ({
 }) => {
   if (!src) return null;
 
-  const webp =
-    webpSrc ??
-    (typeof src === 'string' && /\.(jpe?g|png)(\?|$)/i.test(src)
-      ? src.replace(/\.(jpe?g|png)(\?.*)?$/i, '.webp$2')
-      : null);
+  const webp = webpSrc || null;
 
   const imgClassName = [styles.image, className].filter(Boolean).join(' ');
 

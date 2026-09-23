@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { recordThemeSwitchMs } from '../utils/performance';
 
+import { getBranchCode } from '../utils/branchCode';
+
 const ThemeContext = createContext();
 
 /**
@@ -10,10 +12,13 @@ const ThemeContext = createContext();
  */
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    // Check localStorage first
-    const saved = localStorage.getItem('theme');
-    if (saved) return saved;
-    
+    const branch = getBranchCode();
+    // Check branch-scoped theme first
+    if (branch) {
+      const branchTheme = localStorage.getItem(`branch_${branch}_theme`);
+      if (branchTheme) return branchTheme;
+    }
+
     // Check system preference
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       return 'dark';
@@ -24,13 +29,28 @@ export const ThemeProvider = ({ children }) => {
   
   useEffect(() => {
     const start = performance.now();
+    const isDark = theme === 'dark';
+
     // Apply theme as a class (used by theme.css `.dark` selectors)
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(theme);
-    // Also apply theme as a data attribute (used by component CSS
-    // `[data-theme="dark"]` selectors such as Sidebar, Header, SearchBar, etc.)
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    
+    // Also apply to body for index.css `body.dark-mode` selectors
+    if (isDark) {
+      document.body.classList.add('dark-mode');
+      document.body.classList.add('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-mode');
+      document.body.classList.remove('dark');
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+
+    const branch = getBranchCode();
+    if (branch) {
+      localStorage.setItem(`branch_${branch}_theme`, theme);
+      localStorage.setItem(`branch_${branch}_appTheme`, JSON.stringify({ mode: theme }));
+    }
 
     requestAnimationFrame(() => {
       recordThemeSwitchMs(performance.now() - start);

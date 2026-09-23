@@ -284,33 +284,84 @@
 }
 
 /* Dark Mode Specific Styles */
-[data-theme="dark"] .sidebar {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-  border-color: rgba(139, 92, 246, 0.2);
+:global([data-theme="dark"]) .sidebar,
+:global(body.dark-mode) .sidebar,
+:global(html.dark) .sidebar {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%) !important;
+  border-color: rgba(139, 92, 246, 0.25) !important;
   box-shadow: 
-    0 10px 40px rgba(139, 92, 246, 0.25),
+    0 10px 40px rgba(0, 0, 0, 0.4),
     0 4px 12px rgba(139, 92, 246, 0.15),
-    0 1px 3px rgba(0, 0, 0, 0.3);
+    0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
-[data-theme="dark"] .brandSection {
-  background: transparent;
-  border-bottom-color: rgba(139, 92, 246, 0.2);
+:global([data-theme="dark"]) .brandSection,
+:global(body.dark-mode) .brandSection,
+:global(html.dark) .brandSection {
+  background: transparent !important;
+  border-bottom-color: rgba(139, 92, 246, 0.2) !important;
 }
 
-[data-theme="dark"] .toggleButton {
-  background: #16213e;
-  border-color: #2d2d44;
+:global([data-theme="dark"]) .brandTitle,
+:global(body.dark-mode) .brandTitle,
+:global(html.dark) .brandTitle {
+  color: #f1f5f9 !important;
 }
 
-[data-theme="dark"] .toggleButton:hover {
-  background: #8b5cf6;
-  border-color: #8b5cf6;
+:global([data-theme="dark"]) .brandTagline,
+:global(body.dark-mode) .brandTagline,
+:global(html.dark) .brandTagline {
+  color: #94a3b8 !important;
 }
 
-[data-theme="dark"] .mobileMenuButton {
-  background: #1a1a2e;
-  border-color: #2d2d44;
+:global([data-theme="dark"]) .toggleButton,
+:global(body.dark-mode) .toggleButton,
+:global(html.dark) .toggleButton {
+  background: #16213e !important;
+  border-color: #2d2d44 !important;
+  color: #94a3b8 !important;
+}
+
+:global([data-theme="dark"]) .toggleButton:hover,
+:global(body.dark-mode) .toggleButton:hover,
+:global(html.dark) .toggleButton:hover {
+  background: #8b5cf6 !important;
+  border-color: #8b5cf6 !important;
+  color: #ffffff !important;
+}
+
+:global([data-theme="dark"]) .mobileMenuButton,
+:global(body.dark-mode) .mobileMenuButton,
+:global(html.dark) .mobileMenuButton {
+  background: #1a1a2e !important;
+  border-color: #2d2d44 !important;
+  color: #94a3b8 !important;
+}
+
+:global([data-theme="dark"]) .menuItem,
+:global(body.dark-mode) .menuItem,
+:global(html.dark) .menuItem {
+  color: #94a3b8 !important;
+}
+
+:global([data-theme="dark"]) .menuItem:hover,
+:global(body.dark-mode) .menuItem:hover,
+:global(html.dark) .menuItem:hover {
+  background: rgba(139, 92, 246, 0.15) !important;
+  color: #ffffff !important;
+}
+
+:global([data-theme="dark"]) .menuItem.active,
+:global(body.dark-mode) .menuItem.active,
+:global(html.dark) .menuItem.active {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: #ffffff !important;
+}
+
+:global([data-theme="dark"]) .sectionTitle,
+:global(body.dark-mode) .sectionTitle,
+:global(html.dark) .sectionTitle {
+  color: #64748b !important;
 }
 
 /* RTL Support */

@@ -202,7 +202,7 @@ const ListGuardian = () => {
                 <th>{t('name')}</th>
                 <th>{t('phone')}</th>
                 <th>{t('email')}</th>
-                <th>{t('students')}</th>
+                <th>{t('students.title')}</th>
                 <th>{t('actions')}</th>
               </tr>
             </thead>

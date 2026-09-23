@@ -30,9 +30,9 @@ i18n
     },
     detection: {
       // Order of detection methods
-      order: ['localStorage', 'navigator'],
+      order: ['navigator'],
       // Cache user language
-      caches: ['localStorage']
+      caches: []
     }
   });
 

@@ -1,17 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { getBranchCode } from '../utils/branchCode';
 
 // Apply theme immediately on module load to prevent flash
 const applyThemeEarly = () => {
-  const savedTheme = localStorage.getItem('appTheme');
+  const branch = typeof getBranchCode === 'function' ? getBranchCode() : '';
+  const savedTheme = branch ? (localStorage.getItem(`branch_${branch}_theme`) || localStorage.getItem('appTheme')) : localStorage.getItem('appTheme');
   if (savedTheme) {
     try {
-      const theme = JSON.parse(savedTheme);
-      if (theme.mode === 'dark') {
+      const isDark = savedTheme === 'dark' || (savedTheme.startsWith('{') && JSON.parse(savedTheme).mode === 'dark');
+      if (isDark) {
         document.body.classList.add('dark-mode');
+        document.body.classList.add('dark');
         document.documentElement.setAttribute('data-theme', 'dark');
       } else {
         document.body.classList.remove('dark-mode');
+        document.body.classList.remove('dark');
         document.documentElement.setAttribute('data-theme', 'light');
       }
     } catch (e) {
@@ -2001,44 +2005,19 @@ const updateFavicon = (iconUrl) => {
   appleLink.href = iconUrl;
 };
 
-// Helper function to update manifest icons dynamically
+// Helper function to update manifest icons safely without invalid blob URLs
 const updateManifestIcons = (iconUrl) => {
   try {
-    // Get the manifest link element
     let manifestLink = document.querySelector("link[rel='manifest']");
     if (!manifestLink) {
       manifestLink = document.createElement('link');
       manifestLink.rel = 'manifest';
       document.getElementsByTagName('head')[0].appendChild(manifestLink);
     }
-    
-    // Create a dynamic manifest with the custom icon
-    const manifest = {
-      short_name: "Skoolific",
-      name: "Skoolific School Management",
-      icons: [
-        {
-          src: iconUrl,
-          sizes: "192x192",
-          type: "image/png"
-        },
-        {
-          src: iconUrl,
-          sizes: "512x512",
-          type: "image/png"
-        }
-      ],
-      start_url: "/",
-      display: "standalone",
-      theme_color: "#667eea",
-      background_color: "#ffffff",
-      orientation: "portrait"
-    };
-    
-    // Convert manifest to blob and create object URL
-    const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-    const manifestURL = URL.createObjectURL(manifestBlob);
-    manifestLink.href = manifestURL;
+    // Keep standard static manifest to avoid Chrome blob URL 'start_url' / 'src' invalid errors
+    if (!manifestLink.href || manifestLink.href.startsWith('blob:')) {
+      manifestLink.href = '/manifest.json';
+    }
   } catch (error) {
     console.error('Error updating manifest:', error);
   }
@@ -2060,16 +2039,22 @@ export const AppProvider = ({ children }) => {
   // Load saved settings on mount - prioritize database over localStorage
   useEffect(() => {
     const loadSettings = async () => {
-      // First load from localStorage for immediate display
-      const savedTheme = localStorage.getItem('appTheme');
-      const savedLanguage = localStorage.getItem('appLanguage');
-      const savedProfile = localStorage.getItem('adminUser');
-      const savedProfileImage = localStorage.getItem('profileImage');
+      const branch = typeof getBranchCode === 'function' ? getBranchCode() : '';
+      const savedTheme = branch ? (localStorage.getItem(`branch_${branch}_theme`) || 'light') : localStorage.getItem('appTheme');
+      const savedLanguage = branch ? (localStorage.getItem(`branch_${branch}_language`) || 'en') : localStorage.getItem('appLanguage');
+      const savedProfile = branch ? (localStorage.getItem(`branch_${branch}_adminUser`) || localStorage.getItem('adminUser')) : localStorage.getItem('adminUser');
+      const savedProfileImage = branch ? (localStorage.getItem(`branch_${branch}_profileImage`) || localStorage.getItem('profileImage')) : localStorage.getItem('profileImage');
 
       if (savedTheme) {
-        const parsedTheme = JSON.parse(savedTheme);
-        setTheme(parsedTheme);
-        applyTheme(parsedTheme);
+        try {
+          const parsedTheme = typeof savedTheme === 'string' && savedTheme.startsWith('{') 
+            ? JSON.parse(savedTheme) 
+            : { ...DEFAULT_THEME, mode: savedTheme };
+          setTheme(parsedTheme);
+          applyTheme(parsedTheme);
+        } catch (e) {
+          applyTheme({ ...DEFAULT_THEME, mode: savedTheme });
+        }
       }
       
       if (savedLanguage) {
@@ -2078,12 +2063,14 @@ export const AppProvider = ({ children }) => {
       }
       
       if (savedProfile) {
-        const user = JSON.parse(savedProfile);
-        setProfile(prev => ({
-          ...prev,
-          name: user.name || 'Administrator',
-          email: user.email || ''
-        }));
+        try {
+          const user = JSON.parse(savedProfile);
+          setProfile(prev => ({
+            ...prev,
+            name: user.name || 'Administrator',
+            email: user.email || ''
+          }));
+        } catch (e) {}
       }
       
       if (savedProfileImage) {
@@ -2140,26 +2127,32 @@ export const AppProvider = ({ children }) => {
   }, []);
 
   const applyTheme = (themeData) => {
-    // Set primary and secondary colors
-    document.documentElement.style.setProperty('--primary-color', themeData.primaryColor);
-    document.documentElement.style.setProperty('--secondary-color', themeData.secondaryColor);
-    
-    // Calculate and set computed color variables based on primary color
-    const primaryRgb = hexToRgb(themeData.primaryColor);
-    if (primaryRgb) {
-      const { r, g, b } = primaryRgb;
-      document.documentElement.style.setProperty('--primary-light', `rgba(${r}, ${g}, ${b}, 0.1)`);
-      document.documentElement.style.setProperty('--primary-lighter', `rgba(${r}, ${g}, ${b}, 0.05)`);
-      document.documentElement.style.setProperty('--primary-shadow', `rgba(${r}, ${g}, ${b}, 0.3)`);
-      document.documentElement.style.setProperty('--primary-shadow-lg', `rgba(${r}, ${g}, ${b}, 0.35)`);
+    if (!themeData) return;
+    // Set primary and secondary colors if available
+    if (themeData.primaryColor) {
+      document.documentElement.style.setProperty('--primary-color', themeData.primaryColor);
+      const primaryRgb = hexToRgb(themeData.primaryColor);
+      if (primaryRgb) {
+        const { r, g, b } = primaryRgb;
+        document.documentElement.style.setProperty('--primary-light', `rgba(${r}, ${g}, ${b}, 0.1)`);
+        document.documentElement.style.setProperty('--primary-lighter', `rgba(${r}, ${g}, ${b}, 0.05)`);
+        document.documentElement.style.setProperty('--primary-shadow', `rgba(${r}, ${g}, ${b}, 0.3)`);
+        document.documentElement.style.setProperty('--primary-shadow-lg', `rgba(${r}, ${g}, ${b}, 0.35)`);
+      }
+    }
+    if (themeData.secondaryColor) {
+      document.documentElement.style.setProperty('--secondary-color', themeData.secondaryColor);
     }
     
     // Apply dark mode - set both class and data-theme attribute
-    if (themeData.mode === 'dark') {
+    const isDark = themeData === 'dark' || themeData.mode === 'dark';
+    if (isDark) {
       document.body.classList.add('dark-mode');
+      document.body.classList.add('dark');
       document.documentElement.setAttribute('data-theme', 'dark');
     } else {
       document.body.classList.remove('dark-mode');
+      document.body.classList.remove('dark');
       document.documentElement.setAttribute('data-theme', 'light');
     }
   };
@@ -2177,26 +2170,38 @@ export const AppProvider = ({ children }) => {
   const updateTheme = (newTheme) => {
     setTheme(newTheme);
     applyTheme(newTheme);
-    localStorage.setItem('appTheme', JSON.stringify(newTheme));
+    const mode = newTheme.mode || 'light';
+    const branch = typeof getBranchCode === 'function' ? getBranchCode() : '';
+    if (branch) {
+      localStorage.setItem(`branch_${branch}_theme`, mode);
+      localStorage.setItem(`branch_${branch}_appTheme`, JSON.stringify(newTheme));
+    }
   };
 
   const updateLanguage = (lang) => {
     setLanguage(lang);
     applyLanguageDirection(lang);
-    localStorage.setItem('appLanguage', lang);
+    const branch = typeof getBranchCode === 'function' ? getBranchCode() : '';
+    if (branch) {
+      localStorage.setItem(`branch_${branch}_language`, lang);
+      localStorage.setItem(`branch_${branch}_appLanguage`, lang);
+    }
+    // Also explicitly update i18next instance to immediately reflect the change
+    import('i18next').then(i18next => i18next.default.changeLanguage(lang));
   };
 
   const updateProfile = (newProfile) => {
     setProfile(prev => ({ ...prev, ...newProfile }));
     
-    // Update adminUser in localStorage
-    const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
-    adminUser.name = newProfile.name || profile.name;
-    adminUser.email = newProfile.email || profile.email;
-    localStorage.setItem('adminUser', JSON.stringify(adminUser));
-    
-    if (newProfile.profileImage) {
-      localStorage.setItem('profileImage', newProfile.profileImage);
+    const branch = typeof getBranchCode === 'function' ? getBranchCode() : '';
+    if (branch) {
+      const branchUser = JSON.parse(localStorage.getItem(`branch_${branch}_adminUser`) || localStorage.getItem('adminUser') || '{}');
+      branchUser.name = newProfile.name || profile.name;
+      branchUser.email = newProfile.email || profile.email;
+      localStorage.setItem(`branch_${branch}_adminUser`, JSON.stringify(branchUser));
+      if (newProfile.profileImage) {
+        localStorage.setItem(`branch_${branch}_profileImage`, newProfile.profileImage);
+      }
     }
   };
 

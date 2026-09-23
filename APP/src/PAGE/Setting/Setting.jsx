@@ -4,6 +4,7 @@ import i18n from '../../i18n/config';
 import api from '../../utils/api';
 import styles from './Setting.module.css';
 import yearRolloverStyles from './YearRollover.module.css';
+import { getBranchCode } from '../../utils/branchCode';
 import { useApp } from '../../context/AppContext';
 import { FiUser, FiLock, FiGlobe, FiSun, FiImage, FiSave, FiCheck, FiX, FiCamera, FiUpload, FiHome, FiSmartphone, FiDownload, FiShare2, FiCopy, FiUsers, FiShield } from 'react-icons/fi';
 import LanguageSelector from '../../COMPONENTS/LanguageSelector';
@@ -32,10 +33,20 @@ const Setting = () => {
   
   // Local profile state for form
   const [localProfile, setLocalProfile] = useState({
-    name: profile.name,
-    email: profile.email,
-    profileImage: profile.profileImage
+    name: profile.name || '',
+    email: profile.email || '',
+    profileImage: profile.profileImage || null
   });
+
+  useEffect(() => {
+    if (profile) {
+      setLocalProfile({
+        name: profile.name || '',
+        email: profile.email || '',
+        profileImage: profile.profileImage || null
+      });
+    }
+  }, [profile.name, profile.email, profile.profileImage]);
   
   // Password state
   const [passwordData, setPasswordData] = useState({
@@ -44,7 +55,7 @@ const Setting = () => {
     confirmPassword: ''
   });
   const [usernameData, setUsernameData] = useState({
-    newUsername: JSON.parse(localStorage.getItem('adminUser') || '{}').username || ''
+    newUsername: JSON.parse((localStorage.getItem(`branch_${typeof getBranchCode === 'function' ? getBranchCode() : ''}_adminUser`) || localStorage.getItem('adminUser')) || '{}').username || ''
   });
   
   // Local theme state
@@ -292,7 +303,7 @@ const Setting = () => {
     }
     setLoading(true);
     try {
-      const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+      const adminUser = JSON.parse((localStorage.getItem(`branch_${typeof getBranchCode === 'function' ? getBranchCode() : ''}_adminUser`) || localStorage.getItem('adminUser')) || '{}');
       await api.post('/admin/change-username', {
         currentUsername: adminUser.username,
         newUsername: usernameData.newUsername
@@ -319,7 +330,7 @@ const Setting = () => {
 
     setLoading(true);
     try {
-      const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+      const adminUser = JSON.parse((localStorage.getItem(`branch_${typeof getBranchCode === 'function' ? getBranchCode() : ''}_adminUser`) || localStorage.getItem('adminUser')) || '{}');
       await api.post('/admin/change-password', {
         username: adminUser.username,
         currentPassword: passwordData.currentPassword,
@@ -494,7 +505,7 @@ const Setting = () => {
     }
   };
   
-  // Helper function to update manifest icons dynamically
+  // Helper function to update manifest icons safely without invalid blob URLs
   const updateManifestIcons = (iconUrl) => {
     try {
       let manifestLink = document.querySelector("link[rel='manifest']");
@@ -503,32 +514,9 @@ const Setting = () => {
         manifestLink.rel = 'manifest';
         document.getElementsByTagName('head')[0].appendChild(manifestLink);
       }
-      
-      const manifest = {
-        short_name: "Skoolific",
-        name: "Skoolific School Management",
-        icons: [
-          {
-            src: iconUrl,
-            sizes: "192x192",
-            type: "image/png"
-          },
-          {
-            src: iconUrl,
-            sizes: "512x512",
-            type: "image/png"
-          }
-        ],
-        start_url: "/",
-        display: "standalone",
-        theme_color: "#667eea",
-        background_color: "#ffffff",
-        orientation: "portrait"
-      };
-      
-      const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-      const manifestURL = URL.createObjectURL(manifestBlob);
-      manifestLink.href = manifestURL;
+      if (!manifestLink.href || manifestLink.href.startsWith('blob:')) {
+        manifestLink.href = '/manifest.json';
+      }
     } catch (error) {
       console.error('Error updating manifest:', error);
     }
@@ -631,7 +619,7 @@ const Setting = () => {
   const executeYearRollover = async () => {
     setRolloverLoading(true);
     try {
-      const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+      const adminUser = JSON.parse((localStorage.getItem(`branch_${typeof getBranchCode === 'function' ? getBranchCode() : ''}_adminUser`) || localStorage.getItem('adminUser')) || '{}');
       const response = await api.post('/year-rollover/execute', {
         archivedBy: adminUser.id || 1
       });
@@ -782,7 +770,7 @@ const Setting = () => {
               {/* Change Username Section */}
               <div className={styles.brandingSection}>
                 <h3>Change Username</h3>
-                <p className={styles.hint}>Current: {JSON.parse(localStorage.getItem('adminUser') || '{}').username}</p>
+                <p className={styles.hint}>Current: {JSON.parse((localStorage.getItem(`branch_${typeof getBranchCode === 'function' ? getBranchCode() : ''}_adminUser`) || localStorage.getItem('adminUser')) || '{}').username}</p>
                 <div className={styles.formGroup}>
                   <label>New Username</label>
                   <input

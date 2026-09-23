@@ -131,27 +131,49 @@
 }
 
 /* Dark Mode Specific Styles */
-[data-theme="dark"] .header {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-  border-color: rgba(139, 92, 246, 0.2);
+:global([data-theme="dark"]) .header,
+:global(body.dark-mode) .header,
+:global(html.dark) .header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%) !important;
+  border-color: rgba(139, 92, 246, 0.25) !important;
   box-shadow: 
-    0 10px 40px rgba(139, 92, 246, 0.25),
+    0 10px 40px rgba(0, 0, 0, 0.4),
     0 4px 12px rgba(139, 92, 246, 0.15),
-    0 1px 3px rgba(0, 0, 0, 0.3);
+    0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
-[data-theme="dark"] .iconButton {
-  background: #16213e;
-  border-color: #2d2d44;
+:global([data-theme="dark"]) .pageTitle,
+:global(body.dark-mode) .pageTitle,
+:global(html.dark) .pageTitle {
+  color: #f1f5f9 !important;
 }
 
-[data-theme="dark"] .iconButton:hover {
-  background: #8b5cf6;
-  border-color: #8b5cf6;
+:global([data-theme="dark"]) .pageSubtitle,
+:global(body.dark-mode) .pageSubtitle,
+:global(html.dark) .pageSubtitle {
+  color: #94a3b8 !important;
 }
 
-[data-theme="dark"] .badge {
-  border-color: #1a1a2e;
+:global([data-theme="dark"]) .iconButton,
+:global(body.dark-mode) .iconButton,
+:global(html.dark) .iconButton {
+  background: #16213e !important;
+  border-color: #2d2d44 !important;
+  color: #94a3b8 !important;
+}
+
+:global([data-theme="dark"]) .iconButton:hover,
+:global(body.dark-mode) .iconButton:hover,
+:global(html.dark) .iconButton:hover {
+  background: #8b5cf6 !important;
+  border-color: #8b5cf6 !important;
+  color: #ffffff !important;
+}
+
+:global([data-theme="dark"]) .badge,
+:global(body.dark-mode) .badge,
+:global(html.dark) .badge {
+  border-color: #1a1a2e !important;
 }
 
 /* Responsive Design */

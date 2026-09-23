@@ -109,16 +109,24 @@ const Login = () => {
       if (response.data.message === 'Login successful' || response.data.success) {
         const { user, token } = response.data;
 
-        if (token) localStorage.setItem('authToken', token);
+        if (token) {
+          localStorage.setItem('authToken', token);
+          localStorage.setItem(`branch_${credentials.branchCode}_authToken`, token);
+        }
         localStorage.setItem('adminUser', JSON.stringify(user));
+        localStorage.setItem(`branch_${credentials.branchCode}_adminUser`, JSON.stringify(user));
         localStorage.setItem('userType', user.userType || 'admin');
+        localStorage.setItem(`branch_${credentials.branchCode}_userType`, user.userType || 'admin');
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem(`branch_${credentials.branchCode}_isLoggedIn`, 'true');
         setBranchCode(credentials.branchCode, true);
 
         if (user.permissions) {
           localStorage.setItem('userPermissions', JSON.stringify(user.permissions));
+          localStorage.setItem(`branch_${credentials.branchCode}_userPermissions`, JSON.stringify(user.permissions));
         } else {
           localStorage.removeItem('userPermissions');
+          localStorage.removeItem(`branch_${credentials.branchCode}_userPermissions`);
         }
 
         if (rememberMe) {

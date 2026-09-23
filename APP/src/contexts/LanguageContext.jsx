@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { getBranchCode } from '../utils/branchCode';
+
 const LanguageContext = createContext();
 
 /**
@@ -10,8 +12,15 @@ const LanguageContext = createContext();
  */
 export const LanguageProvider = ({ children }) => {
   const { i18n } = useTranslation();
-  // Restore saved language from localStorage (persist across app reopen)
-  const [language, setLanguage] = useState(() => localStorage.getItem('language') || i18n.language);
+  // Restore saved language from branch-scoped localStorage, or global localStorage fallback
+  const [language, setLanguage] = useState(() => {
+    const branch = getBranchCode();
+    if (branch) {
+      const branchLang = localStorage.getItem(`branch_${branch}_language`);
+      if (branchLang) return branchLang;
+    }
+    return 'en';
+  });
 
   useEffect(() => {
     // Apply the saved language to i18n on mount so text persists after reopen
@@ -23,12 +32,16 @@ export const LanguageProvider = ({ children }) => {
   
   /**
    * Change the application language
-   * @param {string} lng - Language code ('en', 'am', 'ar')
+   * @param {string} lng - Language code ('en', 'am', 'ar', 'so', 'om')
    */
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     setLanguage(lng);
-    localStorage.setItem('language', lng);
+    const branch = getBranchCode();
+    if (branch) {
+      localStorage.setItem(`branch_${branch}_language`, lng);
+      localStorage.setItem(`branch_${branch}_appLanguage`, lng);
+    }
     
     // Update document direction for RTL languages
     document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';

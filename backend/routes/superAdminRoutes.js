@@ -652,10 +652,16 @@ router.get('/report/registrations', authenticateToken, authorizeRoles('super_adm
             [cls]
           )).rows.length > 0;
 
+          const hasActive = (await pool.query(
+            `SELECT 1 FROM information_schema.columns WHERE table_schema = 'classes_schema' AND table_name = $1 AND column_name = 'is_active'`,
+            [cls]
+          )).rows.length > 0;
+          const where = hasActive ? `WHERE (is_active IS NULL OR is_active = TRUE)` : '';
+
           const students = await pool.query(
             hasOldOrNew
-              ? `SELECT school_id, class_id, student_name, smachine_id, old_or_new FROM classes_schema."${cls}"`
-              : `SELECT school_id, class_id, student_name, smachine_id, NULL AS old_or_new FROM classes_schema."${cls}"`
+              ? `SELECT school_id, class_id, student_name, smachine_id, old_or_new FROM classes_schema."${cls}" ${where}`
+              : `SELECT school_id, class_id, student_name, smachine_id, NULL AS old_or_new FROM classes_schema."${cls}" ${where}`
           );
 
           const clsStats = { className: cls, total: 0, newCount: 0, oldCount: 0, unknownCount: 0 };

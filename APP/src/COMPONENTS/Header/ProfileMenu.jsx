@@ -102,13 +102,15 @@ const ProfileMenu = ({ user, onLogout, onProfileClick, className = '' }) => {
         </div>
 
         <div className={styles.userInfo}>
-          <span className={styles.userName}>{user?.name || t('common.user', 'User')}</span>
+          <div className={styles.userNameRow}>
+            <span className={styles.userName}>{user?.name || t('common.user', 'User')}</span>
+            {branchCode && (
+              <span className={styles.branchBadge} title={`Connected to branch: ${branchCode}`}>
+                {branchCode}
+              </span>
+            )}
+          </div>
           <span className={styles.userRole}>{user?.role || ''}</span>
-          {branchCode && (
-            <span className={styles.branchBadge} title={`Connected to branch: ${branchCode}`}>
-              {branchCode}
-            </span>
-          )}
         </div>
 
         <ChevronDown

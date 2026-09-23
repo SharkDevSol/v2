@@ -530,7 +530,7 @@ const SuperAdmin = () => {
           return (
           <div key={b.branchCode} className={styles.card}>
             <div className={styles.cardTitle}>
-              {b.branchName} ({b.branchCode}) — {fmt(b.total)} {t('students')} · {t('newStudents')} {fmt(rb?.newCount ?? 0)} / {t('oldStudents')} {fmt(rb?.oldCount ?? 0)}
+              {b.branchName} ({b.branchCode}) — {fmt(b.total)} {t('students.title')} · {t('newStudents')} {fmt(rb?.newCount ?? 0)} / {t('oldStudents')} {fmt(rb?.oldCount ?? 0)}
             </div>
             {filled.length > 0 ? (
             <table className={styles.table}>

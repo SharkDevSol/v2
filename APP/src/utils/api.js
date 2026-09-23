@@ -16,7 +16,8 @@ const api = axios.create({
 // Request interceptor - add auth token to all requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken');
+    const branchCode = getBranchCode();
+    const token = (branchCode ? localStorage.getItem(`branch_${branchCode}_authToken`) : null) || localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,7 +30,6 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${superFinanceToken}`;
     }
     // Add branch code header if available
-    const branchCode = getBranchCode();
     if (branchCode) {
       config.headers['x-branch-code'] = branchCode;
     }
@@ -205,9 +205,10 @@ api.interceptors.response.use(
 
 // Helper function to check if user is authenticated
 export const isAuthenticated = () => {
-  const token = localStorage.getItem('authToken');
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  return token && isLoggedIn;
+  const branchCode = getBranchCode();
+  const token = (branchCode ? localStorage.getItem(`branch_${branchCode}_authToken`) : null) || localStorage.getItem('authToken');
+  const isLoggedIn = ((branchCode ? localStorage.getItem(`branch_${branchCode}_isLoggedIn`) : null) || localStorage.getItem('isLoggedIn')) === 'true';
+  return !!(token && isLoggedIn);
 };
 
 // Helper function to get current user
@@ -236,11 +237,20 @@ export const getCurrentUser = () => {
 
 // Helper function to get user type
 export const getUserType = () => {
-  return localStorage.getItem('userType') || 'guest';
+  const branchCode = getBranchCode();
+  return (branchCode ? localStorage.getItem(`branch_${branchCode}_userType`) : null) || localStorage.getItem('userType') || 'guest';
 };
 
 // Helper function to logout
 export const logout = () => {
+  const branchCode = getBranchCode();
+  if (branchCode) {
+    localStorage.removeItem(`branch_${branchCode}_authToken`);
+    localStorage.removeItem(`branch_${branchCode}_isLoggedIn`);
+    localStorage.removeItem(`branch_${branchCode}_adminUser`);
+    localStorage.removeItem(`branch_${branchCode}_userType`);
+    localStorage.removeItem(`branch_${branchCode}_userPermissions`);
+  }
   localStorage.removeItem('authToken');
   localStorage.removeItem('isLoggedIn');
   localStorage.removeItem('adminUser');

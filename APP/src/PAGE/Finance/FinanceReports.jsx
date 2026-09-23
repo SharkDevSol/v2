@@ -1,4 +1,5 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Printer, FileSpreadsheet, CalendarDays, Users, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 import styles from './FinanceReports.module.css';
@@ -25,6 +26,9 @@ const pct = (paid, expected) => (expected > 0 ? (num(paid) / num(expected)) * 10
 
 const FinanceReports = () => {
   const { t } = useTranslation();
+  const location = useLocation();
+  // Hide specific cards ONLY on branch-level finance reports (/app/finance/reports)
+  const isBranchFinance = location.pathname.includes('/app/finance/');
   const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [currentEthiopianMonth, setCurrentEthiopianMonth] = useState(() => getCurrentEthiopianMonth().month);
@@ -164,7 +168,8 @@ const FinanceReports = () => {
         </div>
       </div>
 
-      {/* Grand Total Collected Breakdown */}
+      {/* Grand Total Collected Breakdown - hidden on /app/finance/reports */}
+      {!isBranchFinance && (
       <div className={styles.totalBreakdown}>
         <div className={styles.totalRow}>
           <div className={styles.totalCell}>
@@ -186,6 +191,7 @@ const FinanceReports = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Summary Cards */}
       <div className={styles.statsGrid}>
@@ -201,6 +207,8 @@ const FinanceReports = () => {
           </div>
         </div>
 
+        {/* Free Students card - hidden on /app/finance/reports */}
+        {!isBranchFinance && (
         <div className={`${styles.statCard} ${styles.cardFree}`}>
           <div className={styles.statIcon}>🎓</div>
           <div className={styles.statContent}>
@@ -211,7 +219,10 @@ const FinanceReports = () => {
             </div>
           </div>
         </div>
+        )}
 
+        {/* Total Expected card - hidden on /app/finance/reports */}
+        {!isBranchFinance && (
         <div className={`${styles.statCard} ${styles.cardExpected}`}>
           <div className={styles.statIcon}>💰</div>
           <div className={styles.statContent}>
@@ -220,7 +231,10 @@ const FinanceReports = () => {
             <div className={styles.statSubtext}>{t('finance.reports.schoolYearExpected', 'Full school year (Meskerem – Sene)')}</div>
           </div>
         </div>
+        )}
 
+        {/* Total Paid card - hidden on /app/finance/reports */}
+        {!isBranchFinance && (
         <div className={`${styles.statCard} ${styles.cardPaid}`}>
           <div className={styles.statIcon}>✓</div>
           <div className={styles.statContent}>
@@ -232,6 +246,7 @@ const FinanceReports = () => {
             </div>
           </div>
         </div>
+        )}
 
         <div className={`${styles.statCard} ${styles.cardPending}`}>
           <div className={styles.statIcon}>⏳</div>

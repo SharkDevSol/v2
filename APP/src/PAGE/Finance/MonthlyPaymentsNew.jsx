@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useReactToPrint } from 'react-to-print';
 import styles from './MonthlyPayments.module.css';
 import api from '../../utils/api';
@@ -28,6 +28,8 @@ const getLocalDateStr = () => {
 const MonthlyPaymentsNew = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isBranchFinance = location.pathname.includes('/app/finance/');
   const [overview, setOverview] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
   const [classDetails, setClassDetails] = useState(null);
@@ -46,6 +48,7 @@ const MonthlyPaymentsNew = () => {
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [filterMonth, setFilterMonth] = useState('ALL');
   const [classFilterStatus, setClassFilterStatus] = useState('ALL'); // Filter for class student list
+  const [studentNameSearch, setStudentNameSearch] = useState(''); // Search students by name
   const [dateFilter, setDateFilter] = useState('ALL'); // Date filter
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
@@ -57,6 +60,7 @@ const MonthlyPaymentsNew = () => {
   const [selectedCardType, setSelectedCardType] = useState(null); // Track which card was clicked
   const [cardDetailsData, setCardDetailsData] = useState(null); // Store card details
   const [showCardDetailsModal, setShowCardDetailsModal] = useState(false); // Modal for card details
+  const [modalStudentSearch, setModalStudentSearch] = useState(''); // Modal student search
   const [receiptData, setReceiptData] = useState(null); // Data for receipt printing
   const [schoolInfo, setSchoolInfo] = useState(null); // School branding info
   const [lastReceiptNumber, setLastReceiptNumber] = useState(0); // Track receipt numbers
@@ -1047,6 +1051,7 @@ const MonthlyPaymentsNew = () => {
 
     setSelectedCardType(cardType);
     setCardDetailsData(data);
+    setModalStudentSearch('');
     setShowCardDetailsModal(true);
   };
 
@@ -1418,12 +1423,33 @@ ${index + 1}. ${student.studentName || 'Unknown'}
             </div>
           </div>
 
+          {/* Search by student name */}
+          <div style={{ marginBottom: '16px' }}>
+            <input
+              type="text"
+              placeholder="🔍 Search student by name..."
+              value={studentNameSearch}
+              onChange={(e) => setStudentNameSearch(e.target.value)}
+              style={{
+                width: '100%',
+                maxWidth: '400px',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                border: '1px solid var(--border-color, #e0e0e0)',
+                fontSize: '0.95em',
+                background: 'var(--color-surface, #fff)',
+                color: 'var(--text-primary, #333)',
+                outline: 'none'
+              }}
+            />
+          </div>
+
           <div className={styles.studentsTable}>
             <h3>{t('financeApp.pay1.studentList')}</h3>
             <table>
               <thead>
                 <tr>
-                  <th>{t('financeApp.pay1.thStudentId')}</th>
+                  {!isBranchFinance && <th>{t('financeApp.pay1.thStudentId')}</th>}
                   <th>{t('financeApp.pay1.thStudentName')}</th>
                   <th>{t('financeApp.pay1.thTotalAmount')}</th>
                   <th>{t('financeApp.pay1.thTotalPaid')}</th>
@@ -1437,10 +1463,10 @@ ${index + 1}. ${student.studentName || 'Unknown'}
               </thead>
               <tbody>
                 {classDetails.students
-                  .filter(student => filterStudentsByStatus(student) && filterStudentsByDate(student))
+                  .filter(student => filterStudentsByStatus(student) && filterStudentsByDate(student) && (!studentNameSearch || (student.studentName || '').toLowerCase().includes(studentNameSearch.toLowerCase())))
                   .map((student, index) => (
                   <tr key={index} className={student.is_free ? styles.exemptRow : ''}>
-                    <td>{student.studentId}</td>
+                    {!isBranchFinance && <td>{student.studentId}</td>}
                     <td>
                       <strong>{student.studentName || t('financeApp.shell.common.unknown')}</strong>
                       {student.is_free && (
@@ -1518,7 +1544,7 @@ ${index + 1}. ${student.studentName || 'Unknown'}
                 ))}
               </tbody>
             </table>
-            {classDetails.students.filter(student => filterStudentsByStatus(student) && filterStudentsByDate(student)).length === 0 && (
+            {classDetails.students.filter(student => filterStudentsByStatus(student) && filterStudentsByDate(student) && (!studentNameSearch || (student.studentName || '').toLowerCase().includes(studentNameSearch.toLowerCase()))).length === 0 && (
               <p className={styles.noResults}>{t('financeApp.pay1.noStudentsFound')}</p>
             )}
           </div>
@@ -1593,39 +1619,44 @@ ${index + 1}. ${student.studentName || 'Unknown'}
             >
               {t('financeApp.pay1.payMultipleMonths')}
             </button>
-            <button 
-              className={styles.exemptionButton}
-              onClick={() => setShowExemptionModal(true)}
-              style={{ 
-                marginLeft: '10px',
-                background: exemptionForm.is_free ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#6c757d',
-                color: 'white',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '0.95em',
-                fontWeight: '500'
-              }}
-            >
-              🎓 {exemptionForm.is_free ? `${t('financeApp.pay1.freeButtonPrefix')}${exemptionForm.exemption_type})` : t('financeApp.pay1.manageExemption')}
-            </button>
-            <button
-              onClick={() => navigate('/finance/student-exemption')}
-              style={{
-                marginLeft: '10px',
-                background: 'transparent',
-                color: '#667eea',
-                border: '1px solid #667eea',
-                padding: '10px 20px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '0.95em',
-                fontWeight: '500'
-              }}
-            >
-              📋 {t('financeApp.pay1.exemptionPage') || 'All Exemptions'}
-            </button>
+            {/* Hide exemption buttons for branch finance role */}
+            {!isBranchFinance && (
+              <>
+                <button 
+                  className={styles.exemptionButton}
+                  onClick={() => setShowExemptionModal(true)}
+                  style={{ 
+                    marginLeft: '10px',
+                    background: exemptionForm.is_free ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '0.95em',
+                    fontWeight: '500'
+                  }}
+                >
+                  🎓 {exemptionForm.is_free ? `${t('financeApp.pay1.freeButtonPrefix')}${exemptionForm.exemption_type})` : t('financeApp.pay1.manageExemption')}
+                </button>
+                <button
+                  onClick={() => navigate('/finance/student-exemption')}
+                  style={{
+                    marginLeft: '10px',
+                    background: 'transparent',
+                    color: '#667eea',
+                    border: '1px solid #667eea',
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '0.95em',
+                    fontWeight: '500'
+                  }}
+                >
+                  📋 {t('financeApp.pay1.exemptionPage') || 'All Exemptions'}
+                </button>
+              </>
+            )}
             <div className={styles.filters}>
               <select 
                 value={filterStatus} 
@@ -2514,11 +2545,27 @@ ${index + 1}. ${student.studentName || 'Unknown'}
                 )}
               </div>
 
-              <div style={{ marginTop: '25px', background: 'var(--color-surface)', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+              <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'flex-end' }}>
+                <input
+                  type="text"
+                  placeholder={t('financeApp.pay1.searchStudents', 'Search students...')}
+                  value={modalStudentSearch}
+                  onChange={(e) => setModalStudentSearch(e.target.value)}
+                  style={{
+                    padding: '10px 15px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    width: '100%',
+                    maxWidth: '300px',
+                    fontSize: '0.95em'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginTop: '15px', background: 'var(--color-surface)', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-                      <th style={{ padding: '15px 12px', border: 'none', textAlign: 'left', fontWeight: '600' }}>{t('financeApp.pay1.thStudentId')}</th>
                       <th style={{ padding: '15px 12px', border: 'none', textAlign: 'left', fontWeight: '600' }}>{t('financeApp.pay1.thStudentName')}</th>
                       <th style={{ padding: '15px 12px', border: 'none', textAlign: 'right', fontWeight: '600' }}>{t('financeApp.pay2.totalAmountBreakdown')}</th>
                       <th style={{ padding: '15px 12px', border: 'none', textAlign: 'right', fontWeight: '600' }}>{t('financeApp.pay2.totalPaidBreakdown')}</th>
@@ -2530,7 +2577,9 @@ ${index + 1}. ${student.studentName || 'Unknown'}
                     </tr>
                   </thead>
                   <tbody>
-                    {cardDetailsData.students.map((student, index) => (
+                    {cardDetailsData.students
+                      .filter(s => !modalStudentSearch || (s.studentName || '').toLowerCase().includes(modalStudentSearch.toLowerCase()))
+                      .map((student, index) => (
                       <tr key={index} style={{ 
                         backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white',
                         transition: 'background-color 0.2s'
@@ -2538,7 +2587,6 @@ ${index + 1}. ${student.studentName || 'Unknown'}
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e3f2fd'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = index % 2 === 0 ? '#f8f9fa' : 'white'}
                       >
-                        <td style={{ padding: '12px', border: 'none', color: '#333', fontSize: '0.9em' }}>{student.studentId}</td>
                         <td style={{ padding: '12px', border: 'none', fontWeight: '600', color: '#1a1a1a' }}>{student.studentName || t('financeApp.shell.common.unknown')}</td>
                         <td style={{ padding: '12px', border: 'none', textAlign: 'right', color: '#333' }}>
                           {student.totalAmount.toFixed(2)} {t('financeApp.shell.common.birr')}
