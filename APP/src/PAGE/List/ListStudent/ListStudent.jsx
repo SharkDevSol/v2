@@ -150,11 +150,13 @@ const ListStudent = () => {
   };
 
   const getColumnType = (key) => {
+    if (!key) return 'text';
     if (key === 'image_student') return 'image';
     if (key.includes('password')) return 'password';
-    const cf = customFields.find(f => f.name === key);
+    const cf = customFields.find(f => (f.name || '').toLowerCase() === key.toLowerCase());
     if (cf?.type) return cf.type;
     const lower = key.toLowerCase();
+    if ((lower.includes('old') && lower.includes('new')) || lower.includes('old_or_new') || lower.includes('oldornew')) return 'select';
     if (lower.includes('date') || lower.includes('dob') || lower.includes('birth')) return 'date';
     if (lower.includes('number') || lower.includes('age') || lower.includes('count')) return 'number';
     if (lower.includes('checkbox') || lower.includes('bool') || lower.includes('flag') || lower.startsWith('is_')) return 'checkbox';
@@ -166,13 +168,13 @@ const ListStudent = () => {
   };
 
   const getFieldOptions = (col) => {
-    const cf = customFields.find(f => f.name.toLowerCase() === (col.key || '').toLowerCase());
+    const key = ((col && (col.key || col.name)) || '').toLowerCase();
+    const cf = customFields.find(f => (f.name || '').toLowerCase() === key);
     if (cf && Array.isArray(cf.options) && cf.options.length > 0) return cf.options;
-    const lower = (col.key || '').toLowerCase();
-    if (lower.includes('gender')) return ['Male', 'Female'];
-    if (lower.includes('relation')) return ['Father', 'Mother', 'Guardian', 'Other'];
-    if (lower.includes('blood')) return ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-    if (lower.includes('old') && lower.includes('new')) return ['New', 'Old'];
+    if ((key.includes('old') && key.includes('new')) || key.includes('old_or_new') || key.includes('oldornew')) return ['New', 'Old'];
+    if (key.includes('gender')) return ['Male', 'Female'];
+    if (key.includes('relation')) return ['Father', 'Mother', 'Guardian', 'Other'];
+    if (key.includes('blood')) return ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
     return null;
   };
 
@@ -1028,7 +1030,7 @@ const ListStudent = () => {
                               <option key={cls} value={cls}>{cls}</option>
                             ))}
                           </select>
-                        ) : col.type === 'select' || col.type === 'dropdown' ? (
+                        ) : (col.type === 'select' || col.type === 'dropdown' || fieldOptions) ? (
                           fieldOptions ? (
                             <select
                               name={col.key}

@@ -342,11 +342,56 @@ const TestGenerator = () => {
               </div>
             ))}
           </div>
-          <div className={styles.totalMarks}>Total marks: <strong>{totalMarks}</strong></div>
+          <div className={styles.totalMarks}>
+            Total marks: <strong>{componentMarkValue != null ? componentMarkValue : distTotal}</strong>
+            {componentMarkValue != null && distTotal > 0 && distTotal !== componentMarkValue && (
+              <span style={{ color: '#dc2626', marginLeft: '8px', fontSize: '0.85rem' }}>
+                (your distribution: {distTotal} — component is {componentMarkValue})
+              </span>
+            )}
+            {bonusTotal > 0 && (
+              <span style={{ marginLeft: '8px', fontSize: '0.85rem', color: '#b45309' }}>
+                🎁 +{bonusTotal} bonus = <strong>{(componentMarkValue != null ? componentMarkValue : distTotal) + bonusTotal} total</strong>
+              </span>
+            )}
+          </div>
 
-          <button className={styles.generateBtn} onClick={generate} disabled={loading}>
+          <div style={{ marginTop: '1rem', padding: '12px', borderRadius: '8px', background: '#fffbeb', border: '1px solid #fde68a' }}>
+            <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '6px' }}>🎁 Bonus Questions (optional — max 5 bonus marks)</div>
+            {bonusTypes.length === 0 && (
+              <div style={{ fontSize: '0.85rem', color: '#92400e', marginBottom: '6px' }}>
+                Add extra bonus marks on top of the test marks — e.g. test 10 marks + 5 bonus = 15 marks total
+              </div>
+            )}
+            {bonusTypes.map((b, i) => (
+              <div key={i} className={styles.distRow} style={{ marginBottom: '6px' }}>
+                <select value={b.type} onChange={e => setBonus(i, 'type', e.target.value)} style={{ flex: 1, padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db' }}>
+                  {QUESTION_TYPES.map(t => <option key={t.type} value={t.type}>{t.label}</option>)}
+                </select>
+                <input type="number" min="1" value={b.count} onChange={e => setBonus(i, 'count', e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db' }} placeholder="Count" />
+                <input type="number" min="1" value={b.marksPerQuestion} onChange={e => setBonus(i, 'marksPerQuestion', e.target.value)} style={{ width: '70px', padding: '6px', borderRadius: '6px', border: '1px solid #d1d5db' }} placeholder="Marks" />
+                <span style={{ fontSize: '0.85rem', color: '#6b7280', minWidth: '50px' }}>= {b.count * b.marksPerQuestion}m</span>
+                <button type="button" onClick={() => removeBonusType(i)} style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer' }}>✕</button>
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <button type="button" onClick={addBonusType} style={{ background: '#fef3c7', border: '1px dashed #f59e0b', borderRadius: '6px', padding: '6px 14px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>
+                + Add Bonus Question Type
+              </button>
+              <span style={{ fontSize: '0.85rem', fontWeight: bonusTotal > 5 ? 700 : 400, color: bonusTotal > 5 ? '#dc2626' : '#6b7280' }}>
+                Bonus total: {bonusTotal} / 5 marks{bonusTotal > 5 ? ' — EXCEEDS LIMIT!' : ''}
+              </span>
+            </div>
+          </div>
+
+          <button className={styles.generateBtn} onClick={generate} disabled={loading || bonusTotal > 5}>
             {loading ? <><FiLoader className={styles.spin} /> Generating...</> : '⚡ Generate Test'}
           </button>
+          {bonusTotal > 5 && (
+            <div style={{ color: '#dc2626', fontSize: '0.85rem', marginTop: '6px', textAlign: 'center' }}>
+              Bonus exceeds 5 marks — reduce it to generate
+            </div>
+          )}
         </div>
       </div>
 
