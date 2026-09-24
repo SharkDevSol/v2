@@ -14,7 +14,7 @@ const LoadingScreen = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <motion.img
-            src="/oneco.png"
+            src="/skoolific-icon.png"
             alt="ONECO Logo"
             className={styles.logo}
             animate={{ 

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
+const bcrypt = require('bcryptjs');
 const multer = require("multer");
 const { branchSafeUpload } = require('../middleware/branchContextMiddleware');
 const path = require("path");
@@ -569,13 +570,39 @@ router.put("/student/:className/:schoolId/:classId", ...branchSafeUpload(upload.
   }
 });
 
-// Delete student
+// Delete student (with optional password verification)
 router.delete("/student/:className/:schoolId/:classId", async (req, res) => {
   const { className, schoolId, classId } = req.params;
+  const password = req.body?.password || req.headers['x-admin-password'] || req.query?.password;
+  const username = req.body?.username || req.headers['x-admin-username'] || req.user?.username || 'admin';
+
   try {
     const validTableName = /^[a-zA-Z0-9_]+$/.test(className);
     if (!validTableName) {
       return res.status(400).json({ error: "Invalid class name provided." });
+    }
+
+    // If password is provided, verify it against admin credentials
+    if (password) {
+      let verified = false;
+      const adminRes = await pool.query(
+        'SELECT password_hash FROM admin_users WHERE username = $1',
+        [username]
+      );
+      if (adminRes.rows.length > 0) {
+        verified = await bcrypt.compare(password, adminRes.rows[0].password_hash);
+      } else {
+        const subRes = await pool.query(
+          'SELECT password_hash FROM admin_sub_accounts WHERE username = $1',
+          [username]
+        );
+        if (subRes.rows.length > 0) {
+          verified = await bcrypt.compare(password, subRes.rows[0].password_hash);
+        }
+      }
+      if (!verified) {
+        return res.status(401).json({ error: "Invalid admin password. Deletion cancelled." });
+      }
     }
 
     const result = await pool.query(
@@ -585,6 +612,15 @@ router.delete("/student/:className/:schoolId/:classId", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Student not found" });
     }
+
+    // Clean up machine ID tracker
+    try {
+      await pool.query(
+        `DELETE FROM school_schema_points.global_machine_ids WHERE school_id = $1 AND class_id = $2`,
+        [schoolId, classId]
+      );
+    } catch (ignoreErr) {}
+
     // Delete associated image file if it exists
     if (result.rows[0].image_student) {
       const filePath = path.join(__dirname, "../Uploads", result.rows[0].image_student);
@@ -592,7 +628,7 @@ router.delete("/student/:className/:schoolId/:classId", async (req, res) => {
         fs.unlinkSync(filePath);
       }
     }
-    res.json({ message: "Student deleted successfully" });
+    res.json({ message: "Student deleted successfully", success: true });
   } catch (error) {
     console.error(`Error deleting student from class ${className}:`, error);
     res.status(500).json({ error: "Failed to delete student", details: error.message });

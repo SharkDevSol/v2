@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiUsers, FiSearch, FiFilter, FiEye, FiEyeOff, FiEdit2, FiUserX, FiUserCheck, 
-  FiDownload, FiFile, FiX, FiRefreshCw, FiLock, FiCopy,
+  FiDownload, FiFile, FiX, FiRefreshCw, FiLock, FiCopy, FiTrash2,
   FiPhone, FiUser, FiCalendar, FiBook, FiGrid, FiList, FiCamera, FiUpload,
   FiChevronLeft, FiChevronRight
 } from 'react-icons/fi';
@@ -56,6 +56,12 @@ const ListStudent = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showStudentPassword, setShowStudentPassword] = useState(false);
   const [showGuardianPassword, setShowGuardianPassword] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const itemsPerPage = 12;
 
   const copyToClipboard = (text) => {
@@ -244,14 +250,83 @@ const ListStudent = () => {
     }
   };
 
-  const handleDelete = async (student) => {
-    if (!window.confirm(`Delete ${student.student_name}?`)) return;
+  const openDeleteModal = (student) => {
+    setStudentToDelete(student);
+    setAdminPasswordInput('');
+    setDeleteError('');
+    setShowDeletePassword(false);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!studentToDelete) return;
+    if (!adminPasswordInput.trim()) {
+      setDeleteError('Please enter your admin password');
+      return;
+    }
+
+    setDeleteLoading(true);
+    setDeleteError('');
+
     try {
-      if (student.school_id && student.class_id) {
-        await axios.delete(`${API_BASE_URL}/student-list/student/${student.class || selectedClass}/${student.school_id}/${student.class_id}`);
+      const branchCode = getBranchCode();
+      const currentUsername = localStorage.getItem('username') || 'admin';
+      const token = localStorage.getItem('token') || '';
+
+      // 1. Verify admin password first
+      try {
+        await axios.post(
+          `${API_BASE_URL}/admin/verify-password`,
+          {
+            password: adminPasswordInput,
+            username: currentUsername
+          },
+          {
+            headers: {
+              'x-branch-code': branchCode,
+              'Authorization': token ? `Bearer ${token}` : ''
+            }
+          }
+        );
+      } catch (verifyErr) {
+        const verifyMsg = verifyErr.response?.data?.error || 'Incorrect admin password. Deletion cancelled.';
+        setDeleteError(verifyMsg);
+        setDeleteLoading(false);
+        return;
       }
-      setStudents(prev => prev.filter(s => s.uniqueId !== student.uniqueId));
-    } catch (error) { alert('Failed to delete'); }
+
+      // 2. Perform the permanent deletion
+      const targetClass = studentToDelete.class || selectedClass;
+      await axios.delete(
+        `${API_BASE_URL}/student-list/student/${targetClass}/${studentToDelete.school_id}/${studentToDelete.class_id}`,
+        {
+          headers: {
+            'x-branch-code': branchCode,
+            'x-admin-password': adminPasswordInput,
+            'x-admin-username': currentUsername,
+            'Authorization': token ? `Bearer ${token}` : ''
+          },
+          data: {
+            password: adminPasswordInput,
+            username: currentUsername
+          }
+        }
+      );
+
+      setShowDeleteModal(false);
+      const deletedName = studentToDelete.student_name;
+      setStudentToDelete(null);
+      setAdminPasswordInput('');
+      alert(`Student "${deletedName}" was deleted permanently.`);
+      fetchStudents(selectedClass);
+    } catch (error) {
+      console.error('Delete student error:', error);
+      const errMsg = error.response?.data?.error || error.response?.data?.message || 'Failed to delete student.';
+      setDeleteError(errMsg);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   const openEditModal = (student) => { 
@@ -425,6 +500,13 @@ const ListStudent = () => {
               className={isInactive ? styles.activateBtn : styles.deactivateBtn}
             >
               {isInactive ? <FiUserCheck /> : <FiUserX />}
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); openDeleteModal(student); }}
+              title={t('delete') || 'Delete Student'}
+              className={styles.deleteBtn}
+            >
+              <FiTrash2 />
             </button>
           </div>
         );
@@ -678,6 +760,13 @@ const ListStudent = () => {
                       title={isInactive ? 'Activate student' : 'Deactivate student'}
                     >
                       {isInactive ? <FiUserCheck /> : <FiUserX />}
+                    </button>
+                    <button 
+                      className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                      onClick={(e) => { e.stopPropagation(); openDeleteModal(student); }}
+                      title={t('delete') || 'Delete Student'}
+                    >
+                      <FiTrash2 />
                     </button>
                   </div>
                 </motion.div>
@@ -1153,6 +1242,107 @@ const ListStudent = () => {
                   <FiDownload /> Download
                 </a>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation with Password Modal */}
+      <AnimatePresence>
+        {showDeleteModal && studentToDelete && (
+          <motion.div 
+            className={styles.modalOverlay} 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            onClick={() => !deleteLoading && setShowDeleteModal(false)}
+          >
+            <motion.div 
+              className={styles.deleteModal}
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.deleteModalHeader}>
+                <div className={styles.deleteIconWrapper}>
+                  <FiTrash2 />
+                </div>
+                <div>
+                  <h3>Delete Student</h3>
+                  <p>Permanent action confirmation</p>
+                </div>
+                <button 
+                  type="button" 
+                  className={styles.closeBtn}
+                  onClick={() => !deleteLoading && setShowDeleteModal(false)}
+                >
+                  <FiX />
+                </button>
+              </div>
+
+              <form onSubmit={handleConfirmDelete} className={styles.deleteForm}>
+                <div className={styles.deleteWarning}>
+                  <p>
+                    Are you sure you want to permanently delete <strong>{studentToDelete.student_name}</strong>?
+                  </p>
+                  <div className={styles.deleteStudentMeta}>
+                    <span>Class: <strong>{studentToDelete.class || selectedClass}</strong></span>
+                    <span>School ID: <strong>{studentToDelete.school_id}</strong></span>
+                  </div>
+                  <p className={styles.deleteWarningText}>
+                    ⚠️ This action cannot be undone. All marks, attendance, and records associated with this student will be permanently removed.
+                  </p>
+                </div>
+
+                <div className={styles.passwordFieldGroup}>
+                  <label htmlFor="adminPassword">
+                    <FiLock /> Enter Admin Password to Confirm:
+                  </label>
+                  <div className={styles.passwordInputWrapper}>
+                    <input
+                      id="adminPassword"
+                      type={showDeletePassword ? 'text' : 'password'}
+                      value={adminPasswordInput}
+                      onChange={(e) => { setAdminPasswordInput(e.target.value); setDeleteError(''); }}
+                      placeholder="Enter administrator password"
+                      autoFocus
+                      required
+                    />
+                    <button
+                      type="button"
+                      className={styles.togglePasswordBtn}
+                      onClick={() => setShowDeletePassword(!showDeletePassword)}
+                      tabIndex="-1"
+                    >
+                      {showDeletePassword ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+                  {deleteError && (
+                    <div className={styles.deleteErrorMessage}>
+                      {deleteError}
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.deleteModalActions}>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowDeleteModal(false)} 
+                    className={styles.cancelBtn}
+                    disabled={deleteLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className={styles.confirmDeleteBtn}
+                    disabled={deleteLoading || !adminPasswordInput.trim()}
+                  >
+                    {deleteLoading ? 'Verifying & Deleting...' : 'Delete Permanently'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </motion.div>
         )}

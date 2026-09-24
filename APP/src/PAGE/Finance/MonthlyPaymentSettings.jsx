@@ -14,6 +14,16 @@ const MonthlyPaymentSettings = () => {
   const [defaultAccount, setDefaultAccount] = useState(null);
   const [showAddClass, setShowAddClass] = useState(false);
   const [showAddLateFee, setShowAddLateFee] = useState(false);
+  const [showEditClass, setShowEditClass] = useState(false);
+  const [editingStructure, setEditingStructure] = useState(null);
+  const [editClassForm, setEditClassForm] = useState({
+    monthlyFee: '',
+    oldRegistrationFee: '',
+    newRegistrationFee: '',
+    description: '',
+    selectedMonths: []
+  });
+  const [savingEditClass, setSavingEditClass] = useState(false);
   const [currentEthiopianDate, setCurrentEthiopianDate] = useState(() => {
     return getEthiopianDate();
   });
@@ -338,6 +348,82 @@ const MonthlyPaymentSettings = () => {
     }
   };
 
+  const handleOpenEditClass = (structure) => {
+    setEditingStructure(structure);
+    let months = [];
+    let desc = '';
+    let oldReg = 0;
+    let newReg = 0;
+    try {
+      let d = structure.description || '{}';
+      d = d.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+      const parsed = JSON.parse(d);
+      months = parsed.months || [];
+      desc = parsed.description || '';
+      oldReg = parsed.oldRegistrationFee || 0;
+      newReg = parsed.newRegistrationFee || 0;
+    } catch (e) {}
+
+    setEditClassForm({
+      monthlyFee: structure.items?.[0]?.amount != null ? structure.items[0].amount.toString() : '',
+      oldRegistrationFee: oldReg ? oldReg.toString() : '',
+      newRegistrationFee: newReg ? newReg.toString() : '',
+      description: desc,
+      selectedMonths: months
+    });
+    setShowEditClass(true);
+  };
+
+  const handleSaveEditClass = async (e) => {
+    e.preventDefault();
+    if (!editingStructure) return;
+
+    if (!editClassForm.monthlyFee || parseFloat(editClassForm.monthlyFee) <= 0) {
+      alert(t('financeApp.pset2.validFeeAlert', 'Please enter a valid monthly fee'));
+      return;
+    }
+
+    if (editClassForm.selectedMonths.length === 0) {
+      alert(t('financeApp.pset2.selectMonthAlert', 'Please select at least one month'));
+      return;
+    }
+
+    setSavingEditClass(true);
+    try {
+      const monthsData = {
+        months: editClassForm.selectedMonths,
+        description: editClassForm.description || t('financeApp.pset.monthlyTuitionFeeDesc'),
+        oldRegistrationFee: parseFloat(editClassForm.oldRegistrationFee) || 0,
+        newRegistrationFee: parseFloat(editClassForm.newRegistrationFee) || 0
+      };
+
+      const accountId = editingStructure.items?.[0]?.accountId || defaultAccount?.id;
+
+      await api.put(`/finance/fee-structures/${editingStructure.id}`, {
+        name: editingStructure.name,
+        gradeLevel: editingStructure.gradeLevel,
+        description: JSON.stringify(monthsData),
+        items: [{
+          feeCategory: 'TUITION',
+          amount: parseFloat(editClassForm.monthlyFee),
+          accountId: accountId,
+          paymentType: 'RECURRING',
+          description: editClassForm.description || t('financeApp.pset.monthlyTuitionFeeDesc')
+        }]
+      });
+
+      alert(t('financeApp.pset2.structureUpdated', 'Class monthly fee updated successfully!'));
+      setShowEditClass(false);
+      setEditingStructure(null);
+      fetchFeeStructures();
+    } catch (error) {
+      console.error('Error updating fee structure:', error);
+      alert('Failed to update class fee: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setSavingEditClass(false);
+    }
+  };
+
   const handleDeleteLateFeeRule = async (id, ruleName) => {
     if (!confirm(t('financeApp.pset2.confirmDeleteRule', { ruleName }))) {
       return;
@@ -650,6 +736,13 @@ const MonthlyPaymentSettings = () => {
                           <span className={styles.slider}></span>
                         </label>
                         <button
+                          className={styles.editButton}
+                          onClick={() => handleOpenEditClass(structure)}
+                          title="Edit Class Monthly Fee"
+                        >
+                          ✏️
+                        </button>
+                        <button
                           className={styles.deleteButton}
                           onClick={() => handleDeleteFeeStructure(structure.id, structure.gradeLevel || structure.name)}
                           title={t('financeApp.pset.deleteFeeTitle')}
@@ -868,6 +961,165 @@ const MonthlyPaymentSettings = () => {
                       onClick={() => setShowAddClass(false)}
                     >
                       {t('financeApp.pset.cancel')}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {showEditClass && editingStructure && (
+            <div className={styles.modal}>
+              <div className={styles.modalContent}>
+                <h2>Edit Class Fee: {editingStructure.gradeLevel || editingStructure.name}</h2>
+                <form onSubmit={handleSaveEditClass}>
+                  <div className={styles.formGroup}>
+                    <label>{t('financeApp.pset.monthlyFeeAmount') || 'Monthly Fee ($) *'}</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={editClassForm.monthlyFee}
+                      onChange={(e) => setEditClassForm({ ...editClassForm, monthlyFee: e.target.value })}
+                      placeholder="e.g., 500"
+                      required
+                    />
+                  </div>
+
+                  <div className={styles.formRow} style={{ display: 'flex', gap: '15px' }}>
+                    <div className={styles.formGroup} style={{ flex: 1 }}>
+                      <label>{t('financeApp.pset.oldRegFee') || 'Old Student Registration Fee ($)'}</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={editClassForm.oldRegistrationFee}
+                        onChange={(e) => setEditClassForm({ ...editClassForm, oldRegistrationFee: e.target.value })}
+                        placeholder="e.g., 200 (0 for none)"
+                      />
+                      <small style={{ color: '#888', fontSize: '12px' }}>One-time fee for returning students</small>
+                    </div>
+
+                    <div className={styles.formGroup} style={{ flex: 1 }}>
+                      <label>{t('financeApp.pset.newRegFee') || 'New Student Registration Fee ($)'}</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={editClassForm.newRegistrationFee}
+                        onChange={(e) => setEditClassForm({ ...editClassForm, newRegistrationFee: e.target.value })}
+                        placeholder="e.g., 500 (0 for none)"
+                      />
+                      <small style={{ color: '#888', fontSize: '12px' }}>One-time fee for newly enrolled</small>
+                    </div>
+                  </div>
+
+                  {(parseFloat(editClassForm.monthlyFee) > 0 || parseFloat(editClassForm.oldRegistrationFee) > 0 || parseFloat(editClassForm.newRegistrationFee) > 0) && (
+                    <div style={{
+                      background: 'rgba(102, 126, 234, 0.08)',
+                      border: '1px solid rgba(102, 126, 234, 0.25)',
+                      borderRadius: '8px',
+                      padding: '10px 14px',
+                      marginBottom: '15px',
+                      fontSize: '13px'
+                    }}>
+                      <div style={{ fontWeight: 600, color: '#4a5568', marginBottom: '4px' }}>First Month Total Breakdown:</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#2d3748' }}>
+                        <span>Old Student: <strong>${(parseFloat(editClassForm.monthlyFee || 0) + parseFloat(editClassForm.oldRegistrationFee || 0)).toFixed(2)}</strong></span>
+                        <span>New Student: <strong>${(parseFloat(editClassForm.monthlyFee || 0) + parseFloat(editClassForm.newRegistrationFee || 0)).toFixed(2)}</strong></span>
+                        <span>Normal Month: <strong>${parseFloat(editClassForm.monthlyFee || 0).toFixed(2)}</strong></span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className={styles.formGroup}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label style={{ margin: 0 }}>{t('financeApp.pset.paymentMonths') || 'Payment Months (Ethiopian Calendar) *'}</label>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          type="button"
+                          onClick={() => setEditClassForm({ ...editClassForm, selectedMonths: [1,2,3,4,5,6,7,8,9,10,11,12,13] })}
+                          style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', border: '1px solid #ccc', background: '#f8f9fa', cursor: 'pointer' }}
+                        >
+                          Select All
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditClassForm({ ...editClassForm, selectedMonths: [] })}
+                          style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', border: '1px solid #ccc', background: '#f8f9fa', cursor: 'pointer' }}
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                    <div className={styles.monthGrid}>
+                      {months.map((month) => {
+                        const isPastOrCurrent = month.value <= currentEthiopianDate.month;
+                        const isFuture = month.value > currentEthiopianDate.month;
+                        return (
+                          <label 
+                            key={month.value} 
+                            className={styles.monthCheckbox}
+                            style={isFuture ? { opacity: 0.6 } : {}}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={editClassForm.selectedMonths.includes(month.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setEditClassForm({
+                                    ...editClassForm,
+                                    selectedMonths: [...editClassForm.selectedMonths, month.value].sort((a, b) => a - b)
+                                  });
+                                } else {
+                                  setEditClassForm({
+                                    ...editClassForm,
+                                    selectedMonths: editClassForm.selectedMonths.filter(m => m !== month.value)
+                                  });
+                                }
+                              }}
+                            />
+                            <span>
+                              {month.name}
+                              {isPastOrCurrent && <span style={{ color: '#4CAF50', marginLeft: '5px' }}>✓</span>}
+                              {isFuture && <span style={{ color: '#999', marginLeft: '5px' }}>🔒</span>}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <small className={styles.hint}>
+                      {editClassForm.selectedMonths.length > 0 
+                        ? `${editClassForm.selectedMonths.length} month(s) selected` 
+                        : 'Please select which months apply'}
+                    </small>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>{t('financeApp.pset.description') || 'Description'}</label>
+                    <textarea
+                      value={editClassForm.description}
+                      onChange={(e) => setEditClassForm({ ...editClassForm, description: e.target.value })}
+                      placeholder="Optional notes or description"
+                      rows="3"
+                    />
+                  </div>
+
+                  <div className={styles.modalActions}>
+                    <button 
+                      type="submit" 
+                      className={styles.submitButton}
+                      disabled={savingEditClass}
+                    >
+                      {savingEditClass ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button 
+                      type="button" 
+                      className={styles.cancelButton}
+                      onClick={() => { setShowEditClass(false); setEditingStructure(null); }}
+                      disabled={savingEditClass}
+                    >
+                      {t('financeApp.pset.cancel') || 'Cancel'}
                     </button>
                   </div>
                 </form>

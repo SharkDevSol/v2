@@ -633,6 +633,7 @@ router.put('/:id', authenticateWithBranch, requirePermission(FINANCE_PERMISSIONS
       gradeLevel, 
       campusId, 
       studentCategory,
+      description,
       items 
     } = req.body;
 
@@ -737,7 +738,8 @@ router.put('/:id', authenticateWithBranch, requirePermission(FINANCE_PERMISSIONS
           ...(termId !== undefined && { termId: termId || null }),
           ...(gradeLevel !== undefined && { gradeLevel: gradeLevel || null }),
           ...(campusId !== undefined && { campusId: campusId || null }),
-          ...(studentCategory !== undefined && { studentCategory: studentCategory || null })
+          ...(studentCategory !== undefined && { studentCategory: studentCategory || null }),
+          ...(description !== undefined && { description: description })
         }
       });
 

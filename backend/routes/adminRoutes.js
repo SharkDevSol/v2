@@ -367,6 +367,55 @@ router.post('/change-password', authenticateWithBranch, async (req, res) => {
   }
 });
 
+// Verify admin password (for sensitive actions like deleting students)
+router.post('/verify-password', authenticateWithBranch, async (req, res) => {
+  try {
+    const { password } = req.body;
+    const username = req.body.username || req.user?.username;
+
+    if (!password) {
+      return res.status(400).json({ error: 'Password is required', success: false });
+    }
+
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required', success: false });
+    }
+
+    // Check primary admin users table
+    const adminResult = await pool.query(
+      'SELECT id, username, password_hash FROM admin_users WHERE username = $1',
+      [username]
+    );
+
+    if (adminResult.rows.length > 0) {
+      const isValid = await bcrypt.compare(password, adminResult.rows[0].password_hash);
+      if (!isValid) {
+        return res.status(401).json({ error: 'Incorrect password', success: false });
+      }
+      return res.json({ success: true, message: 'Password verified successfully' });
+    }
+
+    // Check sub accounts table
+    const subResult = await pool.query(
+      'SELECT id, username, password_hash FROM admin_sub_accounts WHERE username = $1',
+      [username]
+    );
+
+    if (subResult.rows.length > 0) {
+      const isValid = await bcrypt.compare(password, subResult.rows[0].password_hash);
+      if (!isValid) {
+        return res.status(401).json({ error: 'Incorrect password', success: false });
+      }
+      return res.json({ success: true, message: 'Password verified successfully' });
+    }
+
+    return res.status(404).json({ error: 'Admin account not found', success: false });
+  } catch (error) {
+    console.error('Verify password error:', error);
+    res.status(500).json({ error: 'Server error verifying password', success: false });
+  }
+});
+
 // Get branding settings
 router.get(getEndpointPath('SETTINGS.BRANDING').replace('/api/settings', ''), async (req, res) => {
   try {

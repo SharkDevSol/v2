@@ -28,6 +28,7 @@ const TestGenerator = () => {
   const [markComponents, setMarkComponents] = useState({});
   const [componentMarkValue, setComponentMarkValue] = useState(null);
   const [bonusTypes, setBonusTypes] = useState([]);
+  const [termOptions, setTermOptions] = useState([1, 2]);
   const [form, setForm] = useState({
     subjectName: '', className: '', termNumber: 1, componentName: '',
     difficulty: ['Medium'], language: 'English', topic: '', timeLimit: 40, teacherNotes: ''
@@ -62,6 +63,14 @@ const TestGenerator = () => {
     axios.get('/api/mark-list/subjects-classes')
       .then(r => { if (Array.isArray(r.data)) setMappings(r.data); })
       .catch(() => {});
+    // Term count from school config (Task 1 page storage)
+    axios.get('/api/ai/school-config')
+      .then(r => {
+        const terms = r.data?.data?.number_of_terms || r.data?.number_of_terms || r.data?.data?.terms;
+        const n = parseInt(terms);
+        if (n >= 1) setTermOptions(Array.from({ length: n }, (_, i) => i + 1));
+      })
+      .catch(() => {});
   }, []);
 
   // Mark-list: components (with marks) for the selected subject/class/term
@@ -93,6 +102,32 @@ const TestGenerator = () => {
       .filter(m => m.subject_name === form.subjectName)
       .map(m => m.class_name);
     return [...new Set(fromMappings.length > 0 ? fromMappings : classes)];
+  };
+
+  // Subjects of the SELECTED CLASS only (from the mark-list page data)
+  const getAvailableSubjects = () => {
+    if (!form.className) return subjects;
+    const fromMappings = mappings
+      .filter(m => m.class_name === form.className)
+      .map(m => m.subject_name);
+    return [...new Set(fromMappings.length > 0 ? fromMappings : subjects)];
+  };
+
+  // Class first: when the class changes, reset subject/component if not valid for that class
+  const handleClassChange = (className) => {
+    setForm(f => {
+      const classSubjects = new Set(
+        mappings.filter(m => m.class_name === className).map(m => m.subject_name)
+      );
+      const keepSubject = !f.subjectName || classSubjects.size === 0 || classSubjects.has(f.subjectName);
+      return {
+        ...f,
+        className,
+        subjectName: keepSubject ? f.subjectName : '',
+        componentName: keepSubject ? f.componentName : '',
+      };
+    });
+    if (!className) setMarkComponents({});
   };
 
   const componentMarks = componentMarkValue || 0;
@@ -129,11 +164,16 @@ const TestGenerator = () => {
     const fd = new FormData();
     fd.append('file', file);
     try {
-      const r = await axios.post('/api/ai/extract-text', fd);
-      if (r.data.success && r.data.text) {
-        const note = `[Uploaded ${file.name}]\n${r.data.text.slice(0, 4000)}`;
+      const r = await axios.post('/api/ai/ocr', fd);
+      const txt = r.data?.data?.text || r.data?.text || '';
+      if (r.data.success && txt) {
+        const note = `[Uploaded ${file.name}]\n${txt.slice(0, 80000)}`;
         setForm(f => ({ ...f, teacherNotes: f.teacherNotes ? f.teacherNotes + '\n\n' + note : note }));
-        alert('✅ File content added to Teacher Notes');
+        alert('✅ File content added to Teacher Notes (' + txt.length + ' characters)');
+      } else if (r.data?.data?.scanned) {
+        alert('❌ This PDF is scanned images (no text layer). Please upload a text-based PDF, or type the notes manually in the Teacher Notes box.');
+      } else {
+        alert('❌ Could not extract text from this file' + (r.data?.data?.error ? ': ' + r.data.data.error : '') + '. Try a different format (PDF, DOCX, XLSX, TXT) or type the notes manually.');
       }
     } catch (err) {
       alert('❌ Upload failed: ' + (err.response?.data?.error || err.message));
@@ -224,23 +264,29 @@ const TestGenerator = () => {
         <div className={styles.formCard}>
           <div className={styles.formGrid}>
             <div className={styles.field}>
-              <label>Subject <span className={styles.req}>*</span></label>
-              <select value={form.subjectName} onChange={e => setField('subjectName', e.target.value)}>
-                <option value="">Select Subject</option>
-                {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+              <label>Class <span className={styles.req}>*</span></label>
+              <select value={form.className} onChange={e => handleClassChange(e.target.value)}>
+                <option value="">Select Class</option>
+                {classes.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className={styles.field}>
-              <label>Class <span className={styles.req}>*</span></label>
-              <select value={form.className} onChange={e => setField('className', e.target.value)} disabled={!form.subjectName}>
-                <option value="">Select Class</option>
-                {getAvailableClasses().map(c => <option key={c} value={c}>{c}</option>)}
+              <label>Subject <span className={styles.req}>*</span></label>
+              <select value={form.subjectName} onChange={e => { setField('subjectName', e.target.value); setField('componentName', ''); setMarkComponents({}); }}
+                disabled={!form.className}>
+                <option value="">{form.className ? 'Select Subject' : 'Select Class first'}</option>
+                {getAvailableSubjects().map(s => <option key={s} value={s}>{s}</option>)}
               </select>
+              {form.className && getAvailableSubjects().length > 0 && (
+                <small style={{ color: '#6b7280', fontSize: '0.8rem', display: 'block', marginTop: '4px' }}>
+                  Only subjects of {form.className}
+                </small>
+              )}
             </div>
             <div className={styles.field}>
               <label>Term</label>
-              <select value={form.termNumber} onChange={e => setField('termNumber', parseInt(e.target.value))}>
-                {[1, 2, 3, 4].map(t => <option key={t} value={t}>Term {t}</option>)}
+              <select value={form.termNumber} onChange={e => { setField('termNumber', parseInt(e.target.value)); setMarkComponents({}); }}>
+                {termOptions.map(t => <option key={t} value={t}>Term {t}</option>)}
               </select>
             </div>
             <div className={styles.field}>
