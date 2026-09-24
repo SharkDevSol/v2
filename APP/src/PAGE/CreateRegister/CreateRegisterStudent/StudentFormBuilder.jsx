@@ -515,7 +515,11 @@ const StudentFormBuilder = ({ onSuccess }) => {
             <div style={{ display: 'flex', background: '#f3f4f6', padding: 4, borderRadius: 10, marginBottom: 20 }}>
               <button
                 type="button"
-                onClick={() => { setIsMakeSections(false); setModalError(''); }}
+                onClick={() => {
+                  setIsMakeSections(false);
+                  setModalError('');
+                  if (editingClass) setEditName(editingClass);
+                }}
                 style={{
                   flex: 1, padding: '8px 12px', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
                   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -532,6 +536,9 @@ const StudentFormBuilder = ({ onSuccess }) => {
                   setIsMakeSections(true);
                   setModalError('');
                   if (sectionCount < 2) setSectionCount(2);
+                  if (editingClass && /([0-9]+)[A-Z]$/i.test(editingClass)) {
+                    setEditName(editingClass.replace(/([0-9]+)[A-Z]$/i, '$1'));
+                  }
                 }}
                 style={{
                   flex: 1, padding: '8px 12px', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
