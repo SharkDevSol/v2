@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
-const bcrypt = require('bcryptjs');
+let bcrypt;
+try { bcrypt = require('bcrypt'); } catch (e) { bcrypt = require('bcryptjs'); }
 const multer = require("multer");
 const { branchSafeUpload } = require('../middleware/branchContextMiddleware');
 const path = require("path");
