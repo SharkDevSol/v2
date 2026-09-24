@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiPlus, FiTrash2, FiChevronDown, FiType, FiEdit2, FiCalendar, FiCheckSquare, FiUpload, FiGlobe, FiX, FiSave, FiCheck, FiEdit3 } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiChevronDown, FiType, FiEdit2, FiCalendar, FiCheckSquare, FiUpload, FiGlobe, FiX, FiSave, FiCheck, FiEdit3, FiLayers, FiAlertCircle } from 'react-icons/fi';
 import api from '../../../utils/api';
 import { useLanguageSelection } from '../../../context/LanguageSelectionContext';
 
@@ -71,6 +71,11 @@ const StudentFormBuilder = ({ onSuccess }) => {
   const [task1Config, setTask1Config] = useState(null);
   const [editingClass, setEditingClass] = useState(null);
   const [editName, setEditName] = useState('');
+  const [isMakeSections, setIsMakeSections] = useState(false);
+  const [sectionCount, setSectionCount] = useState(2);
+  const [isSectionLoading, setIsSectionLoading] = useState(false);
+  const [modalError, setModalError] = useState('');
+  const [successNotification, setSuccessNotification] = useState('');
 
   const [newField, setNewField] = useState({
     name: '', label: '', type: 'text', required: false,
@@ -177,19 +182,132 @@ const StudentFormBuilder = ({ onSuccess }) => {
     setClassConfigs(prev => ({ ...prev, [className]: { ...prev[className], [field]: value } }));
   };
 
-  const saveEdit = () => {
+  const openEditModal = (cls) => {
+    setEditingClass(cls);
+    setEditName(cls);
+    setIsMakeSections(false);
+    setSectionCount(2);
+    setModalError('');
+    setErrorMessage('');
+  };
+
+  const handleRenameClass = async () => {
     const old = editingClass;
     const n = editName.trim();
-    if (!n || n === old) { setEditingClass(null); return; }
-    if (!/^[a-zA-Z0-9_]+$/.test(n)) { setErrorMessage('Letters, numbers, underscores only'); return; }
-    if (classes.includes(n)) { setErrorMessage(`"${n}" already exists`); return; }
-    setClasses(prev => prev.map(c => c === old ? n : c));
-    setClassConfigs(prev => {
-      const next = { ...prev };
-      if (next[old]) { next[n] = next[old]; delete next[old]; }
-      return next;
-    });
-    setEditingClass(null); setErrorMessage('');
+    if (!n || n === old) {
+      setEditingClass(null);
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(n)) {
+      setModalError('Letters, numbers, and underscores only');
+      return;
+    }
+    if (classes.includes(n)) {
+      setModalError(`"${n}" already exists`);
+      return;
+    }
+
+    setIsSectionLoading(true);
+    setModalError('');
+
+    try {
+      if (hasExistingForm) {
+        await api.post('/students/rename-class', {
+          oldClassName: old,
+          newClassName: n
+        });
+      }
+
+      setClasses(prev => prev.map(c => c === old ? n : c));
+      setClassConfigs(prev => {
+        const next = { ...prev };
+        if (next[old]) {
+          next[n] = next[old];
+          delete next[old];
+        }
+        return next;
+      });
+
+      setSuccessNotification(`Class "${old}" renamed to "${n}" successfully!`);
+      setEditingClass(null);
+    } catch (err) {
+      setModalError(err.response?.data?.error || err.message || 'Failed to rename class');
+    } finally {
+      setIsSectionLoading(false);
+    }
+  };
+
+  const handleSplitSections = async () => {
+    const base = editName.trim();
+    if (!base) {
+      setModalError('Base class name is required');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(base)) {
+      setModalError('Letters, numbers, and underscores only');
+      return;
+    }
+    const count = parseInt(sectionCount, 10) || 2;
+    if (count < 2) {
+      setModalError('Please choose at least 2 sections');
+      return;
+    }
+    const sections = generateSections(base, count);
+
+    // Check conflicts: any section name other than editingClass already exists?
+    const otherClasses = classes.filter(c => c !== editingClass);
+    const conflict = sections.find(s => otherClasses.includes(s));
+    if (conflict) {
+      setModalError(`Class "${conflict}" already exists in the school!`);
+      return;
+    }
+
+    setIsSectionLoading(true);
+    setModalError('');
+
+    try {
+      const shift = classConfigs[editingClass]?.shift || 1;
+      const isKG = classConfigs[editingClass]?.isKG || false;
+
+      await api.post('/students/split-class-sections', {
+        originalClass: editingClass,
+        sections,
+        shift,
+        isKG
+      });
+
+      // Update frontend classes array: replace editingClass with sections
+      setClasses(prev => {
+        const idx = prev.indexOf(editingClass);
+        if (idx !== -1) {
+          const next = [...prev];
+          next.splice(idx, 1, ...sections);
+          return next;
+        }
+        return [...prev.filter(c => c !== editingClass), ...sections];
+      });
+
+      // Update frontend classConfigs
+      setClassConfigs(prev => {
+        const next = { ...prev };
+        const origCfg = next[editingClass] || { isKG, shift };
+        delete next[editingClass];
+        sections.forEach(s => {
+          next[s] = { ...origCfg, isKG, shift };
+        });
+        return next;
+      });
+
+      setSuccessNotification(
+        `Class "${editingClass}" successfully split into ${sections.join(', ')}! All student records and data are preserved in ${sections[0]}.`
+      );
+      setEditingClass(null);
+      setIsMakeSections(false);
+    } catch (err) {
+      setModalError(err.response?.data?.error || err.message || 'Failed to split sections');
+    } finally {
+      setIsSectionLoading(false);
+    }
   };
 
   const handleCreateForm = async () => {
@@ -223,6 +341,22 @@ const StudentFormBuilder = ({ onSuccess }) => {
 
       {errorMessage && <div style={{ padding: '10px 16px', background: '#fef2f2', color: '#dc2626', borderRadius: 8, marginBottom: 16, fontSize: 14 }}>{errorMessage}</div>}
       {hasExistingForm && <div style={{ padding: '10px 16px', background: '#f0fdf4', color: '#16a34a', borderRadius: 8, marginBottom: 16, fontSize: 14 }}>✅ Form exists — add more classes or modify fields.</div>}
+      {successNotification && (
+        <div style={{
+          padding: '12px 16px', background: '#ecfdf5', border: '1px solid #10b981',
+          borderRadius: 8, marginBottom: 16, fontSize: 14, color: '#065f46',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <FiCheck size={18} color="#10b981" />
+            <span>{successNotification}</span>
+          </div>
+          <button onClick={() => setSuccessNotification('')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#065f46', fontSize: 16 }}>
+            <FiX />
+          </button>
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
         {task1Config?.has_kg && (
@@ -358,25 +492,225 @@ const StudentFormBuilder = ({ onSuccess }) => {
       )}
 
       {editingClass && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { setEditingClass(null); setErrorMessage(''); }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: 380, maxWidth: '90vw', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ marginBottom: 20, fontSize: 18, fontWeight: 600 }}>Edit Class</h3>
-            <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
-              <input value={editName} onChange={e => setEditName(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveEdit()}
-                style={{ flex: 1, padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 14 }} />
-              <button onClick={saveEdit} style={{ padding: '10px 20px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}><FiCheck /></button>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(3px)', padding: 16 }} onClick={() => { if (!isSectionLoading) { setEditingClass(null); setModalError(''); } }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '24px 28px', width: 460, maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#111827' }}>
+                  Edit Class: <span style={{ color: '#7c3aed' }}>{editingClass}</span>
+                </h3>
+                <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
+                  Modify class name or divide into sections
+                </div>
+              </div>
+              <button onClick={() => { if (!isSectionLoading) { setEditingClass(null); setModalError(''); } }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: '#9ca3af', padding: 4 }}>
+                <FiX />
+              </button>
             </div>
-            {classConfigs[editingClass] && (
-              <div style={{ padding: 12, background: '#f9fafb', borderRadius: 8, fontSize: 13, color: '#6b7280', marginBottom: 8 }}>
-                Current: <strong>{editingClass}</strong>
-                {classConfigs[editingClass].isKG && <span style={{ marginLeft: 8, padding: '2px 6px', background: '#ede9fe', color: '#6d28d9', borderRadius: 4, fontSize: 12 }}>KG</span>}
-                — Shift: <strong>{shiftLabels[classConfigs[editingClass].shift || 1]}</strong>
+
+            {/* Mode Segmented Controls */}
+            <div style={{ display: 'flex', background: '#f3f4f6', padding: 4, borderRadius: 10, marginBottom: 20 }}>
+              <button
+                type="button"
+                onClick={() => { setIsMakeSections(false); setModalError(''); }}
+                style={{
+                  flex: 1, padding: '8px 12px', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  background: !isMakeSections ? '#fff' : 'transparent',
+                  color: !isMakeSections ? '#7c3aed' : '#6b7280',
+                  boxShadow: !isMakeSections ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}>
+                <FiEdit3 size={15} /> Rename Class
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMakeSections(true);
+                  setModalError('');
+                  if (sectionCount < 2) setSectionCount(2);
+                }}
+                style={{
+                  flex: 1, padding: '8px 12px', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  background: isMakeSections ? '#fff' : 'transparent',
+                  color: isMakeSections ? '#7c3aed' : '#6b7280',
+                  boxShadow: isMakeSections ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}>
+                <FiLayers size={15} /> Make Sections
+              </button>
+            </div>
+
+            {/* Error Message inside modal */}
+            {modalError && (
+              <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, color: '#dc2626', fontSize: 13, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <FiAlertCircle size={16} style={{ flexShrink: 0 }} />
+                <span>{modalError}</span>
               </div>
             )}
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() =>{ setEditingClass(null); setErrorMessage(''); }} style={{ padding: '8px 20px', background: '#e5e7eb', color: '#374151', border: 'none', borderRadius: 8, fontSize: 14, cursor: 'pointer' }}>Cancel</button>
-              <button onClick={saveEdit} style={{ padding: '8px 20px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, cursor: 'pointer' }}>Save</button>
-            </div>
+
+            {/* Current Class Info */}
+            {classConfigs[editingClass] && (
+              <div style={{ padding: '10px 12px', background: '#f9fafb', borderRadius: 8, fontSize: 12, color: '#4b5563', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  Shift: <strong>{shiftLabels[classConfigs[editingClass].shift || 1]}</strong>
+                </div>
+                {classConfigs[editingClass].isKG && (
+                  <span style={{ padding: '2px 8px', background: '#ede9fe', color: '#6d28d9', borderRadius: 4, fontWeight: 600 }}>KG</span>
+                )}
+              </div>
+            )}
+
+            {!isMakeSections ? (
+              /* TAB 1: RENAME CLASS */
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>
+                  New Class Name
+                </label>
+                <input
+                  value={editName}
+                  onChange={e => { setEditName(e.target.value); setModalError(''); }}
+                  onKeyDown={e => e.key === 'Enter' && handleRenameClass()}
+                  disabled={isSectionLoading}
+                  placeholder="e.g. G4"
+                  style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 14, marginBottom: 12, boxSizing: 'border-box' }}
+                />
+                <p style={{ fontSize: 12, color: '#6b7280', margin: '0 0 20px 0', lineHeight: 1.4 }}>
+                  Renaming preserves all student data, marks, and attendance under the new class name.
+                </p>
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => { setEditingClass(null); setModalError(''); }}
+                    disabled={isSectionLoading}
+                    style={{ padding: '9px 18px', background: '#f3f4f6', color: '#4b5563', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 14, cursor: 'pointer' }}>
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRenameClass}
+                    disabled={isSectionLoading || !editName.trim()}
+                    style={{ padding: '9px 22px', background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {isSectionLoading ? 'Saving...' : 'Save Name'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* TAB 2: MAKE SECTIONS */
+              <div>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>
+                    Base Class Name
+                  </label>
+                  <input
+                    value={editName}
+                    onChange={e => { setEditName(e.target.value); setModalError(''); }}
+                    disabled={isSectionLoading}
+                    placeholder="e.g. G4"
+                    style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 8 }}>
+                    Number of Sections to Create
+                  </label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {[2, 3, 4, 5, 6].map(num => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => { setSectionCount(num); setModalError(''); }}
+                        disabled={isSectionLoading}
+                        style={{
+                          flex: 1, padding: '8px 0', border: sectionCount === num ? '2px solid #7c3aed' : '1px solid #d1d5db',
+                          background: sectionCount === num ? '#ede9fe' : '#fff',
+                          color: sectionCount === num ? '#6d28d9' : '#374151',
+                          fontWeight: sectionCount === num ? 700 : 500,
+                          borderRadius: 8, fontSize: 14, cursor: 'pointer', transition: 'all 0.15s'
+                        }}>
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Live Sections Preview */}
+                {(() => {
+                  const base = editName.trim() || editingClass;
+                  const preview = generateSections(base, sectionCount);
+                  const firstSec = preview[0];
+                  const extraSecs = preview.slice(1);
+                  const otherClasses = classes.filter(c => c !== editingClass);
+
+                  return (
+                    <div style={{ marginBottom: 18 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#4b5563', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Sections Preview ({preview.length} sections)
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+                        {/* Section A - Data preserved */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 8 }}>
+                          <span style={{ fontWeight: 700, fontSize: 14, color: '#065f46' }}>{firstSec}</span>
+                          <span style={{ fontSize: 11, background: '#10b981', color: '#fff', padding: '3px 8px', borderRadius: 12, fontWeight: 600 }}>
+                            Replaces {editingClass} • Keeps all students & data
+                          </span>
+                        </div>
+                        {/* New sections */}
+                        {extraSecs.map(s => {
+                          const conflict = otherClasses.includes(s);
+                          return (
+                            <div key={s} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: conflict ? '#fef2f2' : '#eff6ff', border: `1px solid ${conflict ? '#fecaca' : '#bfdbfe'}`, borderRadius: 8 }}>
+                              <span style={{ fontWeight: 700, fontSize: 14, color: conflict ? '#dc2626' : '#1e40af' }}>{s}</span>
+                              <span style={{ fontSize: 11, background: conflict ? '#ef4444' : '#3b82f6', color: '#fff', padding: '3px 8px', borderRadius: 12, fontWeight: 600 }}>
+                                {conflict ? 'Conflict: already exists' : 'New empty section'}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Data preservation assurance banner */}
+                      <div style={{ padding: '10px 12px', background: '#f5f3ff', border: '1px solid #ddd6fe', borderRadius: 8, fontSize: 12, color: '#5b21b6', lineHeight: 1.45, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                        <span style={{ fontSize: 14, marginTop: 1 }}>🛡️</span>
+                        <span>
+                          <strong>Data Protected:</strong> All existing students in <strong>{editingClass}</strong> will remain completely intact and assigned to <strong>{firstSec}</strong>. No marks, attendance, or student records will be touched or lost.
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Action buttons */}
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
+                  <button
+                    type="button"
+                    onClick={() => { setEditingClass(null); setModalError(''); }}
+                    disabled={isSectionLoading}
+                    style={{ padding: '9px 18px', background: '#f3f4f6', color: '#4b5563', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 14, cursor: 'pointer' }}>
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSplitSections}
+                    disabled={isSectionLoading || !editName.trim()}
+                    style={{
+                      padding: '10px 22px', background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                      color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600,
+                      cursor: isSectionLoading ? 'default' : 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)'
+                    }}>
+                    <FiLayers /> {isSectionLoading ? 'Splitting...' : `Save & Split into ${sectionCount} Sections`}
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       )}
@@ -400,9 +734,10 @@ const StudentFormBuilder = ({ onSuccess }) => {
                       {shiftOptions.map(s => <option key={s} value={s}>{shiftLabels[s]}</option>)}
                     </select>
                   )}
-                  <button onClick={() => { setEditingClass(cls); setEditName(cls); }} disabled={isLoading}
-                    style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: 15 }}><FiEdit3 /></button>
-                  <button onClick={() => removeClass(cls)} disabled={isLoading}
+                  <button onClick={() => openEditModal(cls)} disabled={isLoading || isSectionLoading}
+                    style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: 15 }}
+                    title="Edit Class or Make Sections"><FiEdit3 /></button>
+                  <button onClick={() => removeClass(cls)} disabled={isLoading || isSectionLoading}
                     style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 16 }}><FiTrash2 /></button>
                 </div>
               );

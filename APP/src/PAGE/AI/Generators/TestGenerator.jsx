@@ -29,6 +29,8 @@ const TestGenerator = () => {
   const [componentMarkValue, setComponentMarkValue] = useState(null);
   const [bonusTypes, setBonusTypes] = useState([]);
   const [termOptions, setTermOptions] = useState([1, 2]);
+  const [material, setMaterial] = useState(null); // uploaded source material (text) — separate from teacherNotes
+  const [materialName, setMaterialName] = useState('');
   const [form, setForm] = useState({
     subjectName: '', className: '', termNumber: 1, componentName: '',
     difficulty: ['Medium'], language: 'English', topic: '', timeLimit: 40, teacherNotes: ''
@@ -167,13 +169,13 @@ const TestGenerator = () => {
       const r = await axios.post('/api/ai/ocr', fd);
       const txt = r.data?.data?.text || r.data?.text || '';
       if (r.data.success && txt) {
-        const note = `[Uploaded ${file.name}]\n${txt.slice(0, 80000)}`;
-        setForm(f => ({ ...f, teacherNotes: f.teacherNotes ? f.teacherNotes + '\n\n' + note : note }));
-        alert('✅ File content added to Teacher Notes (' + txt.length + ' characters)');
+        setMaterial(txt); // stored as SOURCE MATERIAL, separate from Teacher Notes
+        setMaterialName(file.name);
+        alert('✅ Book/material attached (' + txt.length + ' characters). Now write in Teacher Notes WHERE to generate from — e.g. "generate from unit 2"');
       } else if (r.data?.data?.scanned) {
         alert('❌ This PDF is scanned images (no text layer). Please upload a text-based PDF, or type the notes manually in the Teacher Notes box.');
       } else {
-        alert('❌ Could not extract text from this file' + (r.data?.data?.error ? ': ' + r.data.data.error : '') + '. Try a different format (PDF, DOCX, XLSX, TXT) or type the notes manually.');
+        alert('❌ Could not extract text from this file' + (r.data?.data?.error ? ': ' + r.data.data.error : '') + '. Try a different format (PDF, DOCX, XLSX, TXT).');
       }
     } catch (err) {
       alert('❌ Upload failed: ' + (err.response?.data?.error || err.message));
@@ -198,6 +200,7 @@ const TestGenerator = () => {
     try {
       const payload = {
         ...form,
+        materialText: material || null,
         totalMarks: effectiveTotal || distTotal,
         difficulty: form.difficulty.length ? form.difficulty.map(d => d.toLowerCase()).join(', ') : 'medium',
         questionTypes: activeTypes.map(q => ({ type: q.type, count: q.count, marksPerQuestion: q.marksPerQuestion })),
@@ -365,9 +368,17 @@ const TestGenerator = () => {
           </div>
 
           <button className={styles.uploadBtn} onClick={() => fileRef.current?.click()} disabled={uploading}>
-            {uploading ? <><FiLoader className={styles.spin} /> Extracting...</> : <><FiUpload /> Upload PDF/DOC/Excel</>}
+            {uploading ? <><FiLoader className={styles.spin} /> Extracting...</> : <><FiUpload /> Upload Book / Notes</>}
           </button>
           <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" style={{ display: 'none' }} onChange={handleUpload} />
+          {material && (
+            <div style={{ marginTop: '8px', padding: '10px 12px', background: '#dbeafe', border: '1px solid #93c5fd', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.85rem', color: '#1e40af', fontWeight: 600 }}>
+                📚 Attached: {materialName} ({(material.length / 1000).toFixed(0)}k chars)
+              </span>
+              <button type="button" onClick={() => { setMaterial(null); setMaterialName(''); }} style={{ border: 'none', background: 'none', color: '#dc2626', cursor: 'pointer', fontSize: '1rem', fontWeight: 700 }}>✕</button>
+            </div>
+          )}
 
           {error && <div className={styles.error}>{error}</div>}
         </div>

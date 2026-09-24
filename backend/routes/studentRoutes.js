@@ -420,10 +420,426 @@ router.post('/fix-constraints', async (req, res) => {
       }
     }
     
-    res.json({ message: 'Constraints fixed successfully' });
+// Split a class into multiple sections (e.g. G4 -> G4A, G4B, G4C)
+// Preserves all student records and data by renaming the original class table to the first section
+router.post('/split-class-sections', async (req, res) => {
+  const { originalClass, sections, shift, isKG } = req.body;
+
+  if (!originalClass || typeof originalClass !== 'string') {
+    return res.status(400).json({ error: 'originalClass is required' });
+  }
+
+  if (!sections || !Array.isArray(sections) || sections.length < 2) {
+    return res.status(400).json({ error: 'sections array with at least 2 sections is required' });
+  }
+
+  // Validate class names
+  for (const sec of sections) {
+    if (!/^[a-zA-Z0-9_]+$/.test(sec)) {
+      return res.status(400).json({ error: `Invalid section name "${sec}": letters, numbers, and underscores only` });
+    }
+  }
+
+  // Check for duplicates in sections
+  if (new Set(sections).size !== sections.length) {
+    return res.status(400).json({ error: 'Section names must be unique' });
+  }
+
+  const client = await db.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    await client.query('CREATE SCHEMA IF NOT EXISTS classes_schema');
+    await client.query('CREATE SCHEMA IF NOT EXISTS school_schema_points');
+
+    const targetFirstSection = sections[0];
+
+    // Check if original class table exists
+    const origExistsRes = await client.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'classes_schema' AND table_name = $1
+      )
+    `, [originalClass]);
+    const origExists = origExistsRes.rows[0].exists;
+
+    // Check if any of the NEW section names already exist as tables (excluding originalClass)
+    for (const sec of sections) {
+      if (sec === originalClass) continue;
+      const secExistsRes = await client.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM information_schema.tables 
+          WHERE table_schema = 'classes_schema' AND table_name = $1
+        )
+      `, [sec]);
+      if (secExistsRes.rows[0].exists) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: `Table for section "${sec}" already exists in database` });
+      }
+    }
+
+    // 1. Rename existing class table to first section (preserves 100% of data)
+    if (origExists) {
+      if (originalClass !== targetFirstSection) {
+        console.log(`Renaming classes_schema."${originalClass}" -> classes_schema."${targetFirstSection}"`);
+        await client.query(`ALTER TABLE classes_schema."${originalClass}" RENAME TO "${targetFirstSection}"`);
+        
+        // Update the 'class' column value for all existing students
+        await client.query(`UPDATE classes_schema."${targetFirstSection}" SET class = $1`, [targetFirstSection]);
+
+        // Update global machine ID tracker
+        try {
+          await client.query(`
+            UPDATE school_schema_points.global_machine_ids 
+            SET class_name = $1, updated_at = CURRENT_TIMESTAMP 
+            WHERE class_name = $2
+          `, [targetFirstSection, originalClass]);
+        } catch (e) {
+          console.warn('global_machine_ids update warning:', e.message);
+        }
+
+        // Update subject mappings
+        try {
+          await client.query(`
+            UPDATE subjects_of_school_schema.subject_class_mappings 
+            SET class_name = $1 
+            WHERE class_name = $2
+          `, [targetFirstSection, originalClass]);
+        } catch (e) {
+          console.warn('subject_class_mappings update warning:', e.message);
+        }
+
+        // Update teachers_subjects
+        try {
+          await client.query(`
+            UPDATE subjects_of_school_schema.teachers_subjects 
+            SET class_name = $1 
+            WHERE class_name = $2
+          `, [targetFirstSection, originalClass]);
+        } catch (e) {
+          console.warn('teachers_subjects update warning:', e.message);
+        }
+
+        // Update academic class shift assignment
+        try {
+          await client.query(`
+            UPDATE academic_class_shift_assignment 
+            SET class_name = $1 
+            WHERE class_name = $2
+          `, [targetFirstSection, originalClass]);
+        } catch (e) {
+          // ignore if table doesn't exist
+        }
+
+        // Update simple fee structures
+        try {
+          await client.query(`
+            UPDATE simple_fee_structures 
+            SET class_names = array_replace(class_names, $1, $2)
+            WHERE $1 = ANY(class_names)
+          `, [originalClass, targetFirstSection]);
+        } catch (e) {
+          // ignore if table doesn't exist
+        }
+
+        // Update subject schemas mark config and mark tables if any exist
+        try {
+          const subjectSchemas = await client.query(`
+            SELECT schema_name FROM information_schema.schemata 
+            WHERE schema_name LIKE 'subject_%_schema'
+          `);
+          for (const s of subjectSchemas.rows) {
+            await client.query(`
+              UPDATE ${s.schema_name}.form_config 
+              SET class_name = $1 
+              WHERE class_name = $2
+            `, [targetFirstSection, originalClass]).catch(() => {});
+
+            const markTables = await client.query(`
+              SELECT table_name FROM information_schema.tables 
+              WHERE table_schema = $1 AND table_name LIKE $2
+            `, [s.schema_name, `${originalClass.toLowerCase()}_term_%`]);
+
+            for (const mt of markTables.rows) {
+              const newMt = mt.table_name.replace(
+                new RegExp(`^${originalClass.toLowerCase()}_`), 
+                `${targetFirstSection.toLowerCase()}_`
+              );
+              await client.query(`
+                ALTER TABLE ${s.schema_name}."${mt.table_name}" RENAME TO "${newMt}"
+              `).catch(() => {});
+            }
+          }
+        } catch (e) {
+          console.warn('Subject schema mark table updates warning:', e.message);
+        }
+
+        // Update attendance schema if exists
+        try {
+          const attSchema = await client.query(`
+            SELECT 1 FROM information_schema.schemata WHERE schema_name = $1
+          `, [`class_${originalClass}_attendance`]);
+          if (attSchema.rows.length > 0) {
+            await client.query(`
+              ALTER SCHEMA "class_${originalClass}_attendance" RENAME TO "class_${targetFirstSection}_attendance"
+            `);
+          }
+        } catch (e) {
+          console.warn('Attendance schema rename warning:', e.message);
+        }
+      }
+    }
+
+    // 2. Fetch custom fields metadata for creating new sections
+    const metaRes = await client.query('SELECT custom_fields, class_configs FROM school_schema_points.classes WHERE id = 1');
+    let customFields = [];
+    if (metaRes.rows.length > 0 && metaRes.rows[0].custom_fields) {
+      customFields = Array.isArray(metaRes.rows[0].custom_fields)
+        ? metaRes.rows[0].custom_fields
+        : JSON.parse(metaRes.rows[0].custom_fields);
+    }
+
+    // Determine sections to create from scratch
+    const sectionsToCreate = origExists ? sections.slice(1) : sections;
+
+    const baseColumns = [
+      'id SERIAL PRIMARY KEY',
+      'school_id INTEGER',
+      'class_id INTEGER',
+      'image_student VARCHAR(255)',
+      'student_name VARCHAR(255) NOT NULL',
+      'smachine_id VARCHAR(50) UNIQUE',
+      'age INTEGER NOT NULL',
+      'gender VARCHAR(50) NOT NULL',
+      'class VARCHAR(50) NOT NULL',
+      'username VARCHAR(255)',
+      'password VARCHAR(255)',
+      'guardian_name VARCHAR(255) NOT NULL',
+      'guardian_phone VARCHAR(20) NOT NULL',
+      'guardian_relation VARCHAR(50) NOT NULL',
+      'guardian_username VARCHAR(255)',
+      'guardian_password VARCHAR(255)',
+      'is_active BOOLEAN DEFAULT TRUE',
+      'is_free BOOLEAN DEFAULT FALSE',
+      'exemption_type VARCHAR(50)',
+      'exemption_reason TEXT',
+      'registration_fee_type VARCHAR(50)'
+    ];
+
+    const customColumns = [];
+    if (customFields && Array.isArray(customFields)) {
+      customFields.forEach(field => {
+        if (!field.name || !field.type) return;
+        let colType;
+        switch (field.type) {
+          case 'number': colType = 'INTEGER'; break;
+          case 'date': colType = 'DATE'; break;
+          case 'checkbox': colType = 'BOOLEAN'; break;
+          case 'textarea':
+          case 'multi-select': colType = 'TEXT'; break;
+          default: colType = 'VARCHAR(255)';
+        }
+        customColumns.push(`"${field.name}" ${colType}`);
+      });
+    }
+
+    const allColumns = [...baseColumns, ...customColumns];
+
+    // Create tables for the new sections
+    for (const secName of sectionsToCreate) {
+      console.log(`Creating new section table: classes_schema."${secName}"`);
+      await client.query(`CREATE TABLE IF NOT EXISTS classes_schema."${secName}" (${allColumns.join(', ')})`);
+
+      // If first section existed, copy any other missing columns to ensure 100% schema symmetry
+      if (origExists) {
+        const existingCols = await client.query(`
+          SELECT column_name, data_type, character_maximum_length 
+          FROM information_schema.columns 
+          WHERE table_schema = 'classes_schema' AND table_name = $1
+        `, [targetFirstSection]);
+
+        for (const c of existingCols.rows) {
+          if (c.column_name === 'id') continue;
+          const typeStr = c.character_maximum_length ? `${c.data_type}(${c.character_maximum_length})` : c.data_type;
+          await client.query(`
+            ALTER TABLE classes_schema."${secName}" ADD COLUMN IF NOT EXISTS "${c.column_name}" ${typeStr}
+          `).catch(() => {});
+        }
+      }
+
+      // If simple_fee_structures contains targetFirstSection, also add secName
+      try {
+        await client.query(`
+          UPDATE simple_fee_structures 
+          SET class_names = array_append(class_names, $1) 
+          WHERE $2 = ANY(class_names) AND NOT ($1 = ANY(class_names))
+        `, [secName, targetFirstSection]);
+      } catch (e) {
+        // ignore if table doesn't exist
+      }
+
+      // Add to academic_class_shift_assignment
+      try {
+        await client.query(`
+          INSERT INTO academic_class_shift_assignment (class_name, shift_number)
+          VALUES ($1, $2)
+          ON CONFLICT (class_name) DO UPDATE SET shift_number = EXCLUDED.shift_number
+        `, [secName, shift || 1]);
+      } catch (e) {
+        // ignore if table doesn't exist
+      }
+    }
+
+    // 3. Update school_schema_points.classes metadata
+    const curMeta = await client.query('SELECT class_names, class_configs FROM school_schema_points.classes WHERE id = 1');
+    let classNames = [];
+    let configs = {};
+    if (curMeta.rows.length > 0) {
+      classNames = curMeta.rows[0].class_names || [];
+      configs = curMeta.rows[0].class_configs || {};
+    }
+
+    const origIdx = classNames.indexOf(originalClass);
+    if (origIdx !== -1) {
+      classNames.splice(origIdx, 1, ...sections);
+    } else {
+      for (const s of sections) {
+        if (!classNames.includes(s)) classNames.push(s);
+      }
+    }
+
+    const origConfig = configs[originalClass] || { isKG: Boolean(isKG), shift: shift || 1 };
+    delete configs[originalClass];
+    for (const s of sections) {
+      configs[s] = {
+        ...origConfig,
+        ...(shift !== undefined ? { shift } : {}),
+        ...(isKG !== undefined ? { isKG: Boolean(isKG) } : {})
+      };
+    }
+
+    await client.query(`
+      INSERT INTO school_schema_points.classes (id, class_count, class_names, class_configs)
+      VALUES (1, $1, $2, $3::jsonb)
+      ON CONFLICT (id) DO UPDATE 
+      SET class_count = EXCLUDED.class_count,
+          class_names = EXCLUDED.class_names,
+          class_configs = EXCLUDED.class_configs
+    `, [classNames.length, classNames, JSON.stringify(configs)]);
+
+    await client.query('COMMIT');
+
+    res.json({
+      success: true,
+      message: `Class "${originalClass}" successfully split into sections: ${sections.join(', ')}`,
+      originalClass,
+      sections,
+      classNames,
+      classConfigs: configs
+    });
+
   } catch (err) {
-    console.error('Error fixing constraints:', err);
-    res.status(500).json({ error: 'Failed to fix constraints', details: err.message });
+    await client.query('ROLLBACK');
+    console.error('Error splitting class sections:', err);
+    res.status(500).json({ error: 'Failed to split class into sections', details: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Rename class safely, preserving all data
+router.post('/rename-class', async (req, res) => {
+  const { oldClassName, newClassName } = req.body;
+
+  if (!oldClassName || !newClassName) {
+    return res.status(400).json({ error: 'Both oldClassName and newClassName are required' });
+  }
+
+  if (!/^[a-zA-Z0-9_]+$/.test(newClassName)) {
+    return res.status(400).json({ error: 'New class name must only contain letters, numbers, and underscores' });
+  }
+
+  if (oldClassName === newClassName) {
+    return res.json({ success: true, message: 'Class name unchanged' });
+  }
+
+  const client = await db.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Check if new table already exists
+    const newExists = await client.query(`
+      SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'classes_schema' AND table_name = $1)
+    `, [newClassName]);
+    if (newExists.rows[0].exists) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Class "${newClassName}" already exists in database` });
+    }
+
+    // Check if old table exists
+    const oldExists = await client.query(`
+      SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'classes_schema' AND table_name = $1)
+    `, [oldClassName]);
+
+    if (oldExists.rows[0].exists) {
+      console.log(`Renaming classes_schema."${oldClassName}" -> classes_schema."${newClassName}"`);
+      await client.query(`ALTER TABLE classes_schema."${oldClassName}" RENAME TO "${newClassName}"`);
+      await client.query(`UPDATE classes_schema."${newClassName}" SET class = $1`, [newClassName]);
+
+      // Update references
+      await client.query(`UPDATE school_schema_points.global_machine_ids SET class_name = $1, updated_at = CURRENT_TIMESTAMP WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
+      await client.query(`UPDATE subjects_of_school_schema.subject_class_mappings SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
+      await client.query(`UPDATE subjects_of_school_schema.teachers_subjects SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
+      await client.query(`UPDATE academic_class_shift_assignment SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
+      await client.query(`UPDATE simple_fee_structures SET class_names = array_replace(class_names, $1, $2) WHERE $1 = ANY(class_names)`, [oldClassName, newClassName]).catch(() => {});
+
+      // Subject schemas form_config
+      const subjectSchemas = await client.query(`SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE 'subject_%_schema'`);
+      for (const s of subjectSchemas.rows) {
+        await client.query(`UPDATE ${s.schema_name}.form_config SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
+        const markTables = await client.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = $1 AND table_name LIKE $2`, [s.schema_name, `${oldClassName.toLowerCase()}_term_%`]);
+        for (const mt of markTables.rows) {
+          const newMt = mt.table_name.replace(new RegExp(`^${oldClassName.toLowerCase()}_`), `${newClassName.toLowerCase()}_`);
+          await client.query(`ALTER TABLE ${s.schema_name}."${mt.table_name}" RENAME TO "${newMt}"`).catch(() => {});
+        }
+      }
+
+      // Attendance schema
+      const attSchema = await client.query(`SELECT 1 FROM information_schema.schemata WHERE schema_name = $1`, [`class_${oldClassName}_attendance`]);
+      if (attSchema.rows.length > 0) {
+        await client.query(`ALTER SCHEMA "class_${oldClassName}_attendance" RENAME TO "class_${newClassName}_attendance"`).catch(() => {});
+      }
+    }
+
+    // Update school_schema_points.classes
+    const metaResult = await client.query('SELECT class_names, class_configs FROM school_schema_points.classes WHERE id = 1');
+    let classNames = [];
+    let classConfigs = {};
+    if (metaResult.rows.length > 0) {
+      classNames = metaResult.rows[0].class_names || [];
+      classConfigs = metaResult.rows[0].class_configs || {};
+      const idx = classNames.indexOf(oldClassName);
+      if (idx !== -1) classNames[idx] = newClassName;
+      if (classConfigs[oldClassName]) {
+        classConfigs[newClassName] = classConfigs[oldClassName];
+        delete classConfigs[oldClassName];
+      }
+      await client.query(`
+        UPDATE school_schema_points.classes 
+        SET class_names = $1, class_configs = $2::jsonb 
+        WHERE id = 1
+      `, [classNames, JSON.stringify(classConfigs)]);
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true, message: `Class "${oldClassName}" renamed to "${newClassName}"`, oldClassName, newClassName, classNames, classConfigs });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error renaming class:', err);
+    res.status(500).json({ error: 'Failed to rename class', details: err.message });
+  } finally {
+    client.release();
   }
 });
 
