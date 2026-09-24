@@ -454,6 +454,20 @@ router.post('/split-class-sections', async (req, res) => {
 
   const client = await db.connect();
 
+  // Helper to run non-critical updates safely using SAVEPOINT
+  // If any table/column doesn't exist, it rolls back ONLY the savepoint, preserving the main transaction
+  const safeTxQuery = async (sql, params = []) => {
+    try {
+      await client.query('SAVEPOINT sp_safe');
+      const r = await client.query(sql, params);
+      await client.query('RELEASE SAVEPOINT sp_safe');
+      return r;
+    } catch (err) {
+      await client.query('ROLLBACK TO SAVEPOINT sp_safe');
+      return null;
+    }
+  };
+
   try {
     await client.query('BEGIN');
 
@@ -496,112 +510,88 @@ router.post('/split-class-sections', async (req, res) => {
         await client.query(`UPDATE classes_schema."${targetFirstSection}" SET class = $1`, [targetFirstSection]);
 
         // Update global machine ID tracker
-        try {
-          await client.query(`
-            UPDATE school_schema_points.global_machine_ids 
-            SET class_name = $1, updated_at = CURRENT_TIMESTAMP 
-            WHERE class_name = $2
-          `, [targetFirstSection, originalClass]);
-        } catch (e) {
-          console.warn('global_machine_ids update warning:', e.message);
-        }
+        await safeTxQuery(`
+          UPDATE school_schema_points.global_machine_ids 
+          SET class_name = $1, updated_at = CURRENT_TIMESTAMP 
+          WHERE class_name = $2
+        `, [targetFirstSection, originalClass]);
 
         // Update subject mappings
-        try {
-          await client.query(`
-            UPDATE subjects_of_school_schema.subject_class_mappings 
-            SET class_name = $1 
-            WHERE class_name = $2
-          `, [targetFirstSection, originalClass]);
-        } catch (e) {
-          console.warn('subject_class_mappings update warning:', e.message);
-        }
+        await safeTxQuery(`
+          UPDATE subjects_of_school_schema.subject_class_mappings 
+          SET class_name = $1 
+          WHERE class_name = $2
+        `, [targetFirstSection, originalClass]);
 
-        // Update teachers_subjects
-        try {
-          await client.query(`
-            UPDATE subjects_of_school_schema.teachers_subjects 
-            SET class_name = $1 
-            WHERE class_name = $2
-          `, [targetFirstSection, originalClass]);
-        } catch (e) {
-          console.warn('teachers_subjects update warning:', e.message);
-        }
+        // Update teachers_subjects (maps teacher_name to subject_class, e.g. "Math Class G2" -> "Math Class G2A")
+        await safeTxQuery(`
+          UPDATE subjects_of_school_schema.teachers_subjects 
+          SET subject_class = regexp_replace(subject_class, ' Class ' || $1 || '$', ' Class ' || $2)
+          WHERE subject_class LIKE '% Class ' || $1
+        `, [originalClass, targetFirstSection]);
 
         // Update academic class shift assignment
-        try {
-          await client.query(`
-            UPDATE academic_class_shift_assignment 
-            SET class_name = $1 
-            WHERE class_name = $2
-          `, [targetFirstSection, originalClass]);
-        } catch (e) {
-          // ignore if table doesn't exist
-        }
+        await safeTxQuery(`
+          UPDATE academic_class_shift_assignment 
+          SET class_name = $1 
+          WHERE class_name = $2
+        `, [targetFirstSection, originalClass]);
 
         // Update simple fee structures
-        try {
-          await client.query(`
-            UPDATE simple_fee_structures 
-            SET class_names = array_replace(class_names, $1, $2)
-            WHERE $1 = ANY(class_names)
-          `, [originalClass, targetFirstSection]);
-        } catch (e) {
-          // ignore if table doesn't exist
-        }
+        await safeTxQuery(`
+          UPDATE simple_fee_structures 
+          SET class_names = array_replace(class_names, $1, $2)
+          WHERE $1 = ANY(class_names)
+        `, [originalClass, targetFirstSection]);
 
         // Update subject schemas mark config and mark tables if any exist
-        try {
-          const subjectSchemas = await client.query(`
-            SELECT schema_name FROM information_schema.schemata 
-            WHERE schema_name LIKE 'subject_%_schema'
-          `);
+        const subjectSchemas = await safeTxQuery(`
+          SELECT schema_name FROM information_schema.schemata 
+          WHERE schema_name LIKE 'subject_%_schema'
+        `);
+        if (subjectSchemas?.rows) {
           for (const s of subjectSchemas.rows) {
-            await client.query(`
+            await safeTxQuery(`
               UPDATE ${s.schema_name}.form_config 
               SET class_name = $1 
               WHERE class_name = $2
-            `, [targetFirstSection, originalClass]).catch(() => {});
+            `, [targetFirstSection, originalClass]);
 
-            const markTables = await client.query(`
+            const markTables = await safeTxQuery(`
               SELECT table_name FROM information_schema.tables 
               WHERE table_schema = $1 AND table_name LIKE $2
             `, [s.schema_name, `${originalClass.toLowerCase()}_term_%`]);
 
-            for (const mt of markTables.rows) {
-              const newMt = mt.table_name.replace(
-                new RegExp(`^${originalClass.toLowerCase()}_`), 
-                `${targetFirstSection.toLowerCase()}_`
-              );
-              await client.query(`
-                ALTER TABLE ${s.schema_name}."${mt.table_name}" RENAME TO "${newMt}"
-              `).catch(() => {});
+            if (markTables?.rows) {
+              for (const mt of markTables.rows) {
+                const newMt = mt.table_name.replace(
+                  new RegExp(`^${originalClass.toLowerCase()}_`), 
+                  `${targetFirstSection.toLowerCase()}_`
+                );
+                await safeTxQuery(`
+                  ALTER TABLE ${s.schema_name}."${mt.table_name}" RENAME TO "${newMt}"
+                `);
+              }
             }
           }
-        } catch (e) {
-          console.warn('Subject schema mark table updates warning:', e.message);
         }
 
         // Update attendance schema if exists
-        try {
-          const attSchema = await client.query(`
-            SELECT 1 FROM information_schema.schemata WHERE schema_name = $1
-          `, [`class_${originalClass}_attendance`]);
-          if (attSchema.rows.length > 0) {
-            await client.query(`
-              ALTER SCHEMA "class_${originalClass}_attendance" RENAME TO "class_${targetFirstSection}_attendance"
-            `);
-          }
-        } catch (e) {
-          console.warn('Attendance schema rename warning:', e.message);
+        const attSchema = await safeTxQuery(`
+          SELECT 1 FROM information_schema.schemata WHERE schema_name = $1
+        `, [`class_${originalClass}_attendance`]);
+        if (attSchema?.rows?.length > 0) {
+          await safeTxQuery(`
+            ALTER SCHEMA "class_${originalClass}_attendance" RENAME TO "class_${targetFirstSection}_attendance"
+          `);
         }
       }
     }
 
     // 2. Fetch custom fields metadata for creating new sections
-    const metaRes = await client.query('SELECT custom_fields, class_configs FROM school_schema_points.classes WHERE id = 1');
+    const metaRes = await safeTxQuery('SELECT custom_fields, class_configs FROM school_schema_points.classes WHERE id = 1');
     let customFields = [];
-    if (metaRes.rows.length > 0 && metaRes.rows[0].custom_fields) {
+    if (metaRes?.rows?.length > 0 && metaRes.rows[0].custom_fields) {
       customFields = Array.isArray(metaRes.rows[0].custom_fields)
         ? metaRes.rows[0].custom_fields
         : JSON.parse(metaRes.rows[0].custom_fields);
@@ -660,42 +650,36 @@ router.post('/split-class-sections', async (req, res) => {
 
       // If first section existed, copy any other missing columns to ensure 100% schema symmetry
       if (origExists) {
-        const existingCols = await client.query(`
+        const existingCols = await safeTxQuery(`
           SELECT column_name, data_type, character_maximum_length 
           FROM information_schema.columns 
           WHERE table_schema = 'classes_schema' AND table_name = $1
         `, [targetFirstSection]);
 
-        for (const c of existingCols.rows) {
-          if (c.column_name === 'id') continue;
-          const typeStr = c.character_maximum_length ? `${c.data_type}(${c.character_maximum_length})` : c.data_type;
-          await client.query(`
-            ALTER TABLE classes_schema."${secName}" ADD COLUMN IF NOT EXISTS "${c.column_name}" ${typeStr}
-          `).catch(() => {});
+        if (existingCols?.rows) {
+          for (const c of existingCols.rows) {
+            if (c.column_name === 'id') continue;
+            const typeStr = c.character_maximum_length ? `${c.data_type}(${c.character_maximum_length})` : c.data_type;
+            await safeTxQuery(`
+              ALTER TABLE classes_schema."${secName}" ADD COLUMN IF NOT EXISTS "${c.column_name}" ${typeStr}
+            `);
+          }
         }
       }
 
       // If simple_fee_structures contains targetFirstSection, also add secName
-      try {
-        await client.query(`
-          UPDATE simple_fee_structures 
-          SET class_names = array_append(class_names, $1) 
-          WHERE $2 = ANY(class_names) AND NOT ($1 = ANY(class_names))
-        `, [secName, targetFirstSection]);
-      } catch (e) {
-        // ignore if table doesn't exist
-      }
+      await safeTxQuery(`
+        UPDATE simple_fee_structures 
+        SET class_names = array_append(class_names, $1) 
+        WHERE $2 = ANY(class_names) AND NOT ($1 = ANY(class_names))
+      `, [secName, targetFirstSection]);
 
       // Add to academic_class_shift_assignment
-      try {
-        await client.query(`
-          INSERT INTO academic_class_shift_assignment (class_name, shift_number)
-          VALUES ($1, $2)
-          ON CONFLICT (class_name) DO UPDATE SET shift_number = EXCLUDED.shift_number
-        `, [secName, shift || 1]);
-      } catch (e) {
-        // ignore if table doesn't exist
-      }
+      await safeTxQuery(`
+        INSERT INTO academic_class_shift_assignment (class_name, shift_number)
+        VALUES ($1, $2)
+        ON CONFLICT (class_name) DO UPDATE SET shift_number = EXCLUDED.shift_number
+      `, [secName, shift || 1]);
     }
 
     // 3. Update school_schema_points.classes metadata
@@ -772,6 +756,19 @@ router.post('/rename-class', async (req, res) => {
   }
 
   const client = await db.connect();
+
+  const safeTxQuery = async (sql, params = []) => {
+    try {
+      await client.query('SAVEPOINT sp_safe');
+      const r = await client.query(sql, params);
+      await client.query('RELEASE SAVEPOINT sp_safe');
+      return r;
+    } catch (err) {
+      await client.query('ROLLBACK TO SAVEPOINT sp_safe');
+      return null;
+    }
+  };
+
   try {
     await client.query('BEGIN');
 
@@ -794,28 +791,36 @@ router.post('/rename-class', async (req, res) => {
       await client.query(`ALTER TABLE classes_schema."${oldClassName}" RENAME TO "${newClassName}"`);
       await client.query(`UPDATE classes_schema."${newClassName}" SET class = $1`, [newClassName]);
 
-      // Update references
-      await client.query(`UPDATE school_schema_points.global_machine_ids SET class_name = $1, updated_at = CURRENT_TIMESTAMP WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
-      await client.query(`UPDATE subjects_of_school_schema.subject_class_mappings SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
-      await client.query(`UPDATE subjects_of_school_schema.teachers_subjects SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
-      await client.query(`UPDATE academic_class_shift_assignment SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
-      await client.query(`UPDATE simple_fee_structures SET class_names = array_replace(class_names, $1, $2) WHERE $1 = ANY(class_names)`, [oldClassName, newClassName]).catch(() => {});
+      // Update references safely
+      await safeTxQuery(`UPDATE school_schema_points.global_machine_ids SET class_name = $1, updated_at = CURRENT_TIMESTAMP WHERE class_name = $2`, [newClassName, oldClassName]);
+      await safeTxQuery(`UPDATE subjects_of_school_schema.subject_class_mappings SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]);
+      await safeTxQuery(`
+        UPDATE subjects_of_school_schema.teachers_subjects 
+        SET subject_class = regexp_replace(subject_class, ' Class ' || $1 || '$', ' Class ' || $2)
+        WHERE subject_class LIKE '% Class ' || $1
+      `, [oldClassName, newClassName]);
+      await safeTxQuery(`UPDATE academic_class_shift_assignment SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]);
+      await safeTxQuery(`UPDATE simple_fee_structures SET class_names = array_replace(class_names, $1, $2) WHERE $1 = ANY(class_names)`, [oldClassName, newClassName]);
 
       // Subject schemas form_config
-      const subjectSchemas = await client.query(`SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE 'subject_%_schema'`);
-      for (const s of subjectSchemas.rows) {
-        await client.query(`UPDATE ${s.schema_name}.form_config SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]).catch(() => {});
-        const markTables = await client.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = $1 AND table_name LIKE $2`, [s.schema_name, `${oldClassName.toLowerCase()}_term_%`]);
-        for (const mt of markTables.rows) {
-          const newMt = mt.table_name.replace(new RegExp(`^${oldClassName.toLowerCase()}_`), `${newClassName.toLowerCase()}_`);
-          await client.query(`ALTER TABLE ${s.schema_name}."${mt.table_name}" RENAME TO "${newMt}"`).catch(() => {});
+      const subjectSchemas = await safeTxQuery(`SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE 'subject_%_schema'`);
+      if (subjectSchemas?.rows) {
+        for (const s of subjectSchemas.rows) {
+          await safeTxQuery(`UPDATE ${s.schema_name}.form_config SET class_name = $1 WHERE class_name = $2`, [newClassName, oldClassName]);
+          const markTables = await safeTxQuery(`SELECT table_name FROM information_schema.tables WHERE table_schema = $1 AND table_name LIKE $2`, [s.schema_name, `${oldClassName.toLowerCase()}_term_%`]);
+          if (markTables?.rows) {
+            for (const mt of markTables.rows) {
+              const newMt = mt.table_name.replace(new RegExp(`^${oldClassName.toLowerCase()}_`), `${newClassName.toLowerCase()}_`);
+              await safeTxQuery(`ALTER TABLE ${s.schema_name}."${mt.table_name}" RENAME TO "${newMt}"`);
+            }
+          }
         }
       }
 
       // Attendance schema
-      const attSchema = await client.query(`SELECT 1 FROM information_schema.schemata WHERE schema_name = $1`, [`class_${oldClassName}_attendance`]);
-      if (attSchema.rows.length > 0) {
-        await client.query(`ALTER SCHEMA "class_${oldClassName}_attendance" RENAME TO "class_${newClassName}_attendance"`).catch(() => {});
+      const attSchema = await safeTxQuery(`SELECT 1 FROM information_schema.schemata WHERE schema_name = $1`, [`class_${oldClassName}_attendance`]);
+      if (attSchema?.rows?.length > 0) {
+        await safeTxQuery(`ALTER SCHEMA "class_${oldClassName}_attendance" RENAME TO "class_${newClassName}_attendance"`);
       }
     }
 
