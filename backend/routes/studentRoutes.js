@@ -420,6 +420,13 @@ router.post('/fix-constraints', async (req, res) => {
       }
     }
     
+    res.json({ message: 'Constraints fixed successfully' });
+  } catch (err) {
+    console.error('Error fixing constraints:', err);
+    res.status(500).json({ error: 'Failed to fix constraints', details: err.message });
+  }
+});
+
 // Split a class into multiple sections (e.g. G4 -> G4A, G4B, G4C)
 // Preserves all student records and data by renaming the original class table to the first section
 router.post('/split-class-sections', async (req, res) => {
